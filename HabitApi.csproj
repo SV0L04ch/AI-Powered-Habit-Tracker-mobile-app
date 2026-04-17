@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <ContainerDevelopmentMode>Regular</ContainerDevelopmentMode>
+    <UserSecretsId>47494ae6-a008-4875-99ed-2fdd1596092c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
