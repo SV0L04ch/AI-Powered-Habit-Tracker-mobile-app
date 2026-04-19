@@ -12,9 +12,6 @@ Migrations/
 *.db
 *.db-shm
 *.db-wal
-Dockerfile
-.dockerignore
-docker-compose*.yml
 secrets.json
 appsettings.Development.json
 appsettings.Production.json
