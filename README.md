@@ -1,4 +1,4 @@
-# AI-Powered Habit Tracker (Backend)
+# AI-Powered Habit Tracker
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![.NET Version](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/)
