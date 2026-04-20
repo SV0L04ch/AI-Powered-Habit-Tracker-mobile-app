@@ -55,7 +55,7 @@ Backend для мобильного трекера привычек с подд�
 *   [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 *   [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 *   [Git](https://git-scm.com/)
-*   [PostgreSQL](https://www.postgresql.org/) (опционально, если не используете Docker)
+*   [PostgreSQL](https://www.postgresql.org/)
 
 ## Установка и запуск
 
