@@ -34,8 +34,6 @@ Backend для мобильного трекера привычек с подд�
   
 - Контейнеризация: Docker, Docker Compose
   
-- Лимитирование:  ASP.NET Core Rate Limiting
-  
 - Кэширование:  Redis
   
 - Тестирование:  xUnit, Moq
@@ -70,11 +68,7 @@ Backend для мобильного трекера привычек с подд�
 
 3. Настройте переменные окружения:
 
-    - Переименуйте файл .env.example в .env.
-
-    - Заполните его своими секретными данными (JWT Secret, пароли, ключи API). Важно: не коммитьте этот файл в Git!
-
-    - Альтернативно, используйте User Secrets для локальной разработки:
+   - используйте User Secrets для локальной разработки:
 
       dotnet user-secrets init <br>
       dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=habit_tracker;Username=your_user;Password=your_password"<br>
@@ -166,7 +160,7 @@ Backend для мобильного трекера привычек с подд�
 Конфигурация включает:<br>
 
 
-  - PostgreSQL 15: база данных с постоянным хранилищем (volume).
+  - PostgreSQL 15: база данных с постоянным хранилищем.
 
 
   - Habit API: приложение, собранное на основе многоступенчатого Dockerfile.
@@ -234,13 +228,6 @@ Backend для мобильного трекера привычек с подд�
 - Интеграция с реальным AI API (GroqCloud)
 
 - Push-уведомления для напоминаний
-
-- Веб-интерфейс для администратора
-
-- Экспорт данных в CSV/PDF
-
-- Поддержка нескольких языков (i18n)
-
 
 ## Как внести вклад:
 
