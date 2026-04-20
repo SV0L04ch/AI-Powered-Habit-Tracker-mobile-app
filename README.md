@@ -69,12 +69,12 @@ Backend для мобильного трекера привычек с подд�
 3. Настройте переменные окружения:
 
    - используйте User Secrets для локальной разработки:
-
+      ```
       dotnet user-secrets init <br>
       dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=habit_tracker;Username=your_user;Password=your_password"<br>
       dotnet user-secrets set "Jwt:Secret" "your_super_secret_key_32_chars_min"<br>
       dotnet user-secrets set "WeatherApi:ApiKey" "your_openweathermap_api_key"<br>
-      dotnet user-secrets set "AiApi:ApiKey" "your_llm_api_key"<br>
+      dotnet user-secrets set "AiApi:ApiKey" "your_llm_api_key"<br>```
 
 
 4. Примените миграции базы данных:<br>
