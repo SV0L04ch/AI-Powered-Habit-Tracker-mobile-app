@@ -85,11 +85,11 @@ Backend для мобильного трекера привычек с подд�
 
         dotnet run
 
-    API будет доступно по адресу: https://localhost:5001 или http://localhost:5000.
+    API будет доступно по адресу: https://localhost:5093.
 
 8. Просмотр документации API:
 
-    Swagger UI: https://localhost:5001/swagger
+    Swagger UI: https://localhost:5093/swagger
 
 ## Запуск с помощью Docker Compose:
 ### Для запуска и API, и базы данных в контейнерах:
