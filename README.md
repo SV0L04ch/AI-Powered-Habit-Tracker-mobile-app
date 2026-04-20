@@ -34,8 +34,6 @@ Backend для мобильного трекера привычек с подд�
   
 - Контейнеризация: Docker, Docker Compose
   
-- Лимитирование:  ASP.NET Core Rate Limiting
-  
 - Кэширование:  Redis
   
 - Тестирование:  xUnit, Moq
@@ -55,7 +53,7 @@ Backend для мобильного трекера привычек с подд�
 *   [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 *   [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 *   [Git](https://git-scm.com/)
-*   [PostgreSQL](https://www.postgresql.org/) (опционально, если не используете Docker)
+*   [PostgreSQL](https://www.postgresql.org/)
 
 ## Установка и запуск
 
@@ -70,17 +68,13 @@ Backend для мобильного трекера привычек с подд�
 
 3. Настройте переменные окружения:
 
-    - Переименуйте файл .env.example в .env.
-
-    - Заполните его своими секретными данными (JWT Secret, пароли, ключи API). Важно: не коммитьте этот файл в Git!
-
-    - Альтернативно, используйте User Secrets для локальной разработки:
-
+   - используйте User Secrets для локальной разработки:
+      ```
       dotnet user-secrets init <br>
       dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=habit_tracker;Username=your_user;Password=your_password"<br>
       dotnet user-secrets set "Jwt:Secret" "your_super_secret_key_32_chars_min"<br>
       dotnet user-secrets set "WeatherApi:ApiKey" "your_openweathermap_api_key"<br>
-      dotnet user-secrets set "AiApi:ApiKey" "your_llm_api_key"<br>
+      dotnet user-secrets set "AiApi:ApiKey" "your_llm_api_key"<br>```
 
 
 4. Примените миграции базы данных:<br>
@@ -91,11 +85,11 @@ Backend для мобильного трекера привычек с подд�
 
         dotnet run
 
-    API будет доступно по адресу: https://localhost:5001 или http://localhost:5000.
+    API будет доступно по адресу: https://localhost:5093.
 
 8. Просмотр документации API:
 
-    Swagger UI: https://localhost:5001/swagger
+    Swagger UI: https://localhost:5093/swagger
 
 ## Запуск с помощью Docker Compose:
 ### Для запуска и API, и базы данных в контейнерах:
@@ -166,7 +160,7 @@ Backend для мобильного трекера привычек с подд�
 Конфигурация включает:<br>
 
 
-  - PostgreSQL 15: база данных с постоянным хранилищем (volume).
+  - PostgreSQL 15: база данных с постоянным хранилищем.
 
 
   - Habit API: приложение, собранное на основе многоступенчатого Dockerfile.
@@ -234,13 +228,6 @@ Backend для мобильного трекера привычек с подд�
 - Интеграция с реальным AI API (GroqCloud)
 
 - Push-уведомления для напоминаний
-
-- Веб-интерфейс для администратора
-
-- Экспорт данных в CSV/PDF
-
-- Поддержка нескольких языков (i18n)
-
 
 ## Как внести вклад:
 
