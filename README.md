@@ -31,9 +31,8 @@
 | **HTTP-клиент**           | Axios                          |
 | **Управление состоянием** | Zustand                        |
 | **Стилизация**            | SCSS, CSS-модули               |
-| **Тестирование**          | Vitest + React Testing Library |
+| **Тестирование**          | Vitest                         |
 | **Качество кода**         | ESLint + Prettier              |
-| **Навигация**             | React Router (в веб‑версии)    |
 | **Иконки**                | React Icons / Feather Icons    |
 
 ## 🚀 Быстрый старт
