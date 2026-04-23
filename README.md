@@ -113,7 +113,7 @@ frontend/
 
 ## 🧪 Тестирование
 
-Запуск unit-тестов (Vitest + React Testing Library):
+Запуск unit-тестов (Vitest):
 
 ```bash
 npm run test
