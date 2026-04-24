@@ -1,4 +1,3 @@
-```markdown
 # 🌤️ AI-Powered Habit Tracker (Frontend)
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
