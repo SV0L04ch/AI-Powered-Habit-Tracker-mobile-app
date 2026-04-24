@@ -409,8 +409,3 @@ MIT – см. [LICENSE](LICENSE).
 
 - **Фронтенд:** @Arcteryx, @Mungums
 - **Бэкенд:** @SV0L04ch, @jakepz23
-
----
-
-**Репозиторий:** [https://github.com/SV0L04ch/AI-Powered-Habit-Tracker-mobile-app](https://github.com/SV0L04ch/AI-Powered-Habit-Tracker-mobile-app)
-```
