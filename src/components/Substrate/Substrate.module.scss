@@ -1,0 +1,44 @@
+@use '../../styles/abstracts/variables' as var;
+@use '../../styles/abstracts/mixins' as mix;
+
+.sub{
+    @include mix.body1;
+
+    color: var.$dark-basic-text;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: var.$spacing-2 ;
+    background: var.$dark-substrate;
+
+    &.main{
+        color: var.$dark-main-text;
+        border-radius: var.$secondary-radius;
+    }
+
+    &.secondary{
+        color: var.$dark-basic-text;
+        padding: var.$spacing-1;
+        gap: 15px;
+        border-radius: var.$base-radius;
+    }
+
+    &.form{
+        width: 100%;
+        color: var.$dark-main-text;
+        padding: 30px 0;
+        gap: 30px;
+    }
+}
+
+.icon{
+    width: 32px;
+    height: 32px;
+}
+
+.image{
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+

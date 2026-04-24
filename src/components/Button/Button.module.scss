@@ -1,0 +1,40 @@
+@use '../../styles/abstracts/variables' as var;
+@use '../../styles/abstracts/mixins' as mix;
+
+.btn{
+    @include mix.buttons;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: var.$base-radius;
+    border: var.$dark-border;
+    box-shadow: var.$box-shadow;
+    background-color: rgba(160, 82, 45, 0.6);
+    cursor: pointer;
+
+    &.btn-form{
+        min-width: 55.08%;
+        padding: var.$spacing-1;
+    }
+
+    &:active{
+        background-color: var.$dark-buttons;
+    }
+
+    &:disabled{
+        opacity: 0.4;
+    }
+
+    &.btn-primary{
+        width: 100%
+    }
+
+    &.btn-secondary{
+        max-width: 160px;
+        min-width: 140px;
+        padding: var.$spacing-1 var.$spacing-3;
+    }
+}
+
