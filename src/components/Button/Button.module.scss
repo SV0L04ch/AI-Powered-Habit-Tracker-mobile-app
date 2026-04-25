@@ -14,7 +14,7 @@
     background-color: rgba(160, 82, 45, 0.6);
     cursor: pointer;
 
-    &.btn-form{
+    &.form{
         min-width: 55.08%;
         padding: var.$spacing-1;
     }
@@ -27,14 +27,17 @@
         opacity: 0.4;
     }
 
-    &.btn-primary{
+    &.primary{
         width: 100%
     }
 
-    &.btn-secondary{
+    &.secondary{
         max-width: 160px;
         min-width: 140px;
         padding: var.$spacing-1 var.$spacing-3;
+        flex-direction:column; 
+        gap: 5px;
+        color: var.$dark-basic-text
     }
 }
 
