@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HabitsPage from './pages/HabitsPage';
@@ -7,10 +8,27 @@ import CreateHabitPage from './pages/CreateHabitPage';
 import PersonalInsightsPage from './pages/PersonalInsightsPage';
 import CityInsightsPage from './pages/CityInsightsPage';
 import ProfilePage from './pages/ProfilePage';
+import BottomNav from './components/BottomNav/BottomNav';
+import './styles/main.scss'
+
 
 function App() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const tabFromPath = location.pathname.replace('/', '') || 'habits'
+  const [activeTab, setActiveTab] = useState(tabFromPath)
+
+  useEffect(() => {
+    setActiveTab(tabFromPath)
+  }, [tabFromPath])
+  
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId)
+    navigate(tabId || '/habits')
+  }
   return (
-    <BrowserRouter>
+    <div className="container">
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -22,7 +40,8 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/" element={<Navigate to="/habits" replace />} />
       </Routes>
-    </BrowserRouter>
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange}/>
+    </div>
   );
 }
 
