@@ -22,6 +22,7 @@ $dark-basic-text: #DDEFF2;
 $dark-input: #2A3E4C;
 $dark-decorate: linear-gradient(180deg, #D69A85 0%, #3A5A6E 100%);
 $dark-substrate: linear-gradient(302.46deg, #D69A85 0.26%, #3A5A6E 50%);
+$dark-decorate2: linear-gradient(180deg, rgba(76, 106, 112, 0.7) -101.83%, rgba(255, 255, 255, 0.7) 113.3%);
 
 
 // ---------- 2. ТИПОГРАФИКА (typography) -------
@@ -60,6 +61,7 @@ $spacing-3: $base-spacing * 4;
 // ---------- 6. Скругления -----------------------
 $base-radius: 16px;
 $secondary-radius: 28px;
+$form-radius: 30px;
 $min-radius: 2px;
 $circle: 100%
 
