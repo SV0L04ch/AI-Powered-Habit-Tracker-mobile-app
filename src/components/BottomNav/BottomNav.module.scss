@@ -1,0 +1,37 @@
+@use '../../styles/abstracts/variables' as var;
+
+.nav{
+    position: fixed;
+    bottom: 20px;
+    display: flex;
+    width: 100%;
+    max-width: 338px;
+    height: 60px;
+    justify-content: center;
+    border-radius: var.$secondary-radius;
+    gap: 40px;
+    background: var.$dark-decorate2;
+    align-items: center;
+}
+
+.tab{
+    box-sizing: border-box;
+    padding: var.$spacing-1;
+    display: flex;
+    background: none;
+    border: none;
+
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+
+    &.active{
+        border-radius: var.$secondary-radius;
+        background-color: var.$light-decorate;
+    }
+}
+
+.icon{
+    width: 30px;
+    height: 30px;
+}
