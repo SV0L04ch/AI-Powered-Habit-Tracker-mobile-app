@@ -28,5 +28,9 @@
 }
 
 @mixin body2 {
-    @include typography($body2-font-size, $font-weight-500, $body2-line-height)
+    @include typography($body2-font-size, $font-weight-600, $body2-line-height)
+}
+
+@mixin caption {
+    @include typography($caption-font-size, $font-weight-500, $caption-line-height)
 }
