@@ -10,6 +10,10 @@ import BookIcon from '../assets/images/icons/BookIcon'
 import SneakersIcon from '../assets/images/icons/SneakersIcon'
 import CalendarIcon from '../assets/images/icons/CalendarIcon'
 import HistoryIcon from '../assets/images/icons/HistoryIcon'
+import ProfileIcon from '../assets/images/icons/ProfileIcon'
+import HomeIcon from '../assets/images/icons/HomeIcon'
+import DiagramIcon from '../assets/images/icons/DiagramIcon'
+import CityIcon from '../assets/images/icons/CityIcon'
 
 const icons = {
     Count: CountIcon,
@@ -23,7 +27,11 @@ const icons = {
     Book: BookIcon,
     Sneakers: SneakersIcon,
     Calendar: CalendarIcon,
-    History: HistoryIcon
+    History: HistoryIcon,
+    Profile: ProfileIcon,
+    Home: HomeIcon,
+    Diagram: DiagramIcon,
+    City: CityIcon
 }
 
 export default icons
