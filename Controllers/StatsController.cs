@@ -41,9 +41,8 @@ public sealed class StatsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var targetDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow);
-
-        // Не даём смотреть будущие даты
+        var targetDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
+        
         if (targetDate > DateOnly.FromDateTime(DateTime.UtcNow))
             return BadRequest(new { error = "Cannot get summary for future date." });
 
@@ -60,7 +59,7 @@ public sealed class StatsController : ControllerBase
 
     /// <summary>
     /// Получить анонимную сводку по городу (без привязки к пользователю).
-    /// Сводка обновляется раз в неделю (по ТЗ).
+    /// Сводка обновляется раз в неделю.
     /// </summary>
     /// <param name="city">Название города (обязательно).</param>
     /// <param name="cancellationToken">Токен отмены.</param>

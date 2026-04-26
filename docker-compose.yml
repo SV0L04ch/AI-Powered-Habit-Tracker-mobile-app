@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15-alpine
     container_name: habit_tracker_db
     environment:
       POSTGRES_USER: habit_user
-      POSTGRES_PASSWORD: $vagaBober[228]
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: habit_tracker
     ports:
       - "5432:5432"
@@ -29,7 +27,21 @@ services:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=habit_tracker;Username=habit_user;Password=$vagaBober[228]
+      # Переменные для подключения к БД (используются в Program.cs)
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=habit_tracker
+      - DB_USER=habit_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      # JWT секрет
+      - JWT_SECRET=${JWT_SECRET}
+      # API погоды
+      - WEATHER_BASE_URL=${WEATHER_BASE_URL:-https://api.openweathermap.org/data/2.5/}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      # AI API
+      - AI_BASE_URL=${AI_BASE_URL:-https://api.groq.com/openai/v1}
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_MODEL=${AI_MODEL:-llama3-8b-8192}
     restart: unless-stopped
 
 volumes:
