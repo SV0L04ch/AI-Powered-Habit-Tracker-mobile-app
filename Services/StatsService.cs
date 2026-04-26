@@ -28,6 +28,9 @@ public sealed class StatsService : IStatsService
     /// <inheritdoc />
     public async Task<DailySummaryDto> GetDailySummaryAsync(Guid userId, DateOnly date, CancellationToken cancellationToken)
     {
+        // Если дата не указана, берём вчерашний день
+        var targetDate = date;
+
         var user = await _dbContext.Users
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
         if (user is null)
@@ -41,7 +44,7 @@ public sealed class StatsService : IStatsService
 
         // Получаем отметки за указанную дату
         var entries = await _dbContext.HabitEntries
-            .Where(e => habitIds.Contains(e.HabitId) && e.Date == date)
+            .Where(e => habitIds.Contains(e.HabitId) && e.Date == targetDate)
             .ToListAsync(cancellationToken);
 
         // Подсчёт статусов (для положительных привычек)
@@ -49,17 +52,17 @@ public sealed class StatsService : IStatsService
         int partiallyCompleted = entries.Count(e => e.Status == HabitEntryStatus.Partial);
         int skipped = entries.Count(e => e.Status == HabitEntryStatus.Skipped);
 
-        // Получаем погоду
-        var weather = await _weatherService.GetWeatherAsync(user.City, date, cancellationToken);
+        // Получаем погоду за targetDate (вчера, если не указано)
+        var weather = await _weatherService.GetWeatherAsync(user.City, targetDate, cancellationToken);
 
         var summary = new DailySummaryDto
         {
-            Date = date,
+            Date = targetDate,
             HabitsCompleted = completed,
             HabitsPartiallyCompleted = partiallyCompleted,
             HabitsSkipped = skipped,
             Weather = weather,
-            AiInsight = string.Empty // временно
+            AiInsight = string.Empty
         };
 
         summary.AiInsight = await _aiInsightsService.BuildDailyInsightAsync(summary, cancellationToken);
@@ -69,10 +72,10 @@ public sealed class StatsService : IStatsService
     /// <inheritdoc />
     public async Task<CitySummaryDto> GetWeeklyCitySummaryAsync(string city, CancellationToken cancellationToken)
     {
-        // Определяем диапазон последней недели
+        // Определяем диапазон последней полной недели (без учёта сегодня)
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var weekStart = today.AddDays(-(int)today.DayOfWeek + 1); // Понедельник
-        var weekEnd = weekStart.AddDays(6); // Воскресенье
+        var weekStart = today.AddDays(-(int)today.DayOfWeek + 1 - 7); // начало прошлой недели (понедельник)
+        var weekEnd = weekStart.AddDays(6); // конец прошлой недели (воскресенье)
 
         // Находим пользователей в этом городе
         var userIds = await _dbContext.Users
@@ -103,7 +106,7 @@ public sealed class StatsService : IStatsService
                 (h, entryGroup) => new
                 {
                     HabitName = h.Name,
-                    UserCount = entryGroup.Where(e => e.Habit != null).Select(e => e.Habit!.UserId).Distinct().Count()
+                    UserCount = entryGroup.Select(e => e.Habit!.UserId).Distinct().Count()
                 })
             .OrderByDescending(x => x.UserCount)
             .Take(10)
@@ -123,7 +126,7 @@ public sealed class StatsService : IStatsService
             PopularHabits = habitStats
         };
 
-        // Генерируем текст через ИИ (если нужно)
+        // Опционально: генерация текста через ИИ
         // result.SummaryText = await _aiInsightsService.BuildCitySummaryAsync(city, habitStats, cancellationToken);
 
         return result;
