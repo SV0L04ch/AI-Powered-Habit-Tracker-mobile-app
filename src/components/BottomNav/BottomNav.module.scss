@@ -9,7 +9,7 @@
     height: 60px;
     justify-content: center;
     border-radius: var.$secondary-radius;
-    gap: 40px;
+    gap: var.$spacing-3;
     background: var.$dark-decorate2;
     align-items: center;
 }
@@ -27,11 +27,7 @@
 
     &.active{
         border-radius: var.$secondary-radius;
-        background-color: var.$light-decorate;
+        background: var.$light-decorate;
     }
 }
 
-.icon{
-    width: 30px;
-    height: 30px;
-}
