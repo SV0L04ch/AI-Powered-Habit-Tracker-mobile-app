@@ -1,7 +1,13 @@
+@use './abstracts/_variables.scss' as var;
+
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+body{
+    background-color: var.$dark-background;
 }
 
 .container{
