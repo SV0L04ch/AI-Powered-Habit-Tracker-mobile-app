@@ -14,6 +14,8 @@ import ProfileIcon from '../assets/images/icons/ProfileIcon'
 import HomeIcon from '../assets/images/icons/HomeIcon'
 import DiagramIcon from '../assets/images/icons/DiagramIcon'
 import CityIcon from '../assets/images/icons/CityIcon'
+import PlusIcon from '../assets/images/icons/PlusIcon'
+import CheckIcon from '../assets/images/icons/CheckIcon'
 
 const icons = {
     Count: CountIcon,
@@ -31,7 +33,9 @@ const icons = {
     Profile: ProfileIcon,
     Home: HomeIcon,
     Diagram: DiagramIcon,
-    City: CityIcon
+    City: CityIcon,
+    Plus: PlusIcon,
+    Check: CheckIcon
 }
 
 export default icons
