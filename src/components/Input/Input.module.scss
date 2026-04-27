@@ -1,6 +1,10 @@
 @use '../../styles/abstracts/variables' as var;
 @use '../../styles/abstracts/mixins' as mix;
 
+
+input{
+    outline: none;
+}
 .inputContainer{
     display: flex;
     align-items: center;
@@ -12,8 +16,9 @@
     padding: var.$spacing-1 var.$spacing-3;
 
     &:focus-within{
-        border-color: var.$dark-border; 
+        border: var.$dark-border; 
     }
+
 }
 
 .field{
@@ -25,16 +30,21 @@
     padding: 0;
     color: var.$dark-placeholder;
 
-    &:focus{
-        border: var.$dark-border;
-    }
-
     &::placeholder{
         color: var.$dark-placeholder;
     }
 }
 
 .icon{
+    box-sizing: border-box;
+    padding: 1px;
+    width: 18px;
+    height: 18px;
+    display: flex;
     color: var.$dark-placeholder;
 }
 
+.icon svg {
+    width: 18px;
+    height: 18px;
+}
