@@ -4,6 +4,9 @@
 .btn{
     @include mix.buttons;
 
+    box-sizing: border-box;
+    color: var.$dark-main-text;
+
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -28,10 +31,14 @@
     }
 
     &.primary{
+        padding: var.$spacing-1 0;
         width: 100%
     }
 
     &.secondary{
+        display: flex;
+        border: none;
+        background: var.$dark-decorate2;
         max-width: 160px;
         min-width: 140px;
         padding: var.$spacing-1 var.$spacing-3;
@@ -39,5 +46,6 @@
         gap: 5px;
         color: var.$dark-basic-text
     }
+
 }
 
