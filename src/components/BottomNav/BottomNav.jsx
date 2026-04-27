@@ -24,7 +24,7 @@ const BottomNav = ({activeTab, onTabChange}) => {
             onClick={() => onTabChange(tab.id)}
             aria-label={tab.label}
             >
-              <IconComponent className={styles.icon}></IconComponent>
+              <IconComponent className={styles.icon} width={32} height={32}></IconComponent>
           </button>
         )
       })}
