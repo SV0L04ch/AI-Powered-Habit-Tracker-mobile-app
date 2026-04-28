@@ -39,7 +39,16 @@ public sealed class AuthController : ControllerBase
         var result = await _authService.RegisterAsync(request, cancellationToken);
         return Created(string.Empty, result);
     }
-
+    
+    
+    /// <summary>
+    /// Вход пользователя в систему.
+    /// </summary>
+    /// <param name="request">Учётные данные (email, пароль).</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>Данные авторизованного пользователя (токен, userId).</returns>
+    /// <response code="200">Успешный вход.</response>
+    /// <response code="401">Неверный email или пароль.</response>
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
