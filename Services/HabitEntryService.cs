@@ -67,6 +67,7 @@ public sealed class HabitEntryService : IHabitEntryService
         var existingEntry = await _dbContext.HabitEntries
             .FirstOrDefaultAsync(e => e.HabitId == habitId && e.Date == request.Date, cancellationToken);
         if (existingEntry is not null)
+            // Для клиента это конфликт данных, а не внутренняя ошибка сервера.
             throw new ConflictException("Entry for this habit and date already exists.");
 
         // Создание отметки в зависимости от типа привычки

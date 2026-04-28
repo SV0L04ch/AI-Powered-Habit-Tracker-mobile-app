@@ -10,10 +10,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
+// Загружаем переменные окружения из .env для локальной разработки.
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Настройка подключения к PostgreSQL через переменные окружения.
 var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
 var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
 var database = Environment.GetEnvironmentVariable("DB_NAME") ?? "habit_tracker";
@@ -24,6 +26,7 @@ var connectionString = $"Host={host};Port={port};Database={database};Username={u
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// Единая конфигурация JWT для генерации и валидации токенов.
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
@@ -47,6 +50,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.Events = new JwtBearerEvents
         {
+            // Возвращаем единый JSON-ответ вместо пустого 401 от middleware.
             OnChallenge = async context =>
             {
                 context.HandleResponse();
@@ -66,6 +70,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     Instance = context.Request.Path
                 });
             },
+            // Аналогично оформляем ситуацию, когда токен есть, но доступа недостаточно.
             OnForbidden = async context =>
             {
                 if (context.Response.HasStarted)
@@ -90,6 +95,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpClient();
 
+// Регистрируем прикладные сервисы для DI.
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
@@ -101,6 +107,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+// Глобальный обработчик исключений переводит ошибки приложения в корректные HTTP-ответы.
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
@@ -122,6 +129,7 @@ app.MapControllers();
 
 app.Run();
 
+// Преобразуем известные типы исключений в ProblemDetails с нужным HTTP-статусом.
 static ProblemDetails CreateProblemDetails(HttpContext context, Exception? exception, bool includeExceptionDetails)
 {
     var statusCode = exception switch

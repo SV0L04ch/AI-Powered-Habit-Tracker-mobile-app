@@ -11,6 +11,9 @@ using System.Text;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Сервис аутентификации: регистрация, вход и выпуск JWT-токенов.
+/// </summary>
 public sealed class AuthService : IAuthService
 {
     private readonly AppDbContext _dbContext;
@@ -28,8 +31,12 @@ public sealed class AuthService : IAuthService
         _jwtAudience = configuration["Jwt:Audience"] ?? "HabitApiClient";
     }
 
+    /// <summary>
+    /// Регистрирует нового пользователя и сразу возвращает токен доступа.
+    /// </summary>
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken)
     {
+        // Нормализуем email, чтобы не плодить дубли из-за регистра и пробелов.
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
         var normalizedCity = request.City.Trim();
 
@@ -38,6 +45,7 @@ public sealed class AuthService : IAuthService
         if (existing is not null)
             throw new ConflictException("User with this email already exists.");
 
+        // Создаем доменную сущность пользователя с хешем пароля.
         var user = new User
         {
             Id = Guid.NewGuid(),
@@ -47,6 +55,7 @@ public sealed class AuthService : IAuthService
             CreatedAtUtc = DateTime.UtcNow
         };
 
+        // Генерируем ответ заранее, чтобы ошибка в JWT не случилась уже после сохранения пользователя.
         var authResponse = BuildAuthResponse(user);
 
         _dbContext.Users.Add(user);
@@ -55,6 +64,7 @@ public sealed class AuthService : IAuthService
         {
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+        // Ловим конфликт по уникальному email даже если он проявился на уровне БД.
         catch (DbUpdateException ex) when (IsUniqueEmailViolation(ex))
         {
             throw new ConflictException("User with this email already exists.");
@@ -63,6 +73,9 @@ public sealed class AuthService : IAuthService
         return authResponse;
     }
 
+    /// <summary>
+    /// Проверяет учетные данные пользователя и возвращает JWT при успешном входе.
+    /// </summary>
     public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken)
     {
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
@@ -79,6 +92,9 @@ public sealed class AuthService : IAuthService
         return BuildAuthResponse(user);
     }
 
+    /// <summary>
+    /// Собирает DTO ответа авторизации и подписывает access token.
+    /// </summary>
     private AuthResponseDto BuildAuthResponse(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -109,6 +125,9 @@ public sealed class AuthService : IAuthService
         };
     }
 
+    /// <summary>
+    /// Проверяет, что ошибка сохранения связана именно с уникальностью email.
+    /// </summary>
     private static bool IsUniqueEmailViolation(DbUpdateException exception)
     {
         var message = exception.InnerException?.Message ?? exception.Message;
