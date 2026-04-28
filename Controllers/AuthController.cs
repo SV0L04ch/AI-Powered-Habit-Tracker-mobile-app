@@ -17,6 +17,7 @@ public sealed class AuthController : ControllerBase
     {
         _authService = authService;
     }
+    
 
     /// <summary>
     /// Регистрация нового пользователя.
@@ -35,29 +36,10 @@ public sealed class AuthController : ControllerBase
         [FromBody] RegisterRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await _authService.RegisterAsync(request, cancellationToken);
-            // Возвращаем 201 без Location, так как ресурс пользователя не имеет отдельного GET эндпоинта.
-            // Альтернатива: return CreatedAtAction(nameof(UsersController.GetById), "Users", new { id = result.UserId }, result);
-            return Created(string.Empty, result);
-        }
-        catch (InvalidOperationException ex)
-        {
-            // Конфликт: пользователь уже существует
-            return Conflict(new { error = ex.Message });
-        }
-        // Другие исключения обрабатываются глобальным фильтром
+        var result = await _authService.RegisterAsync(request, cancellationToken);
+        return Created(string.Empty, result);
     }
 
-    /// <summary>
-    /// Вход пользователя в систему.
-    /// </summary>
-    /// <param name="request">Учётные данные (email, пароль).</param>
-    /// <param name="cancellationToken">Токен отмены операции.</param>
-    /// <returns>Данные авторизованного пользователя (токен, userId).</returns>
-    /// <response code="200">Успешный вход.</response>
-    /// <response code="401">Неверный email или пароль.</response>
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -67,9 +49,8 @@ public sealed class AuthController : ControllerBase
     {
         var result = await _authService.LoginAsync(request, cancellationToken);
         if (result is null)
-        {
             return Unauthorized(new { error = "Invalid email or password." });
-        }
+
         return Ok(result);
     }
 }

@@ -1,4 +1,5 @@
 using HabitApi.Data;
+using HabitApi.Exceptions;
 using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
@@ -66,7 +67,7 @@ public sealed class HabitEntryService : IHabitEntryService
         var existingEntry = await _dbContext.HabitEntries
             .FirstOrDefaultAsync(e => e.HabitId == habitId && e.Date == request.Date, cancellationToken);
         if (existingEntry is not null)
-            throw new InvalidOperationException("Entry for this habit and date already exists.");
+            throw new ConflictException("Entry for this habit and date already exists.");
 
         // Создание отметки в зависимости от типа привычки
         var entry = new HabitEntry
