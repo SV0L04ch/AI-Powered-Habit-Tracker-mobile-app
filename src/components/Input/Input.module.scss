@@ -2,9 +2,7 @@
 @use '../../styles/abstracts/mixins' as mix;
 
 
-input{
-    outline: none;
-}
+
 .inputContainer{
     display: flex;
     align-items: center;
@@ -19,9 +17,14 @@ input{
         border: var.$dark-border; 
     }
 
+    &.disabled{
+        opacity: 0.5;
+    }
+
 }
 
 .field{
+    outline: none;
     @include mix.body1;
     
     border: none;
