@@ -106,7 +106,7 @@ public sealed class StatsService : IStatsService
                 (h, entryGroup) => new
                 {
                     HabitName = h.Name,
-                    UserCount = entryGroup.Select(e => e.Habit!.UserId).Distinct().Count()
+                    UserCount = entryGroup.Where(e => e.Habit != null).Select(e => e.Habit!.UserId).Distinct().Count()
                 })
             .OrderByDescending(x => x.UserCount)
             .Take(10)

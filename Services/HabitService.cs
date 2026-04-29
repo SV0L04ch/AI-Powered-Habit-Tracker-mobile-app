@@ -180,13 +180,9 @@ public sealed class HabitService : IHabitService
             PenaltyDaysPerMiss = habit.PenaltyDaysPerMiss,
             Reminders = habit.Reminders,
             Tags = habit.HabitTags
-            .Where(ht => ht.Tag != null)
-            .Select(ht => new TagDto
-            {
-                Id = ht.Tag!.Id,
-                Name = ht.Tag!.Name
-            })
-            .ToList(),
+                .Where(ht => ht.Tag != null)
+                .Select(ht => new TagDto { Id = ht.Tag!.Id, Name = ht.Tag!.Name })
+                .ToList(),
             IsActive = habit.IsActive,
             CreatedAtUtc = habit.CreatedAtUtc
         };
