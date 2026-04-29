@@ -27,7 +27,6 @@ public sealed class HabitEntryService : IHabitEntryService
         DateOnly? toDate,
         CancellationToken cancellationToken)
     {
-        // Проверка, что привычка принадлежит пользователю
         var habitExists = await _dbContext.Habits
             .AnyAsync(h => h.Id == habitId && h.UserId == userId, cancellationToken);
         if (!habitExists)
@@ -57,28 +56,24 @@ public sealed class HabitEntryService : IHabitEntryService
         CreateHabitEntryDto request,
         CancellationToken cancellationToken)
     {
-        // Загружаем привычку с проверкой прав
         var habit = await _dbContext.Habits
             .FirstOrDefaultAsync(h => h.Id == habitId && h.UserId == userId, cancellationToken);
         if (habit is null)
             throw new KeyNotFoundException("Habit not found for this user.");
 
-        // Проверка на дубликат отметки за этот день
         var existingEntry = await _dbContext.HabitEntries
             .FirstOrDefaultAsync(e => e.HabitId == habitId && e.Date == request.Date, cancellationToken);
         if (existingEntry is not null)
-            // Для клиента это конфликт данных, а не внутренняя ошибка сервера.
             throw new ConflictException("Entry for this habit and date already exists.");
 
-        // Создание отметки в зависимости от типа привычки
         var entry = new HabitEntry
         {
             HabitId = habitId,
             Date = request.Date,
             Note = request.Note?.Trim()
         };
-
-        if (habit.Type == HabitType.Positive)
+        
+        if (habit.IsPositive)
         {
             if (request.Status is null)
                 throw new ArgumentException("Status is required for positive habits.");
@@ -91,10 +86,9 @@ public sealed class HabitEntryService : IHabitEntryService
                 entry.PartialValue = request.PartialValue;
             }
         }
-        else // Negative habit
+        else // Отрицательная привычка
         {
-            // Для отрицательных привычек используем RelapseCount, статус не нужен
-            entry.RelapseCount = request.RelapseCount ?? 1; // по умолчанию 1, если не указано
+            entry.RelapseCount = request.RelapseCount ?? 1; // по умолчанию 1 срыв
         }
 
         _dbContext.HabitEntries.Add(entry);

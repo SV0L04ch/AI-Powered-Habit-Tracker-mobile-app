@@ -44,24 +44,11 @@ public interface IHabitService
     Task<HabitDto?> UpdateHabitAsync(Guid userId, Guid habitId, UpdateHabitDto request, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Удалить привычку (мягкое удаление или физическое).
+    /// Удалить привычку (мягкое удаление).
     /// </summary>
     /// <param name="userId">Идентификатор пользователя (из JWT).</param>
     /// <param name="habitId">Идентификатор привычки.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>true, если удаление успешно, иначе false.</returns>
     Task<bool> DeleteHabitAsync(Guid userId, Guid habitId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Добавить существующий тег к привычке.
-    /// </summary>
-    /// <param name="userId">Идентификатор пользователя (из JWT).</param>
-    /// <param name="habitId">Идентификатор привычки.</param>
-    /// <param name="request">DTO с идентификатором тега.</param>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Обновлённая привычка с тегами или null, если привычка/тег не найдены.</returns>
-    Task<HabitDto?> AddTagAsync(Guid userId, Guid habitId, AddHabitTagDto request, CancellationToken cancellationToken);
-
-    // Рекомендуется также добавить метод для удаления тега из привычки:
-    // Task<HabitDto?> RemoveTagAsync(Guid userId, Guid habitId, Guid tagId, CancellationToken cancellationToken);
 }
