@@ -1,0 +1,25 @@
+@use "../../styles/abstracts/variables" as var;
+
+.desc{
+    display: flex;
+    flex-direction: column;
+    gap: var.$base-spacing;
+}
+
+.captions{
+    display: flex;
+    gap: var.$spacing-2;
+}
+
+
+
+.checkDesc{
+    display: flex;
+    gap: var.$spacing-2;
+}
+
+.blockHabits{
+    display: flex;
+    gap: var.$spacing-1;
+    flex-direction: column;
+}
