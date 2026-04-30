@@ -3,6 +3,7 @@
 
 .sub{
     @include mix.body1;
+    box-sizing: border-box;
 
     color: var.$dark-basic-text;
     display: flex;
@@ -19,8 +20,8 @@
     &.secondary{
         color: var.$dark-basic-text;
         padding: var.$spacing-1 var.$spacing-3;
-        gap: 15px;
         border-radius: var.$base-radius;
+        justify-content: space-between;
     }
 
     &.form{
@@ -28,7 +29,7 @@
         border-radius: var.$form-radius;
         width: 100%;
         color: var.$dark-main-text;
-        padding: 30px 0;
+        padding: 30px 24px;
         gap: 30px;
     }
 }

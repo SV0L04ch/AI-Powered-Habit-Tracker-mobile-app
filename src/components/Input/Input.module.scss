@@ -4,6 +4,7 @@
 
 
 .inputContainer{
+    width: 100%;
     display: flex;
     align-items: center;
     gap: var.$spacing-1;
@@ -29,7 +30,6 @@
     
     border: none;
     background: transparent;
-    width: 100%;
     padding: 0;
     color: var.$dark-placeholder;
 
