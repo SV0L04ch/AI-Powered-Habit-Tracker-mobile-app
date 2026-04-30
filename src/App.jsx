@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/LoginPage/LoginPage';
+import RegisterPage from './pages/RegisterPage/RegisterPage';
 import HabitsPage from './pages/HabitsPage/HabitsPage';
 import HabitDetailPage from './pages/HabitDetailPage';
 import CreateHabitPage from './pages/CreateHabitPage/CreateHabitPage';
