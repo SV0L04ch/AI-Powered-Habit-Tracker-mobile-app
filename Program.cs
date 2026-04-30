@@ -10,12 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-// Загружаем переменные окружения из .env для локальной разработки.
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Настройка подключения к PostgreSQL через переменные окружения.
+// Настройка подключения к PostgreSQL
 var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
 var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
 var database = Environment.GetEnvironmentVariable("DB_NAME") ?? "habit_tracker";
@@ -26,13 +25,28 @@ var connectionString = $"Host={host};Port={port};Database={database};Username={u
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Единая конфигурация JWT для генерации и валидации токенов.
+// JWT конфигурация
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "HabitApi";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "HabitApiClient";
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+
+// ----- НАСТРОЙКА CORS ДЛЯ КУК -----
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",     // React Native Metro (обычно)
+                "http://localhost:19006",    // Expo Web
+                "http://localhost:5093")     // Ваш API (если нужно)
+              .AllowCredentials()            // ОБЯЗАТЕЛЬНО для кук
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -48,19 +62,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = signingKey
         };
 
+        // ----- ЧТЕНИЕ ТОКЕНА ИЗ КУКИ -----
         options.Events = new JwtBearerEvents
         {
-            // Возвращаем единый JSON-ответ вместо пустого 401 от middleware.
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Cookies["access_token"];
+                if (!string.IsNullOrEmpty(token))
+                    context.Token = token;
+                return Task.CompletedTask;
+            },
             OnChallenge = async context =>
             {
                 context.HandleResponse();
-
-                if (context.Response.HasStarted)
-                    return;
-
+                if (context.Response.HasStarted) return;
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.ContentType = "application/problem+json";
-
                 await context.Response.WriteAsJsonAsync(new ProblemDetails
                 {
                     Status = StatusCodes.Status401Unauthorized,
@@ -70,15 +87,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     Instance = context.Request.Path
                 });
             },
-            // Аналогично оформляем ситуацию, когда токен есть, но доступа недостаточно.
             OnForbidden = async context =>
             {
-                if (context.Response.HasStarted)
-                    return;
-
+                if (context.Response.HasStarted) return;
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 context.Response.ContentType = "application/problem+json";
-
                 await context.Response.WriteAsJsonAsync(new ProblemDetails
                 {
                     Status = StatusCodes.Status403Forbidden,
@@ -95,7 +108,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpClient();
 
-// Регистрируем прикладные сервисы для DI.
+// Регистрация сервисов
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
@@ -107,21 +120,20 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Глобальный обработчик исключений переводит ошибки приложения в корректные HTTP-ответы.
+// Глобальный обработчик исключений
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
     {
         var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
         var problemDetails = CreateProblemDetails(context, exception, app.Environment.IsDevelopment());
-
         context.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
         context.Response.ContentType = "application/problem+json";
-
         await context.Response.WriteAsJsonAsync(problemDetails);
     });
 });
 
+app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -129,7 +141,6 @@ app.MapControllers();
 
 app.Run();
 
-// Преобразуем известные типы исключений в ProblemDetails с нужным HTTP-статусом.
 static ProblemDetails CreateProblemDetails(HttpContext context, Exception? exception, bool includeExceptionDetails)
 {
     var statusCode = exception switch
@@ -162,8 +173,6 @@ static ProblemDetails CreateProblemDetails(HttpContext context, Exception? excep
         Type = $"https://httpstatuses.com/{statusCode}",
         Instance = context.Request.Path
     };
-
     problemDetails.Extensions["traceId"] = context.TraceIdentifier;
-
     return problemDetails;
 }

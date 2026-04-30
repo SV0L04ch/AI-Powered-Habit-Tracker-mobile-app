@@ -15,4 +15,4 @@ Migrations/
 secrets.json
 appsettings.Development.json
 appsettings.Production.json
-.env
+.env".idea/" 
