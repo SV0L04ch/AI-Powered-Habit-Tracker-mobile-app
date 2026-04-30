@@ -5,61 +5,66 @@ import Substrate from '../../components/Substrate/Substrate';
 import Button from '../../components/Button/Button';
 import Input from '../../components/Input/Input';
 import Typography from '../../components/Typography/Typography';
-
+import useAuthUser from '../../store/useAuthStore';
+import PageLayout from '../../components/PageLayout/PageLayout';
 
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const login = useAuthUser((state) => state.login)
+  const isLoading = useAuthUser((state) => state.isLoading)
+  const aError = useAuthUser((state) => state.error)
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = form;
+
+    
 
     if (!email || !password) {
       setError('Заполните все поля');
       return;
     }
-
     
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.email === email && u.password === password);
+    await login(email, password)
 
-    if (!user) {
-      setError('Неверный email или пароль');
-      return;
+    const token = useAuthUser.getState().token
+    if (token){
+      navigate('/habits');
     }
-
     
-    localStorage.setItem('currentUser', JSON.stringify({ email: user.email, city: user.city }));
-    console.log('Вошёл:', user);
-    navigate('/habits');
+    
   };
 
   const errorButton = `${styles.button} ${styles.error}`
 
   return (
-    <div className={styles.page}>
-      <div className={styles.circle1}></div>
-      <div className={styles.circle2}></div>
-      <div className={styles.circle3}></div>
-      <div className={styles.circle4}></div>
+    <PageLayout className={styles.centeredPage}>
+      <div className={styles.circle1} />
+      <div className={styles.circle2} />
+      <div className={styles.circle3} />
+      <div className={styles.circle4} />
+      <div className={styles.page}>
       <Typography variant='headline1' className={styles.auth}>Авторизация</Typography>
       <Substrate variant='form' >
         <form onSubmit={handleSubmit}>
-      <Input className={styles.inputSpacing}
+          <div className={styles.form}>
+          
+      <Input
+      name="email"
       type="email"
       placeholder="Эл. почта"
       value={form.email}
       onChange={handleChange}
       />
-      <Input className={styles.inputSpacing}
+      <Input
       name="password"
       type="password"
       placeholder="Пароль"
@@ -67,12 +72,19 @@ const LoginPage = () => {
       onChange={handleChange}
       />
 
-          {error && <div className={styles.error}>{error}</div>}
-          <Button type="submit" variant='form' className={styles.submitButton}>Войти</Button>
+          {error && <p className={styles.error}>{error}</p>}
+          {aErorr && <p className={styles.error}>{aError}</p>}
+          <div className={styles.Buttons}>
+            <Button type="submit" variant='form' className={styles.submitButton} disabled={isLoading}>Войти</Button>
+            <Link to="/register" className={styles.link}>Регистрация</Link>
+          </div>
+          </div>
         </form>
-        <Link to="/register" className={styles.link}>Регистрация</Link>
         </Substrate>
-      </div>
+        </div>
+          
+        
+      </PageLayout>
   );
 };
 

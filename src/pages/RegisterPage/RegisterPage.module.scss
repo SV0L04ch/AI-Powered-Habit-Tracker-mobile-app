@@ -1,20 +1,15 @@
 @use '../../styles/abstracts/variables' as var;
 
 .page {
-  position: relative;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;    
   justify-content: center;
-  padding-left: 26.5px;         
-  background: var.$dark-background;
-  
+  gap: 10px;
 }
 
 .auth {
   color: var.$dark-main-text;
-  transform: translateY(-15px);
 }
 
 .circle1 {
@@ -26,7 +21,7 @@
   border-radius: var.$circle;          
   background: var.$dark-decorate;        
   pointer-events: none;        
-  z-index: 0;                    
+  z-index: -1;                    
   box-shadow: var.$box-shadow;
   };
   
@@ -52,7 +47,7 @@
   border-radius: var.$circle;
   background: var.$dark-decorate;
   pointer-events: none;        
-  z-index: 0;                    
+  z-index: -1;                    
   box-shadow: var.$box-shadow;
   };
   
@@ -69,17 +64,10 @@
   box-shadow: var.$box-shadow;     
   };
 
-
-
-.inputSpacing {
-  margin-bottom: 24px;       
-}
-
 .selectSpacing {
   width: 100%;
   height: var.$h1-line-height;
   padding: 0 20px;
-  margin-bottom: 24px;
   font-size: var.$body1-font-size;
   border: var.$dark-border;
   border-radius: var.$base-radius;
@@ -91,19 +79,34 @@
 .error {
   font-size: 13px;
   color: #ff3b30;
-  margin-top: -20px;
-  margin-bottom: 12px;
   text-align: left;
-}
-
-.submitButton {
-  width: 195px;
-  margin: auto;
-  box-shadow: var.$box-shadow;
 }
 
 .link {
   font-size: var.$buttons-font-size;
   color: var.$dark-main-text;
   text-decoration: none;
+  width: auto;
+}
+
+.centeredPage {
+  min-height: 100vh;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.form{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+}
+
+.Buttons{
+  width: 195px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
 }
