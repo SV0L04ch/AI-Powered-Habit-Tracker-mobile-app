@@ -87,6 +87,80 @@ public sealed class HabitEntriesController : ControllerBase
     }
 
     /// <summary>
+    /// Обновить существующую отметку выполнения для привычки.
+    /// </summary>
+    /// <param name="habitId">Идентификатор привычки.</param>
+    /// <param name="entryId">Идентификатор отметки.</param>
+    /// <param name="request">Обновлённые данные отметки.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Обновлённая отметка.</returns>
+    /// <response code="200">Отметка успешно обновлена.</response>
+    /// <response code="400">Некорректные данные запроса.</response>
+    /// <response code="401">Пользователь не авторизован.</response>
+    /// <response code="404">Привычка или отметка не найдена либо не принадлежит пользователю.</response>
+    /// <response code="409">На указанную дату уже существует другая отметка.</response>
+    [HttpPut("{entryId:guid}")]
+    [ProducesResponseType(typeof(HabitEntryDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<HabitEntryDto>> UpdateEntry(
+        Guid habitId,
+        Guid entryId,
+        [FromBody] UpdateHabitEntryDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var entry = await _habitEntryService.UpdateHabitEntryAsync(
+                userId,
+                habitId,
+                entryId,
+                request,
+                cancellationToken);
+
+            if (entry is null)
+                return NotFound(new { error = "Habit entry not found or does not belong to user." });
+
+            return Ok(entry);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        // Конфликт по дате обрабатывается глобальным фильтром и вернёт 409.
+    }
+
+    /// <summary>
+    /// Удалить существующую отметку выполнения для привычки.
+    /// </summary>
+    /// <param name="habitId">Идентификатор привычки.</param>
+    /// <param name="entryId">Идентификатор отметки.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Статус 204 при успехе, иначе 404.</returns>
+    /// <response code="204">Отметка успешно удалена.</response>
+    /// <response code="401">Пользователь не авторизован.</response>
+    /// <response code="404">Привычка или отметка не найдена либо не принадлежит пользователю.</response>
+    [HttpDelete("{entryId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteEntry(
+        Guid habitId,
+        Guid entryId,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetCurrentUserId();
+        var deleted = await _habitEntryService.DeleteHabitEntryAsync(userId, habitId, entryId, cancellationToken);
+        if (!deleted)
+            return NotFound(new { error = "Habit entry not found or does not belong to user." });
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Вспомогательный метод для получения ID текущего пользователя из JWT.
     /// </summary>
     private Guid GetCurrentUserId()

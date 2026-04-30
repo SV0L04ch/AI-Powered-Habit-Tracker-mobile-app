@@ -38,4 +38,34 @@ public interface IHabitEntryService
         Guid habitId,
         CreateHabitEntryDto request,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Обновить существующую отметку выполнения.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя (из JWT).</param>
+    /// <param name="habitId">Идентификатор привычки.</param>
+    /// <param name="entryId">Идентификатор отметки.</param>
+    /// <param name="request">Новые данные отметки.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Обновлённая отметка или null, если привычка/отметка не найдена.</returns>
+    Task<HabitEntryDto?> UpdateHabitEntryAsync(
+        Guid userId,
+        Guid habitId,
+        Guid entryId,
+        UpdateHabitEntryDto request,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Удалить существующую отметку выполнения.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя (из JWT).</param>
+    /// <param name="habitId">Идентификатор привычки.</param>
+    /// <param name="entryId">Идентификатор отметки.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>true, если удаление успешно; иначе false.</returns>
+    Task<bool> DeleteHabitEntryAsync(
+        Guid userId,
+        Guid habitId,
+        Guid entryId,
+        CancellationToken cancellationToken);
 }

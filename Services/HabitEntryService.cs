@@ -27,13 +27,12 @@ public sealed class HabitEntryService : IHabitEntryService
         DateOnly? toDate,
         CancellationToken cancellationToken)
     {
-        var habitExists = await _dbContext.Habits
-            .AnyAsync(h => h.Id == habitId && h.UserId == userId, cancellationToken);
-        if (!habitExists)
+        var habit = await GetOwnedActiveHabitAsync(userId, habitId, cancellationToken);
+        if (habit is null)
             return Array.Empty<HabitEntryDto>();
 
         var query = _dbContext.HabitEntries
-            .Where(e => e.HabitId == habitId)
+            .Where(e => e.HabitId == habit.Id)
             .AsQueryable();
 
         if (fromDate.HasValue)
@@ -56,8 +55,7 @@ public sealed class HabitEntryService : IHabitEntryService
         CreateHabitEntryDto request,
         CancellationToken cancellationToken)
     {
-        var habit = await _dbContext.Habits
-            .FirstOrDefaultAsync(h => h.Id == habitId && h.UserId == userId, cancellationToken);
+        var habit = await GetOwnedActiveHabitAsync(userId, habitId, cancellationToken);
         if (habit is null)
             throw new KeyNotFoundException("Habit not found for this user.");
 
@@ -70,7 +68,7 @@ public sealed class HabitEntryService : IHabitEntryService
         {
             HabitId = habitId,
             Date = request.Date,
-            Note = request.Note?.Trim()
+            Note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim()
         };
         
         if (habit.IsPositive)
@@ -95,6 +93,109 @@ public sealed class HabitEntryService : IHabitEntryService
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return MapToDto(entry);
+    }
+
+    /// <inheritdoc />
+    public async Task<HabitEntryDto?> UpdateHabitEntryAsync(
+        Guid userId,
+        Guid habitId,
+        Guid entryId,
+        UpdateHabitEntryDto request,
+        CancellationToken cancellationToken)
+    {
+        var habit = await GetOwnedActiveHabitAsync(userId, habitId, cancellationToken);
+        if (habit is null)
+            return null;
+
+        var entry = await _dbContext.HabitEntries
+            .FirstOrDefaultAsync(e => e.Id == entryId && e.HabitId == habit.Id, cancellationToken);
+        if (entry is null)
+            return null;
+
+        var targetDate = request.Date ?? entry.Date;
+        var duplicateEntryExists = await _dbContext.HabitEntries
+            .AnyAsync(
+                e => e.HabitId == habit.Id
+                    && e.Id != entry.Id
+                    && e.Date == targetDate,
+                cancellationToken);
+        if (duplicateEntryExists)
+            throw new ConflictException("Entry for this habit and date already exists.");
+
+        entry.Date = targetDate;
+
+        // Пустая строка очищает заметку, а null означает «поле не меняем».
+        if (request.Note is not null)
+            entry.Note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+
+        ApplyEntryValuesByHabitType(habit, entry, request);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return MapToDto(entry);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> DeleteHabitEntryAsync(
+        Guid userId,
+        Guid habitId,
+        Guid entryId,
+        CancellationToken cancellationToken)
+    {
+        var habit = await GetOwnedActiveHabitAsync(userId, habitId, cancellationToken);
+        if (habit is null)
+            return false;
+
+        var entry = await _dbContext.HabitEntries
+            .FirstOrDefaultAsync(e => e.Id == entryId && e.HabitId == habit.Id, cancellationToken);
+        if (entry is null)
+            return false;
+
+        _dbContext.HabitEntries.Remove(entry);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    private static void ApplyEntryValuesByHabitType(Habit habit, HabitEntry entry, UpdateHabitEntryDto request)
+    {
+        if (habit.IsPositive)
+        {
+            var targetStatus = request.Status ?? entry.Status;
+            if (targetStatus is null)
+                throw new ArgumentException("Status is required for positive habits.");
+
+            entry.Status = targetStatus;
+            entry.RelapseCount = null;
+
+            if (targetStatus == HabitEntryStatus.Partial)
+            {
+                var targetPartialValue = request.PartialValue ?? entry.PartialValue;
+                if (!targetPartialValue.HasValue)
+                    throw new ArgumentException("PartialValue is required when status is Partial.");
+
+                entry.PartialValue = targetPartialValue.Value;
+            }
+            else
+            {
+                // Для Completed/Skipped частичное значение хранить не нужно.
+                entry.PartialValue = null;
+            }
+
+            return;
+        }
+
+        entry.Status = null;
+        entry.PartialValue = null;
+        entry.RelapseCount = request.RelapseCount ?? entry.RelapseCount ?? 1;
+    }
+
+    private async Task<Habit?> GetOwnedActiveHabitAsync(Guid userId, Guid habitId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Habits
+            .FirstOrDefaultAsync(
+                h => h.Id == habitId
+                    && h.UserId == userId
+                    && h.IsActive,
+                cancellationToken);
     }
 
     private static HabitEntryDto MapToDto(HabitEntry entry)
