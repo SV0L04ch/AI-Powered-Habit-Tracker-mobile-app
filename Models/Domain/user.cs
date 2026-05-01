@@ -27,6 +27,14 @@ public sealed class User
     public string? Name { get; set; }
 
     public string TimeZoneId { get; set; } = "UTC";
+    public bool HabitReminderEnabled { get; set; } = false;
+
+    [MaxLength(5)]
+    public string? HabitReminderTime { get; set; }
+
+    [Required]
+    [MaxLength(10)]
+    public string ThemePreference { get; set; } = "light";
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 

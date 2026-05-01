@@ -32,6 +32,9 @@ public sealed class AppDbContext : DbContext
             entity.Property(u => u.City).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Name).HasMaxLength(100);
             entity.Property(u => u.TimeZoneId).HasDefaultValue("UTC");
+            entity.Property(u => u.HabitReminderEnabled).HasDefaultValue(false);
+            entity.Property(u => u.HabitReminderTime).HasMaxLength(5);
+            entity.Property(u => u.ThemePreference).IsRequired().HasMaxLength(10).HasDefaultValue("light");
         });
 
         // ========== Habit ==========
