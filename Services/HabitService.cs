@@ -39,13 +39,10 @@ public sealed class HabitService : IHabitService
     /// <inheritdoc />
     public async Task<HabitDto> CreateHabitAsync(Guid userId, CreateHabitDto request, CancellationToken cancellationToken)
     {
-        if (!request.HasPenalty && request.PenaltyDaysPerMiss != 0)
-            throw new ArgumentException("PenaltyDaysPerMiss must be 0 for entertainment habits.");
-
         var habit = new Habit
         {
             UserId = userId,
-            Name = request.Name.Trim(),
+            Name = request.Name.Trim().Normalize(),
             IsPositive = request.IsPositive,
             HasPenalty = request.HasPenalty,
             TriggerType = request.TriggerType,
@@ -70,7 +67,7 @@ public sealed class HabitService : IHabitService
         if (habit is null) return null;
 
         if (request.Name != null)
-            habit.Name = request.Name.Trim();
+            habit.Name = request.Name.Trim().Normalize();
         if (request.IsPositive.HasValue)
             habit.IsPositive = request.IsPositive.Value;
         if (request.HasPenalty.HasValue)
@@ -82,11 +79,7 @@ public sealed class HabitService : IHabitService
         if (request.TargetDays.HasValue)
             habit.TargetDays = request.TargetDays.Value;
         if (request.PenaltyDaysPerMiss.HasValue)
-        {
-            if (habit.HasPenalty == false && request.PenaltyDaysPerMiss.Value != 0)
-                throw new ArgumentException("PenaltyDaysPerMiss must be 0 for entertainment habits.");
             habit.PenaltyDaysPerMiss = request.PenaltyDaysPerMiss.Value;
-        }
         if (request.Reminders != null)
             habit.Reminders = request.Reminders;
 

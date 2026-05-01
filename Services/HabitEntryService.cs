@@ -70,22 +70,18 @@ public sealed class HabitEntryService : IHabitEntryService
             Date = request.Date,
             Note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim()
         };
-        
+
         if (habit.IsPositive)
         {
-            if (request.Status is null)
-                throw new ArgumentException("Status is required for positive habits.");
+            // Валидация Status и PartialValue уже выполнена FluentValidation
             entry.Status = request.Status;
-
-            if (request.Status == HabitEntryStatus.Partial)
-            {
-                if (!request.PartialValue.HasValue)
-                    throw new ArgumentException("PartialValue is required when status is Partial.");
-                entry.PartialValue = request.PartialValue;
-            }
+            entry.PartialValue = request.PartialValue;
+            entry.RelapseCount = null;
         }
         else // Отрицательная привычка
         {
+            entry.Status = null;
+            entry.PartialValue = null;
             entry.RelapseCount = request.RelapseCount ?? 1; // по умолчанию 1 срыв
         }
 
@@ -124,7 +120,6 @@ public sealed class HabitEntryService : IHabitEntryService
 
         entry.Date = targetDate;
 
-        // Пустая строка очищает заметку, а null означает «поле не меняем».
         if (request.Note is not null)
             entry.Note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
 
@@ -176,7 +171,6 @@ public sealed class HabitEntryService : IHabitEntryService
             }
             else
             {
-                // Для Completed/Skipped частичное значение хранить не нужно.
                 entry.PartialValue = null;
             }
 
