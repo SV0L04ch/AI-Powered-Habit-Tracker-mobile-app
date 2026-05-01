@@ -82,6 +82,8 @@ const useHabits = create(
                         set({error: err.message, isLoading: false})
                     }
                 }
-            })))
+            }),
+            { name: 'habits-storage'}
+        ))
 
 export default useHabits
