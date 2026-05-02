@@ -1,9 +1,10 @@
-@HabitApi_HostAddress = http://localhost:5432
-@userId = 11111111-1111-1111-1111-111111111111
-@habitId = 22222222-2222-2222-2222-222222222222
+@base = http://localhost:5093
+@contentType = application/json
+@habitId = 00000000-0000-0000-0000-000000000000   # Замените на ID из ответа после создания привычки
 
-POST {{HabitApi_HostAddress}}/api/auth/register
-Content-Type: application/json
+### 1. Регистрация нового пользователя (устанавливает cookie)
+POST {{base}}/api/auth/register
+Content-Type: {{contentType}}
 
 {
   "email": "test@example.com",
@@ -11,45 +12,98 @@ Content-Type: application/json
   "city": "Moscow"
 }
 
-###
-
-GET {{HabitApi_HostAddress}}/api/users/{{userId}}/habits
-Accept: application/json
-
-###
-
-POST {{HabitApi_HostAddress}}/api/users/{{userId}}/habits
-Content-Type: application/json
+### 2. Логин (устанавливает cookie)
+POST {{base}}/api/auth/login
+Content-Type: {{contentType}}
 
 {
-  "name": "Morning workout",
-  "description": "20 minutes workout",
-  "type": 1,
-  "isEntertainment": false,
-  "targetPerDay": 1,
-  "plannedHour": 8,
-  "penaltyDaysOnMiss": 2,
-  "tags": ["health", "sport"]
+  "email": "test@example.com",
+  "password": "Secret123"
 }
 
-###
+### 3. Получить все привычки текущего пользователя
+GET {{base}}/api/habits
+Accept: {{contentType}}
 
-POST {{HabitApi_HostAddress}}/api/users/{{userId}}/habits/{{habitId}}/entries
-Content-Type: application/json
+### 4. Создать новую привычку (используя упрощённую модель)
+POST {{base}}/api/habits
+Content-Type: {{contentType}}
 
 {
-  "date": "2026-04-13",
-  "status": 1,
-  "quantity": 1,
-  "note": "Completed"
+  "name": "Drink water",
+  "isPositive": true,
+  "hasPenalty": true,
+  "triggerType": 2,
+  "triggerValue": "8",
+  "targetDays": 30,
+  "penaltyDaysPerMiss": 2,
+  "reminders": ["09:00", "15:00", "20:00"]
 }
 
-###
+### 5. Получить привычку по ID (замените {{habitId}})
+GET {{base}}/api/habits/{{habitId}}
+Accept: {{contentType}}
 
-GET {{HabitApi_HostAddress}}/api/stats/daily-summary?userId={{userId}}&date=2026-04-13
-Accept: application/json
+### 6. Обновить привычку (частичное обновление)
+PUT {{base}}/api/habits/{{habitId}}
+Content-Type: {{contentType}}
 
-###
+{
+  "name": "Drink more water",
+  "reminders": ["09:00", "15:00", "20:00", "22:00"]
+}
 
-GET {{HabitApi_HostAddress}}/api/weather?city=Moscow&date=2026-04-13
-Accept: application/json
+### 7. Удалить привычку (мягкое удаление)
+DELETE {{base}}/api/habits/{{habitId}}
+
+### 8. Добавить отметку выполнения для положительной привычки
+POST {{base}}/api/habits/{{habitId}}/entries
+Content-Type: {{contentType}}
+
+{
+  "date": "2026-04-30",
+  "status": 2,
+  "partialValue": 5,
+  "note": "Drank 5 glasses out of 8"
+}
+
+### 9. Добавить отметку срыва для отрицательной привычки
+POST {{base}}/api/habits/{{habitId}}/entries
+Content-Type: {{contentType}}
+
+{
+  "date": "2026-04-30",
+  "relapseCount": 2,
+  "note": "Had 2 cigarettes"
+}
+
+### 10. Получить отметки выполнения за период
+GET {{base}}/api/habits/{{habitId}}/entries?fromDate=2026-04-01&toDate=2026-04-30
+Accept: {{contentType}}
+
+### 11. Ежедневная персональная сводка (по умолчанию за вчера)
+GET {{base}}/api/stats/daily-summary
+Accept: {{contentType}}
+
+### 12. Ежедневная сводка за конкретную дату
+GET {{base}}/api/stats/daily-summary?date=2026-04-29
+Accept: {{contentType}}
+
+### 13. Городская сводка (публичный эндпоинт)
+GET {{base}}/api/stats/city-summary?city=Moscow
+Accept: {{contentType}}
+
+### 14. Погода (требует аутентификации)
+GET {{base}}/api/weather?city=Moscow&date=2026-04-30
+Accept: {{contentType}}
+
+### 15. ИИ-совет для привычки
+POST {{base}}/api/habits/{{habitId}}/insights/support
+Content-Type: {{contentType}}
+
+{
+  "scenario": "lazy"
+}
+
+### 16. Выход (удаляет cookie)
+POST {{base}}/api/auth/logout

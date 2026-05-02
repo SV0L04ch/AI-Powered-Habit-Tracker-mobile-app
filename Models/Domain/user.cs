@@ -27,11 +27,18 @@ public sealed class User
     public string? Name { get; set; }
 
     public string TimeZoneId { get; set; } = "UTC";
+    public bool HabitReminderEnabled { get; set; } = false;
+
+    [MaxLength(5)]
+    public string? HabitReminderTime { get; set; }
+
+    [Required]
+    [MaxLength(10)]
+    public string ThemePreference { get; set; } = "light";
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
     // Навигационные свойства
     public ICollection<Habit> Habits { get; set; } = new List<Habit>();
-    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
     public ICollection<HabitEntry> HabitEntries { get; set; } = new List<HabitEntry>();
 }

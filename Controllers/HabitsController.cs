@@ -138,34 +138,6 @@ public sealed class HabitsController : ControllerBase
     }
 
     /// <summary>
-    /// Добавить тег к привычке.
-    /// </summary>
-    /// <param name="habitId">Идентификатор привычки.</param>
-    /// <param name="request">Данные тега (tagId или название).</param>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Обновлённая привычка с тегами.</returns>
-    /// <response code="200">Тег добавлен.</response>
-    /// <response code="400">Некорректные данные.</response>
-    /// <response code="401">Пользователь не авторизован.</response>
-    /// <response code="404">Привычка или тег не найдены.</response>
-    [HttpPost("{habitId:guid}/tags")]
-    [ProducesResponseType(typeof(HabitDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<HabitDto>> AddTag(
-        Guid habitId,
-        [FromBody] AddHabitTagDto request,
-        CancellationToken cancellationToken)
-    {
-        var userId = GetCurrentUserId();
-        var habit = await _habitService.AddTagAsync(userId, habitId, request, cancellationToken);
-        if (habit is null)
-            return NotFound(new { error = "Habit or tag not found." });
-        return Ok(habit);
-    }
-
-    /// <summary>
     /// Вспомогательный метод для получения ID текущего пользователя из JWT.
     /// </summary>
     private Guid GetCurrentUserId()
