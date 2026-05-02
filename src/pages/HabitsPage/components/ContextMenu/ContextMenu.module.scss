@@ -1,0 +1,21 @@
+@use "../../../../styles/abstracts/_variables.scss" as var;
+
+.background {
+  width: 23px;
+  height: 43px;
+  background-color: var.$dark-background;
+  opacity: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+  border-radius: var.$base-radius;
+}
+
+.circle {
+  border-radius: var.$circle;
+  background-color: var.$dark-main-text;
+  width: 5px;
+  height: 5px;
+}
