@@ -7,7 +7,7 @@ const useAuthUser = create(
     persist((set) => ({
         email: null,
         city: null,
-        token: localStorage.getItem("token") || null,
+        isAuthenticated: false,
         isLoading: false,
         error: null,
 
@@ -18,13 +18,15 @@ const useAuthUser = create(
                 set({
                     email: data.email,
                     city: data.city,
-                    token: data.token,
+                    isAuthenticated: true,
                     isLoading: false,
                 });
             } catch (err) {
-                set({ error: err.message, isLoading: false });
+                set({ error: err.response?.data?.message || err.message, isLoading: false });
             }
         },
+        
+        clearError: () => set({ error: null }),
 
         login: async (email, password) => {
             set({ isLoading: true, error: null });
@@ -32,7 +34,7 @@ const useAuthUser = create(
                 const data = await loginUser(email, password);
                 set({
                     email: data.email,
-                    token: data.token,
+                    isAuthenticated: true,
                     isLoading: false,
                     city: data.city,
                 });
@@ -41,8 +43,9 @@ const useAuthUser = create(
             }
         },
 
-        logout: () => {
-            set({ email: null, token: null, city: null });
+        logout: async () => {
+            try { await axios.post('/api/auth/logout'); } catch(e){}
+            set({ email: null, city: null, isAuthenticated: false });
         },
     })),
 );
