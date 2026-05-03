@@ -1,10 +1,10 @@
 import React from 'react'
 import styles from './Button.module.scss'
 
-const Button = ({ children, variant, disabled = false, onClick}) => {
+const Button = ({ children, variant, disabled = false, type = "button", onClick, ...rest}) => {
     const className = `${styles.btn} ${styles[`${variant}`|| '']}`
   return (
-    <button className={className} disabled = {disabled} onClick={onClick}>{children}</button>
+    <button type={type} className={className} disabled = {disabled} onClick={onClick} {...rest}>{children}</button>
   )
 }
 
