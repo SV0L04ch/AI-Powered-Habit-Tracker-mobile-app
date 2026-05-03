@@ -1,29 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-// const createHabit = async (habitData) => {
-//     await new Promise((resolve) => setTimeout(resolve, 1000))
-//     return { id: Date.now(), ...habitData, is_active: true }
-// }
-
-// const fetchHabits = async () => {
-//   await new Promise((resolve) => setTimeout(resolve, 800));
-//   // Возвращаем фиктивный список (например, две стартовые привычки)
-//   return [
-//     { id: 1, name: 'Медитация', type: true, category: true, trigger_type: 1, trigger_value: '08:00', target_days: 12, is_active: true},
-//     { id: 2, name: 'Не есть сладкое', type: false, category: false, trigger_type: 2, target_days: 30, trigger_value: '3', is_active: false},
-//   ];
-// };
-
-// const updHabits = async (id, updates) => {
-//     await new Promise((resolve) => setTimeout(resolve, 600))
-//     return {id, ...updates}
-// }
-
-// const delHabit = async (id) => {
-//     await new Promise((resolve) => setTimeout(resolve, 500))
-//     return { success: true, id}
-// }
+import { createHabit, fetchHabits, updHabit, delHabit } from "../services/habitService";
 
 
 const useHabits = create(
@@ -47,10 +24,12 @@ const useHabits = create(
                     }
                 },
 
+                clearError: () => set({ error: null }),
+
                 updateHabit: async (id, updates) => {
                     set({isLoading: true, error: null})
                     try{
-                        const upd = await updHabits(id, updates)
+                        const upd = await updHabit(id, updates)
                         set((state) =>({
                             habits: state.habits.map((h) => (h.id === id ? {... h, ...updates} : h)),
                             isLoading: false
@@ -74,10 +53,11 @@ const useHabits = create(
                 },
 
                 getHabits: async () => {
+                  if (get().isLoaded) return
                     set({ isLoading: true, error: null})
                     try {
                         const data = await fetchHabits()
-                        set({habits: data, isLoading: false})
+                        set({habits: data, isLoading: false, isLoaded})
                     } catch (err) {
                         set({error: err.message, isLoading: false})
                     }
@@ -87,3 +67,6 @@ const useHabits = create(
         ))
 
 export default useHabits
+
+
+
