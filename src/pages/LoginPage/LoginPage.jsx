@@ -7,6 +7,7 @@ import Input from '../../components/Input/Input';
 import Typography from '../../components/Typography/Typography';
 import useAuthUser from '../../store/useAuthStore';
 import PageLayout from '../../components/PageLayout/PageLayout';
+import { useEffect } from 'react';
 
 
 const LoginPage = () => {
@@ -15,12 +16,17 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const login = useAuthUser((state) => state.login)
   const isLoading = useAuthUser((state) => state.isLoading)
-  const aError = useAuthUser((state) => state.error)
+  const aErorr = useAuthUser((state) => state.error)
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError('');
   };
+
+  const clearError = useAuthUser((state) => state.clearError)
+  useEffect(() => {
+    clearError()
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,9 +40,9 @@ const LoginPage = () => {
     }
     
     await login(email, password)
-
-    const token = useAuthUser.getState().token
-    if (token){
+    
+    const isAuth = useAuthUser.getState().isAuthenticated
+    if (isAuth){
       navigate('/habits');
     }
     
@@ -73,7 +79,7 @@ const LoginPage = () => {
       />
 
           {error && <p className={styles.error}>{error}</p>}
-          {aErorr && <p className={styles.error}>{aError}</p>}
+          {aErorr && <p className={styles.error}>{aErorr}</p>}
           <div className={styles.Buttons}>
             <Button type="submit" variant='form' className={styles.submitButton} disabled={isLoading}>Войти</Button>
             <Link to="/register" className={styles.link}>Регистрация</Link>

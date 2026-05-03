@@ -7,6 +7,7 @@ import Input from '../../components/Input/Input';
 import Typography from '../../components/Typography/Typography';
 import useAuthUser from '../../store/useAuthStore';
 import PageLayout from '../../components/PageLayout/PageLayout'
+import { useEffect } from 'react';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,11 @@ const RegisterPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
   };
+
+  const clearError = useAuthUser((state) => state.clearError)
+  useEffect(() => {
+    clearError()
+  }, [])
 
   const validate = () => {
     const newErrors = {};
@@ -47,8 +53,8 @@ const RegisterPage = () => {
   
     const email = useAuthUser.getState().email
 
-    const token = useAuthUser.getState().token
-    if (token){
+    const isAuth = useAuthUser.getState().isAuthenticated
+    if (isAuth){
       navigate('/habits/new')
     }
 
@@ -105,6 +111,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
               />
               {errors.confirm && <p className={styles.error}>{errors.confirm}</p>}
+              {error && <p className={styles.error}>{error}</p>}
               <div className={styles.Buttons}>
                 <Button type="submit" variant="form" className={styles.submitButton} disabled={isLoading}>Регистрация</Button>
                 <Link to="/login" className={styles.link}>Авторизация</Link>
