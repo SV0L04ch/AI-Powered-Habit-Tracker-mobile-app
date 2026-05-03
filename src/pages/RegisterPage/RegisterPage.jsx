@@ -113,7 +113,7 @@ const RegisterPage = () => {
               {errors.confirm && <p className={styles.error}>{errors.confirm}</p>}
               {error && <p className={styles.error}>{error}</p>}
               <div className={styles.Buttons}>
-                <Button type="submit" variant="form" className={styles.submitButton} disabled={isLoading}>Регистрация</Button>
+                <Button variant="form" disabled={isLoading} type="submit">Регистрация</Button>
                 <Link to="/login" className={styles.link}>Авторизация</Link>
               </div>
             </div>
