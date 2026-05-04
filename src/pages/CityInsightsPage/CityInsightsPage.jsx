@@ -61,10 +61,7 @@ const CityInsightsPage = () => {
 
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser || !currentUser.email) {
-      navigate('/login');
-      return;
-    }
+
     loadCityData(selectedCity);
   }, [navigate, selectedCity]);
 
