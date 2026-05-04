@@ -6,8 +6,8 @@ import HabitsPage from './pages/HabitsPage/HabitsPage';
 import HabitDetailPage from './pages/HabitDetailPage';
 import CreateHabitPage from './pages/CreateHabitPage/CreateHabitPage';
 import PersonalInsightsPage from './pages/PersonalInsightsPage/PersonalInsightsPage';
-import CityInsightsPage from './pages/CityInsightsPage';
-import ProfilePage from './pages/ProfilePage';
+import CityInsightsPage from './pages/CityInsightsPage/CityInsightsPage';
+import ProfilePage from './pages/ProfilePage/ProfilePage';
 import BottomNav from './components/BottomNav/BottomNav';
 import './styles/main.scss'
 
