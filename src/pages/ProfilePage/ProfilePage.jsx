@@ -6,7 +6,7 @@ import Button from '../../components/Button/Button';
 import Typography from '../../components/Typography/Typography';
 import Input from '../../components/Input/Input';
 import icons from '../../lib/icons';
-import illustrations from '../../assets/images/illustrations/avatar.png';
+// import illustrations from '../../assets/images/illustrations/avatar.png';
 
 
 
@@ -21,10 +21,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser || !currentUser.email) {
-      navigate('/login');
-      return;
-    }
+
     setUser(currentUser);
     setCity(currentUser.city || 'Москва');
     
