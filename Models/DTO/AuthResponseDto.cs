@@ -1,7 +1,7 @@
 ﻿namespace HabitApi.Models.DTO;
 
 /// <summary>
-/// DTO для ответа после успешной регистрации или входа.
+/// DTO для ответа после успешного входа.
 /// </summary>
 public sealed class AuthResponseDto
 {
@@ -16,10 +16,7 @@ public sealed class AuthResponseDto
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// JWT access token (короткоживущий).
+    /// JWT access token (может быть null, если токен не выдаётся, например, при неподтверждённом email).
     /// </summary>
-    public string AccessToken { get; set; } = string.Empty;
-
-    // Рекомендуется добавить RefreshToken для обновления сессии без повторного ввода пароля.
-    // public string RefreshToken { get; set; } = string.Empty;
+    public string? AccessToken { get; set; }
 }

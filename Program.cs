@@ -118,6 +118,7 @@ builder.Services.AddScoped<IHabitEntryService, HabitEntryService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<IAiInsightsService, AiInsightsService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
