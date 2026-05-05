@@ -1,24 +1,51 @@
 name: Playwright Tests
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
+
 jobs:
   test:
-    timeout-minutes: 60
+    timeout-minutes: 10
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
+
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+
     - name: Install dependencies
       run: npm ci
+
+    # Установка Playwright браузеров
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+
+    # 🔥 Запуск фронтенда (Vite) в фоновом режиме
+    - name: Start frontend dev server
+      run: npm run dev &  # флаг & для фонового запуска
+
+    # Ожидание готовности сервера
+    - name: Wait for frontend to be ready
+      run: |
+        echo "Waiting for Vite dev server on port 5173..."
+        for i in {1..30}; do
+          if curl -s http://localhost:5173 > /dev/null; then
+            echo "Frontend is ready!"
+            break
+          fi
+          echo "Attempt $i/30 – waiting..."
+          sleep 2
+        done
+
+    # Запуск тестов (headless уже настроен в playwright.config.js)
     - name: Run Playwright tests
       run: npx playwright test
+
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
