@@ -4,6 +4,6 @@ export default defineConfig({
   testDir: './end-to-end-tests',
   use: {
     baseURL: 'http://localhost:5173',
-    headless: false
+    headless: process.env.CI ? true : false
   },
 });
