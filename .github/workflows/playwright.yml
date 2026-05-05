@@ -2,47 +2,90 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master, QA ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master, QA ]
 
 jobs:
   test:
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: habit_tracker_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
       with:
-        node-version: lts/*
+        dotnet-version: '10.0' # Используем вашу версию
 
-    - name: Install dependencies
-      run: npm ci
-
-    # Установка Playwright браузеров
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-
-    # 🔥 Запуск фронтенда (Vite) в фоновом режиме
-    - name: Start frontend dev server
-      run: npm run dev &  # флаг & для фонового запуска
-
-    # Ожидание готовности сервера
-    - name: Wait for frontend to be ready
+    - name: Build and run API
       run: |
-        echo "Waiting for Vite dev server on port 5173..."
+        docker build -t habit-api .
+        docker run -d -p 5093:8080 --name habit-api \
+          -e "ConnectionStrings__DefaultConnection=Host=localhost;Port=5432;Database=habit_tracker_test;Username=postgres;Password=postgres" \
+          -e "Redis__ConnectionString=localhost:6379" \
+          habit-api
+
+    - name: Wait for API to be ready
+      run: |
         for i in {1..30}; do
-          if curl -s http://localhost:5173 > /dev/null; then
-            echo "Frontend is ready!"
+          if curl -s http://localhost:5093/health; then
+            echo "API is ready"
             break
           fi
-          echo "Attempt $i/30 – waiting..."
+          echo "Waiting for API... ($i/30)"
           sleep 2
         done
 
-    # Запуск тестов (headless уже настроен в playwright.config.js)
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: 'npm'
+
+    - name: Install frontend dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Start frontend dev server
+      run: npm run dev &
+
+    - name: Wait for frontend to be ready
+      run: |
+        for i in {1..30}; do
+          if curl -s http://localhost:5173 > /dev/null; then
+            echo "Frontend is ready"
+            break
+          fi
+          echo "Waiting for frontend... ($i/30)"
+          sleep 2
+        done
+
     - name: Run Playwright tests
       run: npx playwright test
 
