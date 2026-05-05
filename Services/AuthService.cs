@@ -11,19 +11,20 @@ using System.Text;
 
 namespace HabitApi.Services;
 
-/// <summary>
-/// Сервис аутентификации: регистрация, вход и выпуск JWT-токенов.
-/// </summary>
 public sealed class AuthService : IAuthService
 {
     private readonly AppDbContext _dbContext;
+    private readonly IEmailService _emailService;
+    private readonly IConfiguration _configuration;
     private readonly string _jwtSecret;
     private readonly string _jwtIssuer;
     private readonly string _jwtAudience;
 
-    public AuthService(AppDbContext dbContext, IConfiguration configuration)
+    public AuthService(AppDbContext dbContext, IEmailService emailService, IConfiguration configuration)
     {
         _dbContext = dbContext;
+        _emailService = emailService;
+        _configuration = configuration;
         _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
             ?? configuration["Jwt:Secret"]
             ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
@@ -31,12 +32,8 @@ public sealed class AuthService : IAuthService
         _jwtAudience = configuration["Jwt:Audience"] ?? "HabitApiClient";
     }
 
-    /// <summary>
-    /// Регистрирует нового пользователя и сразу возвращает токен доступа.
-    /// </summary>
-    public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken)
+    public async Task<RegistrationResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken)
     {
-        // Нормализуем email, чтобы не плодить дубли из-за регистра и пробелов.
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
         var normalizedCity = request.City.Trim();
 
@@ -45,37 +42,45 @@ public sealed class AuthService : IAuthService
         if (existing is not null)
             throw new ConflictException("User with this email already exists.");
 
-        // Создаем доменную сущность пользователя с хешем пароля.
         var user = new User
         {
             Id = Guid.NewGuid(),
             Email = normalizedEmail,
             City = normalizedCity,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAtUtc = DateTime.UtcNow,
+            IsEmailConfirmed = false,
+            EmailConfirmationToken = Guid.NewGuid().ToString()
         };
 
-        // Генерируем ответ заранее, чтобы ошибка в JWT не случилась уже после сохранения пользователя.
-        var authResponse = BuildAuthResponse(user);
-
         _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
-        try
-        {
-            await _dbContext.SaveChangesAsync(cancellationToken);
-        }
-        // Ловим конфликт по уникальному email даже если он проявился на уровне БД.
-        catch (DbUpdateException ex) when (IsUniqueEmailViolation(ex))
-        {
-            throw new ConflictException("User with this email already exists.");
-        }
+        var baseUrl = _configuration["AppBaseUrl"] ?? "http://localhost:5093";
+        var confirmationLink = $"{baseUrl}/api/auth/confirm-email?userId={user.Id}&token={user.EmailConfirmationToken}";
+        _ = Task.Run(() => _emailService.SendConfirmationEmailAsync(user.Email, confirmationLink), cancellationToken);
 
-        return authResponse;
+        return new RegistrationResponseDto
+        {
+            UserId = user.Id,
+            Email = user.Email,
+            Message = "Registration successful. Please check your email to confirm your account."
+        };
     }
 
-    /// <summary>
-    /// Проверяет учетные данные пользователя и возвращает JWT при успешном входе.
-    /// </summary>
+    public async Task<User?> ConfirmEmailAsync(Guid userId, string token)
+    {
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == userId && u.EmailConfirmationToken == token);
+        if (user == null || user.IsEmailConfirmed)
+            return null;
+
+        user.IsEmailConfirmed = true;
+        user.EmailConfirmationToken = null;
+        await _dbContext.SaveChangesAsync();
+        return user;
+    }
+
     public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken)
     {
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
@@ -85,6 +90,9 @@ public sealed class AuthService : IAuthService
         if (user is null)
             return null;
 
+        if (!user.IsEmailConfirmed)
+            throw new UnauthorizedAccessException("Email not confirmed. Please check your inbox.");
+
         var isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
         if (!isValid)
             return null;
@@ -92,9 +100,6 @@ public sealed class AuthService : IAuthService
         return BuildAuthResponse(user);
     }
 
-    /// <summary>
-    /// Собирает DTO ответа авторизации и подписывает access token.
-    /// </summary>
     private AuthResponseDto BuildAuthResponse(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -107,9 +112,7 @@ public sealed class AuthService : IAuthService
                 new Claim(ClaimTypes.Email, user.Email),
             }),
             Expires = DateTime.UtcNow.AddHours(1),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             Issuer = _jwtIssuer,
             Audience = _jwtAudience
         };
@@ -125,13 +128,9 @@ public sealed class AuthService : IAuthService
         };
     }
 
-    /// <summary>
-    /// Проверяет, что ошибка сохранения связана именно с уникальностью email.
-    /// </summary>
     private static bool IsUniqueEmailViolation(DbUpdateException exception)
     {
         var message = exception.InnerException?.Message ?? exception.Message;
-
         return message.Contains("IX_Users_Email", StringComparison.OrdinalIgnoreCase)
             || message.Contains("duplicate key", StringComparison.OrdinalIgnoreCase);
     }

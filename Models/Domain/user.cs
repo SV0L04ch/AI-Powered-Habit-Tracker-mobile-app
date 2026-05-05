@@ -27,6 +27,7 @@ public sealed class User
     public string? Name { get; set; }
 
     public string TimeZoneId { get; set; } = "UTC";
+    
     public bool HabitReminderEnabled { get; set; } = false;
 
     [MaxLength(5)]
@@ -37,6 +38,10 @@ public sealed class User
     public string ThemePreference { get; set; } = "light";
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+
+    // Поля для подтверждения email
+    public bool IsEmailConfirmed { get; set; }
+    public string? EmailConfirmationToken { get; set; }
 
     // Навигационные свойства
     public ICollection<Habit> Habits { get; set; } = new List<Habit>();
