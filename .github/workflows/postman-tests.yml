@@ -1,0 +1,66 @@
+name: Postman API Tests
+
+on:
+  push:
+    branches: [ main, master, QA ]
+  pull_request:
+    branches: [ main, master, QA ]
+
+jobs:
+  postman:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Запуск базы данных, Redis и API через Docker Compose
+      - name: Start backend with Docker Compose
+        run: docker-compose up -d
+
+      # Ожидание полной готовности API (health‑эндпоинт)
+      - name: Wait for API to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:5093/health; then
+              echo "API is ready"
+              break
+            fi
+            echo "Waiting for API... ($i/30)"
+            sleep 2
+          done
+
+      # Установка Node.js и Newman
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      # Запуск подготовительной коллекции (регистрация, логин, создание привычек)
+      - name: Run Postman setup tests
+        run: |
+          newman run postman/AI-Powered-Habit-Tracker-setup-tests.json \
+            -e postman/AI-Powered-Habit-Tracker-Environment.json \
+            --reporters junit \
+            --reporter-junit-export setup-report.xml
+
+      # Запуск основной коллекции (CRUD привычек, статистика и т.д.)
+      - name: Run Postman main tests
+        run: |
+          newman run postman/AI-Powered-Habit-Tracker-main-tests.json \
+            -e postman/AI-Powered-Habit-Tracker-Environment.json \
+            --reporters junit \
+            --reporter-junit-export main-report.xml
+
+      # Сохранение отчётов как артефакты сборки
+      - name: Upload Newman reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-reports
+          path: |
+            setup-report.xml
+            main-report.xml
