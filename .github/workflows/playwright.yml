@@ -2,9 +2,9 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [ main, master, QA ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master, QA ]
+    branches: [ main ]
 
 jobs:
   playwright:
@@ -58,9 +58,11 @@ jobs:
             ${{ runner.os }}-buildx-
 
       # Сборка и запуск API (с кэшированием слоёв)
-      - name: Build and run API
+      - name: Build API image
+        run: docker build -t habit-api .
+
+      - name: Run API container
         run: |
-          docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache -t habit-api .
           docker run -d -p 5093:8080 --name habit-api \
             -e "ConnectionStrings__DefaultConnection=Host=localhost;Port=5432;Database=habit_tracker_test;Username=postgres;Password=postgres" \
             -e "Redis__ConnectionString=localhost:6379" \
