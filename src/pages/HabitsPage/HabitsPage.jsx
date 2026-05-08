@@ -116,8 +116,6 @@ function HabitsPage() {
         habit={editingHabit}
       />
 
-      <AddButton click={handleClick} />
-
     </PageLayout>
   );
 }
