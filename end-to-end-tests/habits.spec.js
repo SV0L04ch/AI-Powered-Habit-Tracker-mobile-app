@@ -1,29 +1,36 @@
 import { test, expect } from '@playwright/test';
 
 test('Add new correct habit', async ({ page }) => {
-    await page.goto('/habits');
+  // 1. Логин
+  await page.goto('/login');
+  await page.fill('input[name="email"]', 'tester@example.com');
+  await page.fill('input[name="password"]', 'password1');
+  await page.click('button:has-text("Войти")');
+  await expect(page).toHaveURL(/\/habits/);
 
-    await page.fill('input[name="name"]', 'meditation');
+  // 2. Нажать кнопку добавления привычки
+  const addButton = page.locator('._addButton_13rtf_7');
+  await addButton.waitFor({ state: 'visible' });
+  await addButton.click();
 
-    const addButton = page.locator('._addButton_13rtf_7');
-    await addButton.waitFor({ state: 'visible' });
-    await addButton.click();
+  // 3. Ждём, когда откроется форма создания привычки
+  await expect(page).toHaveURL(/\/habits\/new/);
 
-    await expect(page).toHaveURL(/\/habits\/new/);
+  // 4. Заполняем форму
+  await page.fill('input[name="name"]', 'meditation');
 
-    const timeButton = page.locator('_btn_1mium_1 _primary_1mium_29');
-    await timeButton.waitFor({ state: 'visible' });
-    await timeButton.click();
+  // 5. Выбираем время (если есть такой элемент)
+  const timeButton = page.locator('button:has-text("Время")');
+  await timeButton.click();
+  await page.fill('input[name="trigger_value"]', '08:00');
 
-    const difficultyButton = page.locator('_typography_ohgns_1 _caption_ohgns_41 _basicText_v5cd6_23 _desc_v5cd6_26');
-    await difficultyButton.waitFor({ state: 'visible' });
-    await timeButton.click();
+  // 6. Нажимаем кнопку сохранения
+  const createButton = page.locator('button:has-text("Создать")');
+  await createButton.click();
 
-    await page.fill('input[name="trigger_value"]', '08:00');
+  // 7. Проверяем, что вернулись на страницу привычек
+  await expect(page).toHaveURL(/\/habits/);
 
-    const createButton = page.locator('_btn_1mium_1 _primary_1mium_29');
-    await createButton.waitFor({ state: 'visible' });
-    await createButton.click();
-
-    await expect(page).toHaveURL(/\/habits/);
+  // 8. Убеждаемся, что новая привычка отображается
+  await expect(page.locator('text=meditation')).toBeVisible();
 });
