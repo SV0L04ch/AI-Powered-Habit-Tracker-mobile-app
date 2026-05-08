@@ -1,10 +1,12 @@
 using DotNetEnv;
 using HabitApi.Data;
 using HabitApi.Exceptions;
+using HabitApi.Models.Domain;
 using HabitApi.Services;
 using HabitApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +29,22 @@ var connectionString = $"Host={host};Port={port};Database={database};Username={u
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// Заменяем AddIdentity на AddIdentityCore – никаких cookie-схем Identity
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedEmail = true;
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+})
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders()
+    .AddSignInManager(); // SignInManager нужен для AuthService
+
 // JWT конфигурация
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["Jwt:Secret"]
@@ -35,21 +53,22 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "HabitApi";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "HabitApiClient";
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
-// ----- НАСТРОЙКА CORS ДЛЯ КУК -----
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:3000",     // React Native Metro (обычно)
-                "http://localhost:19006",    // Expo Web
-                "http://localhost:5093")     // Ваш API (если нужно)
-              .AllowCredentials()            // ОБЯЗАТЕЛЬНО для кук
+                "http://localhost:3000",
+                "http://localhost:19006",
+                "http://localhost:5093")
+              .AllowCredentials()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
+// JWT – единственная схема аутентификации
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -64,11 +83,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = signingKey
         };
 
-        // ----- ЧТЕНИЕ ТОКЕНА ИЗ КУКИ -----
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
+                // Читаем токен из куки
                 var token = context.Request.Cookies["access_token"];
                 if (!string.IsNullOrEmpty(token))
                     context.Token = token;
@@ -110,6 +129,18 @@ builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpClient();
 
+// Swagger
+builder.Services.AddSwaggerGen();
+
+// Redis
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis")
+                            ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION")
+                            ?? "localhost:6379";
+    options.InstanceName = "HabitTracker_";
+});
+
 // Регистрация сервисов
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -139,8 +170,11 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseCors("AllowFrontend");
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
