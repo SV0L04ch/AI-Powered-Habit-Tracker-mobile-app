@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Сервис для управления привычками.
+/// </summary>
 public sealed class HabitService : IHabitService
 {
     private readonly AppDbContext _dbContext;
@@ -15,6 +18,7 @@ public sealed class HabitService : IHabitService
         _dbContext = dbContext;
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyCollection<HabitDto>> GetUserHabitsAsync(Guid userId, CancellationToken cancellationToken)
     {
         var habits = await _dbContext.Habits
@@ -24,6 +28,7 @@ public sealed class HabitService : IHabitService
         return habits;
     }
 
+    /// <inheritdoc />
     public async Task<HabitDto?> GetHabitByIdAsync(Guid userId, Guid habitId, CancellationToken cancellationToken)
     {
         var habit = await _dbContext.Habits
@@ -31,6 +36,7 @@ public sealed class HabitService : IHabitService
         return habit is null ? null : MapToDto(habit);
     }
 
+    /// <inheritdoc />
     public async Task<HabitDto> CreateHabitAsync(Guid userId, CreateHabitDto request, CancellationToken cancellationToken)
     {
         var habit = new Habit
@@ -53,6 +59,7 @@ public sealed class HabitService : IHabitService
         return MapToDto(habit);
     }
 
+    /// <inheritdoc />
     public async Task<HabitDto?> UpdateHabitAsync(Guid userId, Guid habitId, UpdateHabitDto request, CancellationToken cancellationToken)
     {
         var habit = await _dbContext.Habits
@@ -76,14 +83,11 @@ public sealed class HabitService : IHabitService
         if (request.Reminders != null)
             habit.Reminders = request.Reminders;
 
-        // Проверка консистентности после обновления
-        if (!string.IsNullOrEmpty(habit.TriggerValue) && !IsValidTriggerValue(habit.TriggerType, habit.TriggerValue))
-            throw new ArgumentException("TriggerValue is invalid for the selected TriggerType.");
-
         await _dbContext.SaveChangesAsync(cancellationToken);
         return MapToDto(habit);
     }
 
+    /// <inheritdoc />
     public async Task<bool> DeleteHabitAsync(Guid userId, Guid habitId, CancellationToken cancellationToken)
     {
         var habit = await _dbContext.Habits
@@ -93,16 +97,6 @@ public sealed class HabitService : IHabitService
         habit.IsActive = false;
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
-    }
-
-    private static bool IsValidTriggerValue(TriggerType type, string value)
-    {
-        if (string.IsNullOrEmpty(value)) return false;
-        if (type == TriggerType.CountPerDay)
-            return int.TryParse(value, out int count) && count > 0;
-        if (type == TriggerType.TimeOfDay)
-            return TimeSpan.TryParseExact(value, @"hh\:mm", null, out _);
-        return false;
     }
 
     private static HabitDto MapToDto(Habit habit)

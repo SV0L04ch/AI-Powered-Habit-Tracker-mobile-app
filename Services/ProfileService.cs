@@ -1,37 +1,44 @@
-using HabitApi.Models.DTO;
+using HabitApi.Data;
 using HabitApi.Models.Domain;
+using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Service for reading and updating the current user's profile settings.
+/// </summary>
 public sealed class ProfileService : IProfileService
 {
     private const string LightTheme = "light";
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly AppDbContext _dbContext;
 
-    public ProfileService(UserManager<ApplicationUser> userManager)
+    public ProfileService(AppDbContext dbContext)
     {
-        _userManager = userManager;
+        _dbContext = dbContext;
     }
 
+    /// <inheritdoc />
     public async Task<UserProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var user = await _userManager.Users
+        var user = await _dbContext.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
 
         return user is null ? null : MapToDto(user);
     }
 
+    /// <inheritdoc />
     public async Task<UserProfileDto?> UpdateProfileAsync(
         Guid userId,
         UpdateUserProfileDto request,
         CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+
         if (user is null)
             return null;
 
@@ -53,21 +60,15 @@ public sealed class ProfileService : IProfileService
         if (user.HabitReminderEnabled && string.IsNullOrWhiteSpace(user.HabitReminderTime))
             throw new ArgumentException("Habit reminder time is required when reminders are enabled.");
 
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            throw new InvalidOperationException($"Profile update failed: {errors}");
-        }
-
+        await _dbContext.SaveChangesAsync(cancellationToken);
         return MapToDto(user);
     }
 
-    private static UserProfileDto MapToDto(ApplicationUser user)
+    private static UserProfileDto MapToDto(User user)
     {
         return new UserProfileDto
         {
-            Email = user.Email ?? string.Empty,
+            Email = user.Email,
             Name = user.Name ?? string.Empty,
             City = user.City,
             HabitReminderEnabled = user.HabitReminderEnabled,

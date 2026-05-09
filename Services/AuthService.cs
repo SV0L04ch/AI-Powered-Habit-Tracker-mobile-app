@@ -1,128 +1,137 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using HabitApi.Data;
 using HabitApi.Exceptions;
 using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace HabitApi.Services;
 
 public sealed class AuthService : IAuthService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly AppDbContext _dbContext;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
     private readonly string _jwtSecret;
     private readonly string _jwtIssuer;
     private readonly string _jwtAudience;
 
-    public AuthService(
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
-        IEmailService emailService,
-        IConfiguration configuration)
+    public AuthService(AppDbContext dbContext, IEmailService emailService, IConfiguration configuration)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
+        _dbContext = dbContext;
         _emailService = emailService;
         _configuration = configuration;
         _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
-                     ?? configuration["Jwt:Secret"]
-                     ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
+            ?? configuration["Jwt:Secret"]
+            ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
         _jwtIssuer = configuration["Jwt:Issuer"] ?? "HabitApi";
         _jwtAudience = configuration["Jwt:Audience"] ?? "HabitApiClient";
     }
 
     public async Task<RegistrationResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken)
     {
-        var user = new ApplicationUser
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var normalizedCity = request.City.Trim();
+
+        var existing = await _dbContext.Users
+            .FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail, cancellationToken);
+        if (existing is not null)
+            throw new ConflictException("User with this email already exists.");
+
+        var user = new User
         {
-            UserName = request.Email,
-            Email = request.Email,
-            City = request.City.Trim(),
-            CreatedAtUtc = DateTime.UtcNow
+            Id = Guid.NewGuid(),
+            Email = normalizedEmail,
+            City = normalizedCity,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            CreatedAtUtc = DateTime.UtcNow,
+            IsEmailConfirmed = false,
+            EmailConfirmationToken = Guid.NewGuid().ToString()
         };
 
-        var result = await _userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            throw new ConflictException($"Registration failed: {errors}");
-        }
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
-        // генерируем токен подтверждения
-        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var baseUrl = _configuration["AppBaseUrl"] ?? "http://localhost:5093";
-        var confirmationLink = $"{baseUrl}/api/auth/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(token)}";
-
-        // Отправка email (fire-and-forget, лучше заменить на background queue)
-        await _emailService.SendConfirmationEmailAsync(user.Email!, confirmationLink);
+        var confirmationLink = $"{baseUrl}/api/auth/confirm-email?userId={user.Id}&token={user.EmailConfirmationToken}";
+        _ = Task.Run(() => _emailService.SendConfirmationEmailAsync(user.Email, confirmationLink), cancellationToken);
 
         return new RegistrationResponseDto
         {
             UserId = user.Id,
-            Email = user.Email!,
+            Email = user.Email,
             Message = "Registration successful. Please check your email to confirm your account."
         };
     }
 
-    public async Task<ApplicationUser?> ConfirmEmailAsync(Guid userId, string token)
+    public async Task<User?> ConfirmEmailAsync(Guid userId, string token)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user is null) return null;
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == userId && u.EmailConfirmationToken == token);
+        if (user == null || user.IsEmailConfirmed)
+            return null;
 
-        var result = await _userManager.ConfirmEmailAsync(user, token);
-        return result.Succeeded ? user : null;
+        user.IsEmailConfirmed = true;
+        user.EmailConfirmationToken = null;
+        await _dbContext.SaveChangesAsync();
+        return user;
     }
 
     public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail, cancellationToken);
         if (user is null)
             return null;
 
-        if (!await _userManager.IsEmailConfirmedAsync(user))
+        if (!user.IsEmailConfirmed)
             throw new UnauthorizedAccessException("Email not confirmed. Please check your inbox.");
 
-        var signInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: false);
-        if (!signInResult.Succeeded)
+        var isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+        if (!isValid)
             return null;
 
-        var token = GenerateJwtToken(user);
+        return BuildAuthResponse(user);
+    }
+
+    private AuthResponseDto BuildAuthResponse(User user)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(_jwtSecret);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+            }),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+            Issuer = _jwtIssuer,
+            Audience = _jwtAudience
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var accessToken = tokenHandler.WriteToken(token);
+
         return new AuthResponseDto
         {
             UserId = user.Id,
-            Email = user.Email!,
-            AccessToken = token
+            Email = user.Email,
+            AccessToken = accessToken
         };
     }
 
-    private string GenerateJwtToken(ApplicationUser user)
+    private static bool IsUniqueEmailViolation(DbUpdateException exception)
     {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email!)
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecret));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(1),
-            Issuer = _jwtIssuer,
-            Audience = _jwtAudience,
-            SigningCredentials = creds
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        var message = exception.InnerException?.Message ?? exception.Message;
+        return message.Contains("IX_Users_Email", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("duplicate key", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -47,17 +47,6 @@ const useAuthUser = create(
             try { await axios.post('/api/auth/logout'); } catch(e){}
             set({ email: null, city: null, isAuthenticated: false });
         },
-    }),
-    {
-        name: 'auth-storage',
-        partialize: (state) => ({
-            email: state.email,
-            city: state.city,
-            isAuthenticated: state.isAuthenticated
-        })
-    }
-
-    ),
-    
+    })),
 );
 export default useAuthUser;
