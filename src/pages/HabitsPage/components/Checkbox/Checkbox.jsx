@@ -11,7 +11,7 @@ const Checkbox = ({ checked, onChange, label }) => {
         onChange={onChange}
       />
       <span className={styles.checkmark}>
-        <icons.Check className={styles.icon} />
+        {checked && <icons.Check className={styles.icon} />}
       </span>
       {label && <span>{label}</span>}
     </label>
