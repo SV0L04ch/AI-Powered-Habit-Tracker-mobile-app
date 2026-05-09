@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Сервис для работы с отметками выполнения привычек.
+/// </summary>
 public sealed class HabitEntryService : IHabitEntryService
 {
     private readonly AppDbContext _dbContext;
@@ -16,6 +19,7 @@ public sealed class HabitEntryService : IHabitEntryService
         _dbContext = dbContext;
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyCollection<HabitEntryDto>> GetHabitEntriesAsync(
         Guid userId,
         Guid habitId,
@@ -44,6 +48,7 @@ public sealed class HabitEntryService : IHabitEntryService
         return entries;
     }
 
+    /// <inheritdoc />
     public async Task<HabitEntryDto> AddHabitEntryAsync(
         Guid userId,
         Guid habitId,
@@ -68,21 +73,16 @@ public sealed class HabitEntryService : IHabitEntryService
 
         if (habit.IsPositive)
         {
-            // валидация уже выполнена FluentValidation, но доп. проверка не помешает
-            if (request.Status is null)
-                throw new ArgumentException("Status is required for positive habits.");
+            // Валидация Status и PartialValue уже выполнена FluentValidation
             entry.Status = request.Status;
-            if (request.Status == HabitEntryStatus.Partial && request.PartialValue is null)
-                throw new ArgumentException("PartialValue is required when Status is Partial.");
-            entry.PartialValue = request.Status == HabitEntryStatus.Partial ? request.PartialValue : null;
+            entry.PartialValue = request.PartialValue;
             entry.RelapseCount = null;
         }
-        else // отрицательная привычка
+        else // Отрицательная привычка
         {
             entry.Status = null;
             entry.PartialValue = null;
-            // по умолчанию 1 срыв, если не указано
-            entry.RelapseCount = request.RelapseCount ?? 1;
+            entry.RelapseCount = request.RelapseCount ?? 1; // по умолчанию 1 срыв
         }
 
         _dbContext.HabitEntries.Add(entry);
@@ -91,6 +91,7 @@ public sealed class HabitEntryService : IHabitEntryService
         return MapToDto(entry);
     }
 
+    /// <inheritdoc />
     public async Task<HabitEntryDto?> UpdateHabitEntryAsync(
         Guid userId,
         Guid habitId,
@@ -128,6 +129,7 @@ public sealed class HabitEntryService : IHabitEntryService
         return MapToDto(entry);
     }
 
+    /// <inheritdoc />
     public async Task<bool> DeleteHabitEntryAsync(
         Guid userId,
         Guid habitId,
@@ -161,24 +163,23 @@ public sealed class HabitEntryService : IHabitEntryService
 
             if (targetStatus == HabitEntryStatus.Partial)
             {
-                // при обновлении: если не передан новый PartialValue, берём старый
                 var targetPartialValue = request.PartialValue ?? entry.PartialValue;
                 if (!targetPartialValue.HasValue)
                     throw new ArgumentException("PartialValue is required when status is Partial.");
+
                 entry.PartialValue = targetPartialValue.Value;
             }
             else
             {
                 entry.PartialValue = null;
             }
+
+            return;
         }
-        else // отрицательная привычка
-        {
-            entry.Status = null;
-            entry.PartialValue = null;
-            // если обновление не передало RelapseCount, оставляем прежний
-            entry.RelapseCount = request.RelapseCount ?? entry.RelapseCount ?? 1;
-        }
+
+        entry.Status = null;
+        entry.PartialValue = null;
+        entry.RelapseCount = request.RelapseCount ?? entry.RelapseCount ?? 1;
     }
 
     private async Task<Habit?> GetOwnedActiveHabitAsync(Guid userId, Guid habitId, CancellationToken cancellationToken)

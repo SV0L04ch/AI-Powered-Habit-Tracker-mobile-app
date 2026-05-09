@@ -9,8 +9,6 @@ import PersonalInsightsPage from './pages/PersonalInsightsPage/PersonalInsightsP
 import CityInsightsPage from './pages/CityInsightsPage/CityInsightsPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import BottomNav from './components/BottomNav/BottomNav';
-import GuestRoute from './components/Guards/GuestRoute';
-import ProtectedAuth from './components/Guards/ProtectedAuth';
 import './styles/main.scss'
 
 
@@ -32,14 +30,14 @@ function App() {
   return (
     <div className="container">
       <Routes>
-        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
-        <Route path="/register" element={<GuestRoute><RegisterPage /> </GuestRoute>} />
-        <Route path="/habits" element={<ProtectedAuth><HabitsPage /></ProtectedAuth>} />
-        <Route path="/habits/:id" element={<ProtectedAuth><HabitDetailPage /></ProtectedAuth>} />
-        <Route path="/insights/personal" element={<ProtectedAuth><PersonalInsightsPage /></ProtectedAuth>} />
-        <Route path="/habits/new" element={<ProtectedAuth><CreateHabitPage /></ProtectedAuth>} />
-        <Route path="/insights/city" element={<ProtectedAuth><CityInsightsPage /></ProtectedAuth>} />
-        <Route path="/profile" element={<ProtectedAuth><ProfilePage /></ProtectedAuth>} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/habits" element={<HabitsPage />} />
+        <Route path="/habits/:id" element={<HabitDetailPage />} />
+        <Route path="/insights/personal" element={<PersonalInsightsPage />} />
+        <Route path="/habits/new" element={<CreateHabitPage />} />
+        <Route path="/insights/city" element={<CityInsightsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/" element={<Navigate to="/habits" replace />} />
       </Routes>
       <BottomNav activeTab={activeTab} onTabChange={handleTabChange}/>

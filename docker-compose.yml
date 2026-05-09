@@ -18,8 +18,6 @@ services:
     restart: unless-stopped
 
   api:
-    dns:
-      - 8.8.8.8
     build: .
     container_name: habit_api
     ports:
@@ -29,8 +27,8 @@ services:
         condition: service_healthy
       mailhog:
         condition: service_started
-      redis:
-        condition: service_started
+    dns:
+      - 8.8.8.8
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       # БД
@@ -57,7 +55,6 @@ services:
       - EmailSettings__EnableSsl=false
       # Базовый URL для ссылки подтверждения
       - AppBaseUrl=http://localhost:5093
-      - REDIS_CONNECTION=redis:6379
     restart: unless-stopped
 
   mailhog:
@@ -66,13 +63,6 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: habit_redis
-    ports:
-      - "6379:6379"
     restart: unless-stopped
 
 volumes:

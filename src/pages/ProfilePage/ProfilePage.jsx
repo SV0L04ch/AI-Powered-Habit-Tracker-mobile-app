@@ -6,7 +6,6 @@ import Button from '../../components/Button/Button';
 import Typography from '../../components/Typography/Typography';
 import Input from '../../components/Input/Input';
 import icons from '../../lib/icons';
-import useAuthUser from '../../store/useAuthStore';
 // import illustrations from '../../assets/images/illustrations/avatar.png';
 
 
@@ -14,15 +13,27 @@ import useAuthUser from '../../store/useAuthStore';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const isLoading = useAuthUser((state) => state.isLoading)
   const [user, setUser] = useState(null);
   const [city, setCity] = useState('');
   const [darkTheme, setDarkTheme] = useState(false);
   const [reportTime, setReportTime] = useState('08:00');
   const [citiesList] = useState(['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань']);
-  const logOut = useAuthUser((state) => state.logout)
 
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
+    setUser(currentUser);
+    setCity(currentUser.city || 'Москва');
+    
+    // Загружаем настройки из localStorage
+    const savedDark = localStorage.getItem('darkTheme') === 'true';
+    const savedTime = localStorage.getItem('reportTime') || '08:00';
+    setDarkTheme(savedDark);
+    setReportTime(savedTime);
+    // применяем тему (опционально)
+    if (savedDark) document.body.classList.add('dark-theme');
+    else document.body.classList.remove('dark-theme');
+  }, [navigate]);
 
   const handleCityChange = (e) => {
     const newCity = e.target.value;
@@ -31,6 +42,7 @@ const ProfilePage = () => {
     const updatedUser = { ...user, city: newCity };
     localStorage.setItem('currentUser', JSON.stringify(updatedUser));
     // также обновляем в массиве users
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
     const userIndex = users.findIndex(u => u.email === user.email);
     if (userIndex !== -1) users[userIndex].city = newCity;
     localStorage.setItem('users', JSON.stringify(users));
@@ -51,14 +63,17 @@ const ProfilePage = () => {
     
   };
 
-  const handleLogout = async () => {
-    await logOut()
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
     navigate('/login');
   };
+
+  if (!user) return <div className={styles.page}>Загрузка...</div>;
 
   return (
     <div className={styles.page}>
       <Typography variant="headline1" className={styles.title}>Профиль</Typography>
+      <img src={illustrations} alt="Аватар" className={styles.avatarImage} />
       <Typography variant="headline2" className={styles.name}>Алексей Волков</Typography>
       <Typography variant="headline3" className={styles.sectionTitle}>Персонализация</Typography>
      
@@ -105,8 +120,8 @@ const ProfilePage = () => {
         </div>
       </Substrate>
 
-        <Button variant="form" className={styles.logoutButton} onClick={handleLogout} disabled={isLoading}>
-          {isLoading ? "Выход..." : "Выход"}
+        <Button variant="form" className={styles.logoutButton} onClick={handleLogout}>
+          ВЫХОД
         </Button>
            
      </div>
