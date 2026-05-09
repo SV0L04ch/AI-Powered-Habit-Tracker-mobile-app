@@ -63,7 +63,13 @@ const useHabits = create(
                     }
                 }
             }),
-            { name: 'habits-storage'}
+            { 
+                name: 'habits-storage',
+                partialize: (state) => ({
+                    habits: state.habits,
+                    isLoaded: state.isLoaded
+                })
+            }
         ))
 
 export default useHabits
