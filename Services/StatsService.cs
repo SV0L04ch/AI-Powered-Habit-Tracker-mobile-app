@@ -1,3 +1,4 @@
+using System.Text.Json;
 using HabitApi.Data;
 using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
@@ -38,19 +39,13 @@ public sealed class StatsService : IStatsService
             .Where(e => habitIds.Contains(e.HabitId) && e.Date == date)
             .ToListAsync(cancellationToken);
 
-        int completed = entries.Count(e => e.Status == HabitEntryStatus.Completed);
-        int partiallyCompleted = entries.Count(e => e.Status == HabitEntryStatus.Partial);
-        int skipped = entries.Count(e => e.Status == HabitEntryStatus.Skipped);
-
-        var weather = await _weatherService.GetWeatherAsync(user.City, date, cancellationToken);
-
         var summary = new DailySummaryDto
         {
             Date = date,
-            HabitsCompleted = completed,
-            HabitsPartiallyCompleted = partiallyCompleted,
-            HabitsSkipped = skipped,
-            Weather = weather,
+            HabitsCompleted = entries.Count(e => e.Status == HabitEntryStatus.Completed),
+            HabitsPartiallyCompleted = entries.Count(e => e.Status == HabitEntryStatus.Partial),
+            HabitsSkipped = entries.Count(e => e.Status == HabitEntryStatus.Skipped),
+            Weather = await TryGetWeatherAsync(user.City, date, cancellationToken),
             AiInsight = string.Empty
         };
 
@@ -70,13 +65,15 @@ public sealed class StatsService : IStatsService
             .ToListAsync(cancellationToken);
 
         if (!userIds.Any())
+        {
             return new CitySummaryDto
             {
                 City = city,
                 WeekStartDate = weekStart,
                 WeekEndDate = weekEnd,
-                PopularHabits = new List<CityHabitStatDto>()
+                PopularHabits = []
             };
+        }
 
         var habits = await _dbContext.Habits
             .Where(h => userIds.Contains(h.UserId) && h.IsActive)
@@ -89,26 +86,19 @@ public sealed class StatsService : IStatsService
             .ToListAsync(cancellationToken);
 
         var habitStats = habits
-            .GroupJoin(entries,
+            .GroupJoin(
+                entries,
                 h => h.Id,
                 e => e.HabitId,
-                (h, entryGroup) => new
+                (habit, entryGroup) => new CityHabitStatDto
                 {
-                    HabitName = h.Name,
-                    UserCount = entryGroup
-                        .Select(e => e.Habit?.UserId)
-                        .Where(uid => uid.HasValue)
-                        .Distinct()
-                        .Count()
+                    HabitName = habit.Name,
+                    UserCount = entryGroup.Any() ? 1 : 0,
+                    TotalUsers = userIds.Count
                 })
             .OrderByDescending(x => x.UserCount)
+            .ThenBy(x => x.HabitName)
             .Take(10)
-            .Select(x => new CityHabitStatDto
-            {
-                HabitName = x.HabitName,
-                UserCount = x.UserCount,
-                TotalUsers = userIds.Count
-            })
             .ToList();
 
         return new CitySummaryDto
@@ -117,6 +107,133 @@ public sealed class StatsService : IStatsService
             WeekStartDate = weekStart,
             WeekEndDate = weekEnd,
             PopularHabits = habitStats
+        };
+    }
+
+    public async Task<HabitWeatherInsightResponseDto> GetHabitWeatherInsightAsync(
+        Guid userId,
+        Guid habitId,
+        DateOnly date,
+        bool includePreviousDayComparison,
+        CancellationToken cancellationToken)
+    {
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        if (user is null)
+            throw new KeyNotFoundException("User not found.");
+
+        var habit = await _dbContext.Habits
+            .FirstOrDefaultAsync(h => h.Id == habitId && h.UserId == userId && h.IsActive, cancellationToken);
+        if (habit is null)
+            throw new KeyNotFoundException("Habit not found.");
+
+        var currentEntry = await _dbContext.HabitEntries
+            .FirstOrDefaultAsync(e => e.HabitId == habitId && e.Date == date, cancellationToken);
+
+        HabitWeatherDaySummaryDto? previousDay = null;
+        if (includePreviousDayComparison)
+        {
+            var previousDate = date.AddDays(-1);
+            var previousEntry = await _dbContext.HabitEntries
+                .FirstOrDefaultAsync(e => e.HabitId == habitId && e.Date == previousDate, cancellationToken);
+
+            previousDay = CreateHabitWeatherDaySummary(
+                habit,
+                previousDate,
+                previousEntry,
+                await TryGetWeatherAsync(user.City, previousDate, cancellationToken));
+        }
+
+        var summary = new HabitWeatherInsightResponseDto
+        {
+            HabitId = habit.Id,
+            HabitName = habit.Name,
+            IsPositive = habit.IsPositive,
+            Date = date,
+            CurrentDay = CreateHabitWeatherDaySummary(
+                habit,
+                date,
+                currentEntry,
+                await TryGetWeatherAsync(user.City, date, cancellationToken)),
+            PreviousDay = previousDay,
+            Message = string.Empty
+        };
+
+        summary.Message = await _aiInsightsService.BuildHabitWeatherInsightAsync(summary, cancellationToken);
+        return summary;
+    }
+
+    private async Task<WeatherSnapshotDto?> TryGetWeatherAsync(string city, DateOnly date, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _weatherService.GetWeatherAsync(city, date, cancellationToken);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+        catch (KeyNotFoundException)
+        {
+            return null;
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static HabitWeatherDaySummaryDto CreateHabitWeatherDaySummary(
+        Habit habit,
+        DateOnly date,
+        HabitEntry? entry,
+        WeatherSnapshotDto? weather)
+    {
+        return new HabitWeatherDaySummaryDto
+        {
+            Date = date,
+            HasEntry = entry is not null,
+            Status = entry?.Status,
+            PartialValue = entry?.PartialValue,
+            RelapseCount = entry?.RelapseCount,
+            Note = entry?.Note,
+            Weather = weather,
+            PerformanceSummary = BuildPerformanceSummary(habit, entry)
+        };
+    }
+
+    private static string BuildPerformanceSummary(Habit habit, HabitEntry? entry)
+    {
+        if (entry is null)
+        {
+            return habit.IsPositive
+                ? "За этот день нет записи о выполнении привычки."
+                : "За этот день нет записи о количестве срывов.";
+        }
+
+        if (habit.IsPositive)
+        {
+            return entry.Status switch
+            {
+                HabitEntryStatus.Completed => "Привычка полностью выполнена.",
+                HabitEntryStatus.Partial when entry.PartialValue.HasValue =>
+                    $"Привычка выполнена частично, значение прогресса: {entry.PartialValue.Value}.",
+                HabitEntryStatus.Partial => "Привычка выполнена частично.",
+                HabitEntryStatus.Skipped => "Привычка была пропущена.",
+                _ => "По привычке есть запись, но статус выполнения не указан."
+            };
+        }
+
+        var relapseCount = entry.RelapseCount ?? 0;
+        return relapseCount switch
+        {
+            0 => "Срывов не зафиксировано.",
+            1 => "Зафиксирован 1 срыв.",
+            _ => $"Зафиксировано {relapseCount} срывов."
         };
     }
 }

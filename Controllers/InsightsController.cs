@@ -1,39 +1,31 @@
+using System.Security.Claims;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace HabitApi.Controllers;
 
-/// <summary>
-/// Контроллер для генерации ИИ-подсказок и поддержки привычек.
-/// </summary>
 [ApiController]
 [Route("api/habits/{habitId:guid}/insights")]
-[Authorize] // Требуем аутентификацию
+[Authorize]
 public sealed class InsightsController : ControllerBase
 {
     private readonly IHabitService _habitService;
     private readonly IAiInsightsService _aiInsightsService;
+    private readonly IStatsService _statsService;
 
-    public InsightsController(IHabitService habitService, IAiInsightsService aiInsightsService)
+    public InsightsController(
+        IHabitService habitService,
+        IAiInsightsService aiInsightsService,
+        IStatsService statsService)
     {
         _habitService = habitService;
         _aiInsightsService = aiInsightsService;
+        _statsService = statsService;
     }
 
-    /// <summary>
-    /// Сгенерировать поддерживающее сообщение для привычки (при лени, срыве или пропуске).
-    /// </summary>
-    /// <param name="habitId">Идентификатор привычки.</param>
-    /// <param name="request">Сценарий запроса (например, "lazy", "relapse", "skip").</param>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Сообщение поддержки от ИИ.</returns>
-    /// <response code="200">Сообщение успешно сгенерировано.</response>
-    /// <response code="400">Некорректный сценарий.</response>
-    /// <response code="401">Пользователь не авторизован.</response>
-    /// <response code="404">Привычка не найдена или не принадлежит пользователю.</response>
     [HttpPost("support")]
     [ProducesResponseType(typeof(HabitSupportResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -67,17 +59,49 @@ public sealed class InsightsController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
-        // Другие исключения (например, от API ИИ) обрабатываются глобальным фильтром
     }
 
-    /// <summary>
-    /// Вспомогательный метод для получения ID текущего пользователя из JWT.
-    /// </summary>
+    [HttpPost("weather-summary")]
+    [ProducesResponseType(typeof(HabitWeatherInsightResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<HabitWeatherInsightResponseDto>> BuildWeatherSummary(
+        Guid habitId,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] HabitWeatherInsightRequestDto? request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetCurrentUserId();
+        request ??= new HabitWeatherInsightRequestDto();
+        var targetDate = request.Date ?? DateOnly.FromDateTime(DateTime.UtcNow);
+
+        try
+        {
+            var summary = await _statsService.GetHabitWeatherInsightAsync(
+                userId,
+                habitId,
+                targetDate,
+                request.IncludePreviousDayComparison,
+                cancellationToken);
+
+            return Ok(summary);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { error = "Habit not found." });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     private Guid GetCurrentUserId()
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userIdClaim is null)
             throw new UnauthorizedAccessException("User ID not found in token.");
+
         return Guid.Parse(userIdClaim);
     }
 }
