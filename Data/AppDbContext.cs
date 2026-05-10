@@ -7,16 +7,21 @@ namespace HabitApi.Data;
 
 public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-    }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Habit> Habits { get; set; }
     public DbSet<HabitEntry> HabitEntries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder); // обязательно для Identity
+        base.OnModelCreating(modelBuilder);
+
+        // Игнорируем таблицы ролей и связанные
+        modelBuilder.Ignore<IdentityRole<Guid>>();
+        modelBuilder.Ignore<IdentityRoleClaim<Guid>>();
+        modelBuilder.Ignore<IdentityUserRole<Guid>>();
+        modelBuilder.Ignore<IdentityUserClaim<Guid>>();
+        modelBuilder.Ignore<IdentityUserLogin<Guid>>();
 
         // ========== Habit ==========
         modelBuilder.Entity<Habit>(entity =>
