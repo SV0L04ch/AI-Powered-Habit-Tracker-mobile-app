@@ -3,6 +3,7 @@ using HabitApi.Exceptions;
 using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
+using HabitApi.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Services;
@@ -108,6 +109,9 @@ public sealed class HabitEntryService : IHabitEntryService
             return null;
 
         var targetDate = request.Date ?? entry.Date;
+        if (!RequestValidationRules.BePastOrToday(targetDate))
+            throw new ArgumentException("Entry date cannot be in the future.");
+
         var duplicateEntryExists = await _dbContext.HabitEntries
             .AnyAsync(
                 e => e.HabitId == habit.Id

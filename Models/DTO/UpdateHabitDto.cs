@@ -1,5 +1,4 @@
 ﻿using HabitApi.Models.Domain;
-using System.ComponentModel.DataAnnotations;
 
 namespace HabitApi.Models.DTO;
 
@@ -8,7 +7,6 @@ namespace HabitApi.Models.DTO;
 /// </summary>
 public sealed class UpdateHabitDto
 {
-    [MaxLength(200)]
     public string? Name { get; set; }
     
     public bool? IsPositive { get; set; }

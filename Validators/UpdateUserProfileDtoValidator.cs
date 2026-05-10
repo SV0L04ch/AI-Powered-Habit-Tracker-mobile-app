@@ -1,6 +1,6 @@
 using FluentValidation;
 using HabitApi.Models.DTO;
-using System.Globalization;
+using HabitApi.Validation;
 
 namespace HabitApi.Validators;
 
@@ -46,11 +46,6 @@ public sealed class UpdateUserProfileDtoValidator : AbstractValidator<UpdateUser
         if (string.IsNullOrWhiteSpace(reminderTime))
             return true;
 
-        return TimeOnly.TryParseExact(
-            reminderTime.Trim(),
-            "HH:mm",
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.None,
-            out _);
+        return RequestValidationRules.BeValidTimeOfDay(reminderTime);
     }
 }

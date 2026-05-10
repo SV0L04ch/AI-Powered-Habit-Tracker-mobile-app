@@ -2,6 +2,7 @@ using HabitApi.Data;
 using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
+using HabitApi.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Services;
@@ -77,7 +78,7 @@ public sealed class HabitService : IHabitService
             habit.Reminders = request.Reminders;
 
         // Проверка консистентности после обновления
-        if (!string.IsNullOrEmpty(habit.TriggerValue) && !IsValidTriggerValue(habit.TriggerType, habit.TriggerValue))
+        if (!string.IsNullOrEmpty(habit.TriggerValue) && !RequestValidationRules.BeValidTriggerValue(habit.TriggerType, habit.TriggerValue))
             throw new ArgumentException("TriggerValue is invalid for the selected TriggerType.");
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -93,16 +94,6 @@ public sealed class HabitService : IHabitService
         habit.IsActive = false;
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
-    }
-
-    private static bool IsValidTriggerValue(TriggerType type, string value)
-    {
-        if (string.IsNullOrEmpty(value)) return false;
-        if (type == TriggerType.CountPerDay)
-            return int.TryParse(value, out int count) && count > 0;
-        if (type == TriggerType.TimeOfDay)
-            return TimeSpan.TryParseExact(value, @"hh\:mm", null, out _);
-        return false;
     }
 
     private static HabitDto MapToDto(Habit habit)

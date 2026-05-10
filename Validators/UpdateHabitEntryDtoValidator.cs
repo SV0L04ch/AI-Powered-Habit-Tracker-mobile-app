@@ -5,12 +5,12 @@ using HabitApi.Validation;
 
 namespace HabitApi.Validators;
 
-public sealed class CreateHabitEntryDtoValidator : AbstractValidator<CreateHabitEntryDto>
+public sealed class UpdateHabitEntryDtoValidator : AbstractValidator<UpdateHabitEntryDto>
 {
-    public CreateHabitEntryDtoValidator()
+    public UpdateHabitEntryDtoValidator()
     {
         RuleFor(x => x.Date)
-            .Must(RequestValidationRules.BePastOrToday)
+            .Must(date => date is null || RequestValidationRules.BePastOrToday(date.Value))
             .WithMessage("Entry date cannot be in the future.");
 
         RuleFor(x => x.Note)
@@ -27,6 +27,12 @@ public sealed class CreateHabitEntryDtoValidator : AbstractValidator<CreateHabit
         {
             RuleFor(x => x.PartialValue)
                 .NotNull().WithMessage("PartialValue is required when status is Partial.")
+                .GreaterThan(0).WithMessage("PartialValue must be positive.");
+        });
+
+        When(x => x.PartialValue.HasValue, () =>
+        {
+            RuleFor(x => x.PartialValue)
                 .GreaterThan(0).WithMessage("PartialValue must be positive.");
         });
 

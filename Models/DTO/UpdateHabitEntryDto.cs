@@ -1,5 +1,4 @@
 using HabitApi.Models.Domain;
-using System.ComponentModel.DataAnnotations;
 
 namespace HabitApi.Models.DTO;
 
@@ -24,19 +23,16 @@ public sealed class UpdateHabitEntryDto
     /// Для положительных привычек с типом CountPerDay — сколько выполнено.
     /// Используется, если итоговый статус равен Partial.
     /// </summary>
-    [Range(0, int.MaxValue)]
     public int? PartialValue { get; set; }
 
     /// <summary>
     /// Для отрицательных привычек — количество срывов за день.
     /// </summary>
-    [Range(0, int.MaxValue)]
     public int? RelapseCount { get; set; }
 
     /// <summary>
     /// Новая пользовательская заметка.
     /// Чтобы очистить заметку, можно передать пустую строку.
     /// </summary>
-    [MaxLength(500)]
     public string? Note { get; set; }
 }
