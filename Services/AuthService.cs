@@ -6,6 +6,7 @@ using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HabitApi.Services;
@@ -16,6 +17,7 @@ public sealed class AuthService : IAuthService
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthService> _logger;
     private readonly string _jwtSecret;
     private readonly string _jwtIssuer;
     private readonly string _jwtAudience;
@@ -24,12 +26,14 @@ public sealed class AuthService : IAuthService
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IEmailService emailService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<AuthService> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _emailService = emailService;
         _configuration = configuration;
+        _logger = logger;
         _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
                      ?? configuration["Jwt:Secret"]
                      ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
@@ -59,8 +63,15 @@ public sealed class AuthService : IAuthService
         var baseUrl = _configuration["AppBaseUrl"] ?? "http://localhost:5093";
         var confirmationLink = $"{baseUrl}/api/auth/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(token)}";
 
-        // Отправка email (fire-and-forget, лучше заменить на background queue)
-        await _emailService.SendConfirmationEmailAsync(user.Email!, confirmationLink);
+        // Отправляем письмо, но не роняем регистрацию при ошибке SMTP
+        try
+        {
+            await _emailService.SendConfirmationEmailAsync(user.Email!, confirmationLink);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send confirmation email to {Email}", user.Email);
+        }
 
         return new RegistrationResponseDto
         {
