@@ -50,7 +50,12 @@ public sealed class AuthService : IAuthService
             City = request.City.Trim(),
             CreatedAtUtc = DateTime.UtcNow
         };
-
+        
+        if (request.Email.Length > 256)
+        {
+            throw new ArgumentException("Email is too long (max 256 characters).");
+        }
+        
         var result = await _userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
