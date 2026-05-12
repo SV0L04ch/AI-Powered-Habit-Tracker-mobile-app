@@ -33,8 +33,4 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="vpn-config\" />
-  </ItemGroup>
-
 </Project>
