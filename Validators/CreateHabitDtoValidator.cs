@@ -4,7 +4,11 @@ using HabitApi.Models.Domain;
 
 namespace HabitApi.Validators;
 
-public class CreateHabitDtoValidator : AbstractValidator<CreateHabitDto>
+/// <summary>
+/// Валидатор запроса на создание привычки.
+/// Проверяет название, целевое количество дней, штрафы, тип и значение триггера, а также время напоминаний.
+/// </summary>
+public sealed class CreateHabitDtoValidator : AbstractValidator<CreateHabitDto>
 {
     public CreateHabitDtoValidator()
     {
@@ -34,23 +38,31 @@ public class CreateHabitDtoValidator : AbstractValidator<CreateHabitDto>
         RuleForEach(x => x.Reminders)
             .Must(BeValidTime).WithMessage("Reminder time must be in HH:mm format.");
 
-        // Дополнительная семантическая проверка: для вредных привычек не должно быть TargetDays и PenaltyDaysPerMiss
         RuleFor(x => x)
             .Must(x => !(!x.IsPositive && (x.TargetDays != 0 || x.PenaltyDaysPerMiss != 0)))
             .WithMessage("Negative habits should not have TargetDays or PenaltyDaysPerMiss.");
     }
 
-    private bool ValidateTriggerValue(TriggerType type, string value)
+    /// <summary>
+    /// Проверяет, соответствует ли значение триггера выбранному типу.
+    /// </summary>
+    /// <param name="type">Тип триггера (TimeOfDay или CountPerDay).</param>
+    /// <param name="value">Значение триггера (время или количество).</param>
+    /// <returns>true, если значение корректно для указанного типа.</returns>
+    private static bool ValidateTriggerValue(TriggerType type, string value)
     {
         if (string.IsNullOrEmpty(value)) return false;
         if (type == TriggerType.CountPerDay)
-            return int.TryParse(value, out int count) && count > 0;
+            return int.TryParse(value, out var count) && count > 0;
         if (type == TriggerType.TimeOfDay)
             return TimeSpan.TryParseExact(value, @"hh\:mm", null, out _);
         return false;
     }
 
-    private bool BeValidTime(string time)
+    /// <summary>
+    /// Проверяет, что время указано в формате HH:mm.
+    /// </summary>
+    private static bool BeValidTime(string time)
     {
         return TimeSpan.TryParseExact(time, @"hh\:mm", null, out _);
     }

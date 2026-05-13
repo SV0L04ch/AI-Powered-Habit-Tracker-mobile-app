@@ -13,10 +13,17 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Polly;
+using Polly.Extensions.Http;
+using Microsoft.AspNetCore.RateLimiting;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Structured logging (убираем все провайдеры, добавляем консоль)
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 // Настройка подключения к PostgreSQL
 var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
@@ -45,23 +52,24 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders()
     .AddSignInManager();
 
-// JWT конфигурация
+// JWT конфигурация с проверкой длины секрета
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
+if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Length < 32)
+    throw new InvalidOperationException("JWT secret must be at least 32 characters long.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "HabitApi";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "HabitApiClient";
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
-// CORS
+// CORS (origins из конфигурации, с fallback'ом)
+var corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:3000", "http://localhost:19006", "http://localhost:5093" };
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:3000",
-                "http://localhost:19006",
-                "http://localhost:5093")
+        policy.WithOrigins(corsOrigins)
               .AllowCredentials()
               .AllowAnyHeader()
               .AllowAnyMethod();
@@ -85,7 +93,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.Events = new JwtBearerEvents
         {
-            // Читаем токен из куки, если он есть
             OnMessageReceived = context =>
             {
                 var token = context.Request.Cookies["access_token"];
@@ -127,9 +134,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
-builder.Services.AddHttpClient();
 
-// Swagger
+// HttpClient для WeatherService с Polly (timeout 10s + 3 retry с экспоненциальной задержкой)
+builder.Services
+    .AddHttpClient<IWeatherService, WeatherService>(client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(10);
+    })
+    .AddPolicyHandler(HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+
+// Swagger (только генерация, UI – только в dev)
 builder.Services.AddSwaggerGen();
 
 // Redis для кэширования погоды
@@ -141,8 +157,18 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "HabitTracker_";
 });
 
-// Регистрация сервисов
-builder.Services.AddScoped<IWeatherService, WeatherService>();
+// Rate Limiter (5 запросов в минуту для auth-эндпоинтов)
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("auth", config =>
+    {
+        config.PermitLimit = 5;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueLimit = 0;
+    });
+});
+
+// Регистрация сервисов (WeatherService регистрируется через AddHttpClient выше, поэтому здесь не нужен)
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IHabitEntryService, HabitEntryService>();
@@ -170,13 +196,17 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-// Swagger UI
-app.UseSwagger();
-app.UseSwaggerUI();
+// Swagger UI только в режиме разработки
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.MapControllers();
 
 // Health-check эндпоинт для мониторинга
@@ -193,6 +223,7 @@ static ProblemDetails CreateProblemDetails(HttpContext context, Exception? excep
         ArgumentException => StatusCodes.Status400BadRequest,
         UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
         KeyNotFoundException => StatusCodes.Status404NotFound,
+        DbUpdateException => StatusCodes.Status400BadRequest,   // обработка ошибок валидации БД
         _ => StatusCodes.Status500InternalServerError
     };
 

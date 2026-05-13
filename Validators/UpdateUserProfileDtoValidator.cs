@@ -4,6 +4,9 @@ using System.Globalization;
 
 namespace HabitApi.Validators;
 
+/// <summary>
+/// Валидатор запроса на обновление профиля пользователя.
+/// </summary>
 public sealed class UpdateUserProfileDtoValidator : AbstractValidator<UpdateUserProfileDto>
 {
     public UpdateUserProfileDtoValidator()
@@ -32,6 +35,9 @@ public sealed class UpdateUserProfileDtoValidator : AbstractValidator<UpdateUser
             .When(x => x.HabitReminderTime is not null && !string.IsNullOrWhiteSpace(x.HabitReminderTime));
     }
 
+    /// <summary>
+    /// Проверяет, что тема оформления — light или dark.
+    /// </summary>
     private static bool BeValidThemePreference(string? themePreference)
     {
         if (string.IsNullOrWhiteSpace(themePreference))
@@ -41,6 +47,9 @@ public sealed class UpdateUserProfileDtoValidator : AbstractValidator<UpdateUser
         return normalized is "light" or "dark";
     }
 
+    /// <summary>
+    /// Проверяет, что время напоминания указано в формате HH:mm.
+    /// </summary>
     private static bool BeValidReminderTime(string? reminderTime)
     {
         if (string.IsNullOrWhiteSpace(reminderTime))

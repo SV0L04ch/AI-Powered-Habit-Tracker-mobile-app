@@ -96,15 +96,16 @@ public sealed class AuthController : ControllerBase
     /// </summary>
     private void SetAccessTokenCookie(string token)
     {
+        var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = !Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Equals("Development") ?? false,
-            SameSite = SameSiteMode.Lax,
+            Secure = !isDevelopment,                        // true в production, false в development
+            SameSite = SameSiteMode.Strict,                 // защита от CSRF
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         };
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            cookieOptions.Secure = false;
+
         Response.Cookies.Append("access_token", token, cookieOptions);
     }
 }

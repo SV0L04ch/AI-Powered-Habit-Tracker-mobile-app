@@ -23,7 +23,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRo
         modelBuilder.Ignore<IdentityUserClaim<Guid>>();
         modelBuilder.Ignore<IdentityUserLogin<Guid>>();
 
-        // ========== Habit ==========
+        // Habit
         modelBuilder.Entity<Habit>(entity =>
         {
             entity.HasKey(h => h.Id);
@@ -42,7 +42,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRo
             entity.HasIndex(h => h.UserId);
         });
 
-        // ========== HabitEntry ==========
+        //HabitEntry
         modelBuilder.Entity<HabitEntry>(entity =>
         {
             entity.HasKey(e => e.Id);

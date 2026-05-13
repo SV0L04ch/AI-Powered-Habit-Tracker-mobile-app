@@ -44,6 +44,10 @@ public sealed class HabitService : IHabitService
     /// <inheritdoc />
     public async Task<HabitDto> CreateHabitAsync(Guid userId, CreateHabitDto request, CancellationToken cancellationToken)
     {
+        // Проверка валидности TriggerValue при создании (пункт 10 аудита)
+        if (!IsValidTriggerValue(request.TriggerType, request.TriggerValue))
+            throw new ArgumentException("TriggerValue is invalid for the selected TriggerType.");
+
         var habit = new Habit
         {
             UserId = userId,

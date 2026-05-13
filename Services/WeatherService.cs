@@ -13,7 +13,6 @@ public sealed class WeatherService : IWeatherService
 {
     private const string CacheKeyPrefix = "HabitTracker_weather_";
     private static readonly TimeSpan DefaultCacheDuration = TimeSpan.FromHours(3);
-    private static readonly TimeSpan HistoricalCacheDuration = TimeSpan.FromDays(30);
 
     private readonly IDistributedCache _cache;
     private readonly HttpClient _httpClient;
@@ -21,14 +20,6 @@ public sealed class WeatherService : IWeatherService
     private readonly string _baseUrl;
     private readonly ILogger<WeatherService> _logger;
 
-    /// <summary>
-    /// Инициализирует сервис погоды с кэшем, HTTP-клиентом и конфигурацией.
-    /// </summary>
-    /// <param name="cache">Распределённый кэш (Redis).</param>
-    /// <param name="httpClient">HTTP-клиент для запросов к API погоды.</param>
-    /// <param name="configuration">Конфигурация приложения.</param>
-    /// <param name="logger">Логгер для записи событий и ошибок.</param>
-    /// <exception cref="InvalidOperationException">Если не задан API-ключ погоды.</exception>
     public WeatherService(
         IDistributedCache cache,
         HttpClient httpClient,
@@ -48,17 +39,19 @@ public sealed class WeatherService : IWeatherService
     /// <summary>
     /// Получает снимок погоды для указанного города и даты.
     /// При возможности берёт данные из кэша Redis, иначе запрашивает OpenWeatherMap.
+    /// Поддерживается только текущая дата (исторические данные недоступны).
+    /// При ошибке API возвращает fallback-объект с пометкой о недоступности сервиса.
     /// </summary>
-    /// <param name="city">Название города.</param>
-    /// <param name="date">Дата, на которую запрашивается погода.</param>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Снимок погоды с температурой, осадками и влажностью.</returns>
-    /// <exception cref="HttpRequestException">При недоступности внешнего API погоды.</exception>
     public async Task<WeatherSnapshotDto> GetWeatherAsync(string city, DateOnly date, CancellationToken cancellationToken)
     {
+        // 1. Запрещаем исторические даты
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        if (date != today)
+            throw new ArgumentException("Historical weather data is not supported.");
+
         var cacheKey = $"{CacheKeyPrefix}{city}_{date:yyyyMMdd}";
 
-        // 1. Пытаемся получить из кэша
+        // 2. Пытаемся получить из кэша
         try
         {
             var cached = await _cache.GetStringAsync(cacheKey, cancellationToken);
@@ -85,13 +78,6 @@ public sealed class WeatherService : IWeatherService
             _logger.LogWarning(ex, "Redis unavailable, fetching weather directly");
         }
 
-        // 2. Предупреждаем о запросе прошлой/будущей даты (бесплатный API даёт только текущую погоду)
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        if (date != today)
-        {
-            _logger.LogWarning("Requested weather for {Date} which is not today; free API returns current weather only", date);
-        }
-
         // 3. Запрос к OpenWeatherMap
         var url = $"{_baseUrl}/weather?q={Uri.EscapeDataString(city)}&appid={_apiKey}&units=metric";
 
@@ -104,16 +90,16 @@ public sealed class WeatherService : IWeatherService
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
             snapshot = ParseWeatherResponse(city, date, json);
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            _logger.LogError(ex, "OpenWeatherMap request failed for {City}", city);
-            throw;
+            _logger.LogWarning(ex, "Weather API unavailable for {City}, returning fallback", city);
+            snapshot = CreateFallback(city, date);
         }
 
-        // 4. Сохраняем в кэш с подходящим TTL
+        // 4. Сохраняем в кэш
         var cacheOptions = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = date >= today ? DefaultCacheDuration : HistoricalCacheDuration
+            AbsoluteExpirationRelativeToNow = DefaultCacheDuration
         };
 
         try
@@ -131,12 +117,24 @@ public sealed class WeatherService : IWeatherService
     }
 
     /// <summary>
-    /// Разбирает JSON-ответ от OpenWeatherMap в структуру <see cref="WeatherSnapshotDto"/>.
+    /// Создаёт fallback-объект погоды, когда API недоступен.
     /// </summary>
-    /// <param name="city">Город, для которого получен ответ.</param>
-    /// <param name="date">Дата запроса.</param>
-    /// <param name="json">Строка JSON от API.</param>
-    /// <returns>Снимок погоды с безопасно извлечёнными значениями.</returns>
+    private static WeatherSnapshotDto CreateFallback(string city, DateOnly date)
+    {
+        return new WeatherSnapshotDto
+        {
+            City = city,
+            Date = date,
+            Condition = "Service unavailable",
+            TemperatureCelsius = 0,
+            HumidityPercent = null,
+            Precipitation = "unknown"
+        };
+    }
+
+    /// <summary>
+    /// Разбирает JSON-ответ от OpenWeatherMap.
+    /// </summary>
     private static WeatherSnapshotDto ParseWeatherResponse(string city, DateOnly date, string json)
     {
         using var doc = JsonDocument.Parse(json);
