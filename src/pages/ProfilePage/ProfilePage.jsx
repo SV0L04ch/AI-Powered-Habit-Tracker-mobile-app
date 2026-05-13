@@ -59,7 +59,7 @@ const ProfilePage = () => {
   return (
     <div className={styles.page}>
       <Typography variant="headline1" className={styles.title}>Профиль</Typography>
-      <Typography variant="headline2" className={styles.name}>Алексей Волков</Typography>
+      <Typography variant="headline2" className={styles.name} data-testid="profile-name">Алексей Волков</Typography>
       <Typography variant="headline3" className={styles.sectionTitle}>Персонализация</Typography>
      
      <div className={styles.settingsContainer}>
@@ -76,6 +76,7 @@ const ProfilePage = () => {
                 value={reportTime}
                 onChange={handleReportTimeChange}
                 className={styles.timePicker}
+                
             />
         </div>
       </Substrate>
