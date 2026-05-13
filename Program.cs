@@ -19,17 +19,17 @@ Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // Настройка подключения к PostgreSQL
-var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var database = Environment.GetEnvironmentVariable("DB_NAME") ?? "habit_tracker";
-var username = Environment.GetEnvironmentVariable("DB_USER") ?? "habit_user";
-var password = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "default_password";
-var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "habit_tracker";
+var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "habit_user";
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "default_password";
+var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Заменяем AddIdentity на AddIdentityCore – никаких cookie-схем Identity
+// Identity – только основные функции, без cookie-схем
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedEmail = true;
@@ -43,7 +43,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders()
-    .AddSignInManager(); // SignInManager нужен для AuthService
+    .AddSignInManager();
 
 // JWT конфигурация
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
@@ -68,7 +68,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// JWT – единственная схема аутентификации
+// Аутентификация через JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -85,9 +85,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.Events = new JwtBearerEvents
         {
+            // Читаем токен из куки, если он есть
             OnMessageReceived = context =>
             {
-                // Читаем токен из куки
                 var token = context.Request.Cookies["access_token"];
                 if (!string.IsNullOrEmpty(token))
                     context.Token = token;
@@ -132,7 +132,7 @@ builder.Services.AddHttpClient();
 // Swagger
 builder.Services.AddSwaggerGen();
 
-// Redis
+// Redis для кэширования погоды
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")
@@ -170,7 +170,7 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-// Swagger
+// Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -179,10 +179,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+// Health-check эндпоинт для мониторинга
 app.MapGet("/health", () => Results.Ok("Healthy"));
 
 app.Run();
 
+// Формирует ProblemDetails на основе типа исключения
 static ProblemDetails CreateProblemDetails(HttpContext context, Exception? exception, bool includeExceptionDetails)
 {
     var statusCode = exception switch

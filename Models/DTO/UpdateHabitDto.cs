@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace HabitApi.Models.DTO;
 
 /// <summary>
-/// DTO для обновления существующей привычки (все поля опциональны).
+/// DTO для обновления существующей привычки.
 /// </summary>
 public sealed class UpdateHabitDto
 {

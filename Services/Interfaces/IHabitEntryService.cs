@@ -12,8 +12,8 @@ public interface IHabitEntryService
     /// </summary>
     /// <param name="userId">Идентификатор пользователя (из JWT).</param>
     /// <param name="habitId">Идентификатор привычки.</param>
-    /// <param name="fromDate">Начальная дата (опционально).</param>
-    /// <param name="toDate">Конечная дата (опционально).</param>
+    /// <param name="fromDate">Начальная дата.</param>
+    /// <param name="toDate">Конечная дата.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>Коллекция DTO отметок.</returns>
     Task<IReadOnlyCollection<HabitEntryDto>> GetHabitEntriesAsync(

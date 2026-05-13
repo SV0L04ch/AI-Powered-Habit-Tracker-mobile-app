@@ -7,16 +7,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Сервис для чтения и обновления профиля текущего пользователя.
+/// </summary>
 public sealed class ProfileService : IProfileService
 {
     private const string LightTheme = "light";
     private readonly UserManager<ApplicationUser> _userManager;
 
+    /// <summary>
+    /// Инициализирует сервис профиля с менеджером пользователей Identity.
+    /// </summary>
+    /// <param name="userManager">Менеджер пользователей для доступа к данным.</param>
     public ProfileService(UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
     }
 
+    /// <inheritdoc />
     public async Task<UserProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken)
     {
         var user = await _userManager.Users
@@ -26,6 +34,7 @@ public sealed class ProfileService : IProfileService
         return user is null ? null : MapToDto(user);
     }
 
+    /// <inheritdoc />
     public async Task<UserProfileDto?> UpdateProfileAsync(
         Guid userId,
         UpdateUserProfileDto request,
@@ -63,6 +72,9 @@ public sealed class ProfileService : IProfileService
         return MapToDto(user);
     }
 
+    /// <summary>
+    /// Преобразует сущность <see cref="ApplicationUser"/> в DTO профиля.
+    /// </summary>
     private static UserProfileDto MapToDto(ApplicationUser user)
     {
         return new UserProfileDto
@@ -76,6 +88,9 @@ public sealed class ProfileService : IProfileService
         };
     }
 
+    /// <summary>
+    /// Нормализует необязательное текстовое поле: обрезает пробелы, проверяет длину, возвращает null при пустом значении.
+    /// </summary>
     private static string? NormalizeOptionalText(string value, int maxLength, string paramName)
     {
         var normalized = value.Trim().Normalize();
@@ -88,6 +103,9 @@ public sealed class ProfileService : IProfileService
         return normalized;
     }
 
+    /// <summary>
+    /// Нормализует обязательное текстовое поле: обрезает пробелы, проверяет заполненность и длину.
+    /// </summary>
     private static string NormalizeRequiredText(string value, int maxLength, string paramName)
     {
         var normalized = value.Trim().Normalize();
@@ -100,6 +118,9 @@ public sealed class ProfileService : IProfileService
         return normalized;
     }
 
+    /// <summary>
+    /// Нормализует время напоминания в формате HH:mm. Возвращает null для пустого значения.
+    /// </summary>
     private static string? NormalizeOptionalTime(string value)
     {
         var normalized = value.Trim();
@@ -119,6 +140,9 @@ public sealed class ProfileService : IProfileService
         return normalized;
     }
 
+    /// <summary>
+    /// Нормализует тему оформления: приводит к нижнему регистру и проверяет допустимые значения.
+    /// </summary>
     private static string NormalizeThemePreference(string value)
     {
         var normalized = value.Trim().ToLowerInvariant();

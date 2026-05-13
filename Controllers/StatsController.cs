@@ -8,6 +8,7 @@ namespace HabitApi.Controllers;
 
 /// <summary>
 /// Контроллер для статистики и сводок.
+/// Предоставляет персональную ежедневную сводку и анонимную городскую статистику.
 /// </summary>
 [ApiController]
 [Route("api/stats")]
@@ -23,7 +24,7 @@ public sealed class StatsController : ControllerBase
     /// <summary>
     /// Получить ежедневную персональную сводку для текущего пользователя.
     /// </summary>
-    /// <param name="date">Дата сводки (опционально, по умолчанию сегодня).</param>
+    /// <param name="date">Дата сводки.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>Сводка с выполненными привычками, погодой и ИИ-комментарием.</returns>
     /// <response code="200">Сводка успешно получена.</response>
@@ -37,7 +38,7 @@ public sealed class StatsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DailySummaryDto>> GetDailySummary(
-        [FromQuery] DateOnly? date,
+        DateOnly? date,
         CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
@@ -59,31 +60,30 @@ public sealed class StatsController : ControllerBase
 
     /// <summary>
     /// Получить анонимную сводку по городу (без привязки к пользователю).
-    /// Сводка обновляется раз в неделю.
+    /// Сводка формируется раз в неделю и кэшируется.
     /// </summary>
     /// <param name="city">Название города (обязательно).</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>Анонимная статистика привычек в городе за последнюю неделю.</returns>
     /// <response code="200">Сводка успешно получена.</response>
     /// <response code="400">Город не указан.</response>
-    [AllowAnonymous] // или просто без [Authorize]
+    [AllowAnonymous]
     [HttpGet("city-summary")]
     [ProducesResponseType(typeof(CitySummaryDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CitySummaryDto>> GetCitySummary(
-        [FromQuery] string city,
+        string city,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(city))
             return BadRequest(new { error = "City parameter is required." });
 
-        // По ТЗ сводка формируется раз в неделю, поэтому дату не передаём — берём последнюю готовую
         var summary = await _statsService.GetWeeklyCitySummaryAsync(city, cancellationToken);
         return Ok(summary);
     }
 
     /// <summary>
-    /// Вспомогательный метод для получения ID текущего пользователя из JWT.
+    /// Извлекает идентификатор текущего пользователя из JWT-токена.
     /// </summary>
     private Guid GetCurrentUserId()
     {

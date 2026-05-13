@@ -8,10 +8,11 @@ namespace HabitApi.Controllers;
 
 /// <summary>
 /// Контроллер для управления отметками выполнения привычек.
+/// Требует аутентификации.
 /// </summary>
 [ApiController]
 [Route("api/habits/{habitId:guid}/entries")]
-[Authorize] // Требуем аутентификацию
+[Authorize]
 public sealed class HabitEntriesController : ControllerBase
 {
     private readonly IHabitEntryService _habitEntryService;
@@ -25,8 +26,8 @@ public sealed class HabitEntriesController : ControllerBase
     /// Получить отметки выполнения для указанной привычки за период.
     /// </summary>
     /// <param name="habitId">Идентификатор привычки.</param>
-    /// <param name="fromDate">Начальная дата (опционально).</param>
-    /// <param name="toDate">Конечная дата (опционально).</param>
+    /// <param name="fromDate">Начальная дата.</param>
+    /// <param name="toDate">Конечная дата.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>Коллекция отметок.</returns>
     /// <response code="200">Успешное получение.</response>
@@ -38,11 +39,11 @@ public sealed class HabitEntriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyCollection<HabitEntryDto>>> GetEntries(
         Guid habitId,
-        [FromQuery] DateOnly? fromDate,
-        [FromQuery] DateOnly? toDate,
+        DateOnly? fromDate,
+        DateOnly? toDate,
         CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId(); // извлекаем userId из токена
+        var userId = GetCurrentUserId();
         var entries = await _habitEntryService.GetHabitEntriesAsync(userId, habitId, fromDate, toDate, cancellationToken);
         return Ok(entries);
     }
@@ -65,14 +66,13 @@ public sealed class HabitEntriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<HabitEntryDto>> AddEntry(
         Guid habitId,
-        [FromBody] CreateHabitEntryDto request,
+        CreateHabitEntryDto request,
         CancellationToken cancellationToken)
     {
         try
         {
             var userId = GetCurrentUserId();
             var entry = await _habitEntryService.AddHabitEntryAsync(userId, habitId, request, cancellationToken);
-            // Возвращаем 201 без Location, т.к. нет отдельного GET эндпоинта для одной отметки
             return Created(string.Empty, entry);
         }
         catch (KeyNotFoundException)
@@ -83,7 +83,6 @@ public sealed class HabitEntriesController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
-        // Другие исключения обрабатываются глобальным фильтром
     }
 
     /// <summary>
@@ -108,7 +107,7 @@ public sealed class HabitEntriesController : ControllerBase
     public async Task<ActionResult<HabitEntryDto>> UpdateEntry(
         Guid habitId,
         Guid entryId,
-        [FromBody] UpdateHabitEntryDto request,
+        UpdateHabitEntryDto request,
         CancellationToken cancellationToken)
     {
         try
@@ -130,7 +129,6 @@ public sealed class HabitEntriesController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
-        // Конфликт по дате обрабатывается глобальным фильтром и вернёт 409.
     }
 
     /// <summary>
@@ -161,7 +159,7 @@ public sealed class HabitEntriesController : ControllerBase
     }
 
     /// <summary>
-    /// Вспомогательный метод для получения ID текущего пользователя из JWT.
+    /// Извлекает идентификатор текущего пользователя из JWT-токена.
     /// </summary>
     private Guid GetCurrentUserId()
     {

@@ -9,6 +9,7 @@ services:
       - 8.8.8.8
     extra_hosts:
       - "api.groq.com:8.47.69.1"
+      - "api.openweathermap.org:141.95.47.139"
     depends_on:
       db:
         condition: service_healthy

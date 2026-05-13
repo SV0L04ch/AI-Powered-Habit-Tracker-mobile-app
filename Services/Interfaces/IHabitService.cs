@@ -38,7 +38,7 @@ public interface IHabitService
     /// </summary>
     /// <param name="userId">Идентификатор пользователя (из JWT).</param>
     /// <param name="habitId">Идентификатор привычки.</param>
-    /// <param name="request">Обновлённые данные (все поля опциональны).</param>
+    /// <param name="request">Обновлённые данные.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>Обновлённая привычка или null, если не найдена.</returns>
     Task<HabitDto?> UpdateHabitAsync(Guid userId, Guid habitId, UpdateHabitDto request, CancellationToken cancellationToken);

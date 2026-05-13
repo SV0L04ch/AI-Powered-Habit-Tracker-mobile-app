@@ -8,10 +8,11 @@ namespace HabitApi.Controllers;
 
 /// <summary>
 /// Контроллер для генерации ИИ-подсказок и поддержки привычек.
+/// Требует аутентификации.
 /// </summary>
 [ApiController]
 [Route("api/habits/{habitId:guid}/insights")]
-[Authorize] // Требуем аутентификацию
+[Authorize]
 public sealed class InsightsController : ControllerBase
 {
     private readonly IHabitService _habitService;
@@ -24,7 +25,7 @@ public sealed class InsightsController : ControllerBase
     }
 
     /// <summary>
-    /// Сгенерировать поддерживающее сообщение для привычки (при лени, срыве или пропуске).
+    /// Генерирует поддерживающее сообщение для привычки в зависимости от сценария.
     /// </summary>
     /// <param name="habitId">Идентификатор привычки.</param>
     /// <param name="request">Сценарий запроса (например, "lazy", "relapse", "skip").</param>
@@ -41,7 +42,7 @@ public sealed class InsightsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<HabitSupportResponseDto>> BuildSupportMessage(
         Guid habitId,
-        [FromBody] HabitSupportRequestDto request,
+        HabitSupportRequestDto request,
         CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
@@ -67,11 +68,11 @@ public sealed class InsightsController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
-        // Другие исключения (например, от API ИИ) обрабатываются глобальным фильтром
+        // Остальные исключения обрабатываются глобальным фильтром
     }
 
     /// <summary>
-    /// Вспомогательный метод для получения ID текущего пользователя из JWT.
+    /// Извлекает идентификатор текущего пользователя из JWT-токена.
     /// </summary>
     private Guid GetCurrentUserId()
     {

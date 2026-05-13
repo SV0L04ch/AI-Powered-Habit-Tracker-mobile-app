@@ -6,12 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Сервис для формирования статистики и сводок (персональных и городских).
+/// Использует данные о привычках, погоду и AI для генерации отчётов.
+/// </summary>
 public sealed class StatsService : IStatsService
 {
     private readonly AppDbContext _dbContext;
     private readonly IWeatherService _weatherService;
     private readonly IAiInsightsService _aiInsightsService;
 
+    /// <summary>
+    /// Инициализирует сервис статистики с зависимостями базы данных, погоды и AI.
+    /// </summary>
     public StatsService(
         AppDbContext dbContext,
         IWeatherService weatherService,
@@ -22,6 +29,7 @@ public sealed class StatsService : IStatsService
         _aiInsightsService = aiInsightsService;
     }
 
+    /// <inheritdoc />
     public async Task<DailySummaryDto> GetDailySummaryAsync(Guid userId, DateOnly date, CancellationToken cancellationToken)
     {
         var user = await _dbContext.Users
@@ -38,10 +46,11 @@ public sealed class StatsService : IStatsService
             .Where(e => habitIds.Contains(e.HabitId) && e.Date == date)
             .ToListAsync(cancellationToken);
 
-        int completed = entries.Count(e => e.Status == HabitEntryStatus.Completed);
-        int partiallyCompleted = entries.Count(e => e.Status == HabitEntryStatus.Partial);
-        int skipped = entries.Count(e => e.Status == HabitEntryStatus.Skipped);
+        var completed = entries.Count(e => e.Status == HabitEntryStatus.Completed);
+        var partiallyCompleted = entries.Count(e => e.Status == HabitEntryStatus.Partial);
+        var skipped = entries.Count(e => e.Status == HabitEntryStatus.Skipped);
 
+        // Получаем погоду для города пользователя на указанную дату
         var weather = await _weatherService.GetWeatherAsync(user.City, date, cancellationToken);
 
         var summary = new DailySummaryDto
@@ -54,15 +63,17 @@ public sealed class StatsService : IStatsService
             AiInsight = string.Empty
         };
 
+        // Генерируем AI-комментарий на основе сводки и погоды
         summary.AiInsight = await _aiInsightsService.BuildDailyInsightAsync(summary, cancellationToken);
         return summary;
     }
 
+    /// <inheritdoc />
     public async Task<CitySummaryDto> GetWeeklyCitySummaryAsync(string city, CancellationToken cancellationToken)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var weekStart = today.AddDays(-(int)today.DayOfWeek + 1 - 7);
-        var weekEnd = weekStart.AddDays(6);
+        var weekStart = today.AddDays(-(int)today.DayOfWeek + 1 - 7); // начало прошлой недели (пн)
+        var weekEnd = weekStart.AddDays(6); // конец прошлой недели (вс)
 
         var userIds = await _dbContext.Users
             .Where(u => u.City == city)
@@ -88,6 +99,7 @@ public sealed class StatsService : IStatsService
             .Where(e => habitIds.Contains(e.HabitId) && e.Date >= weekStart && e.Date <= weekEnd)
             .ToListAsync(cancellationToken);
 
+        // Группируем по названию привычки и считаем уникальных пользователей
         var habitStats = habits
             .GroupJoin(entries,
                 h => h.Id,

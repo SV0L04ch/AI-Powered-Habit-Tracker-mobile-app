@@ -3,7 +3,11 @@ using HabitApi.Models.DTO;
 
 namespace HabitApi.Validators;
 
-public class LoginRequestDtoValidator : AbstractValidator<LoginRequestDto>
+/// <summary>
+/// Валидатор запроса на вход пользователя.
+/// Проверяет корректность email и наличие пароля.
+/// </summary>
+public sealed class LoginRequestDtoValidator : AbstractValidator<LoginRequestDto>
 {
     public LoginRequestDtoValidator()
     {

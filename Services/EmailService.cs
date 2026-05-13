@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Сервис для отправки электронных писем через SMTP (MailHog).
+/// </summary>
 public class EmailService : IEmailService
 {
     private readonly ILogger<EmailService> _logger;
@@ -14,13 +17,13 @@ public class EmailService : IEmailService
         _logger = logger;
     }
 
+    /// <inheritdoc />
     public async Task SendConfirmationEmailAsync(string toEmail, string confirmationLink)
     {
         _logger.LogInformation("Trying to send email to {ToEmail} via mailhog", toEmail);
         try
         {
             using var client = new SmtpClient("mailhog", 1025);
-            // Без SSL и без аутентификации (MailHog по умолчанию)
             client.EnableSsl = false;
             client.UseDefaultCredentials = true;
 

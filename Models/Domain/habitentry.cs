@@ -44,7 +44,7 @@ public sealed class HabitEntry
     public int? RelapseCount { get; set; }
 
     /// <summary>
-    /// Пользовательская заметка (опционально).
+    /// Пользовательская заметка.
     /// </summary>
     public string? Note { get; set; }
 

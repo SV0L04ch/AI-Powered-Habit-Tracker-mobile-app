@@ -7,15 +7,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Сервис для работы с отметками выполнения привычек.
+/// Добавление, получение, обновление и удаление записей дневного прогресса.
+/// </summary>
 public sealed class HabitEntryService : IHabitEntryService
 {
     private readonly AppDbContext _dbContext;
 
+    /// <summary>
+    /// Инициализирует сервис отметок с контекстом базы данных.
+    /// </summary>
+    /// <param name="dbContext">Контекст базы данных приложения.</param>
     public HabitEntryService(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyCollection<HabitEntryDto>> GetHabitEntriesAsync(
         Guid userId,
         Guid habitId,
@@ -44,6 +53,7 @@ public sealed class HabitEntryService : IHabitEntryService
         return entries;
     }
 
+    /// <inheritdoc />
     public async Task<HabitEntryDto> AddHabitEntryAsync(
         Guid userId,
         Guid habitId,
@@ -68,7 +78,7 @@ public sealed class HabitEntryService : IHabitEntryService
 
         if (habit.IsPositive)
         {
-            // валидация уже выполнена FluentValidation, но доп. проверка не помешает
+            // Дополнительная валидация, несмотря на FluentValidation
             if (request.Status is null)
                 throw new ArgumentException("Status is required for positive habits.");
             entry.Status = request.Status;
@@ -81,8 +91,7 @@ public sealed class HabitEntryService : IHabitEntryService
         {
             entry.Status = null;
             entry.PartialValue = null;
-            // по умолчанию 1 срыв, если не указано
-            entry.RelapseCount = request.RelapseCount ?? 1;
+            entry.RelapseCount = request.RelapseCount ?? 1; // по умолчанию 1 срыв
         }
 
         _dbContext.HabitEntries.Add(entry);
@@ -91,6 +100,7 @@ public sealed class HabitEntryService : IHabitEntryService
         return MapToDto(entry);
     }
 
+    /// <inheritdoc />
     public async Task<HabitEntryDto?> UpdateHabitEntryAsync(
         Guid userId,
         Guid habitId,
@@ -128,6 +138,7 @@ public sealed class HabitEntryService : IHabitEntryService
         return MapToDto(entry);
     }
 
+    /// <inheritdoc />
     public async Task<bool> DeleteHabitEntryAsync(
         Guid userId,
         Guid habitId,
@@ -148,6 +159,9 @@ public sealed class HabitEntryService : IHabitEntryService
         return true;
     }
 
+    /// <summary>
+    /// Применяет значения из DTO к записи в зависимости от типа привычки.
+    /// </summary>
     private static void ApplyEntryValuesByHabitType(Habit habit, HabitEntry entry, UpdateHabitEntryDto request)
     {
         if (habit.IsPositive)
@@ -161,7 +175,6 @@ public sealed class HabitEntryService : IHabitEntryService
 
             if (targetStatus == HabitEntryStatus.Partial)
             {
-                // при обновлении: если не передан новый PartialValue, берём старый
                 var targetPartialValue = request.PartialValue ?? entry.PartialValue;
                 if (!targetPartialValue.HasValue)
                     throw new ArgumentException("PartialValue is required when status is Partial.");
@@ -172,15 +185,17 @@ public sealed class HabitEntryService : IHabitEntryService
                 entry.PartialValue = null;
             }
         }
-        else // отрицательная привычка
+        else
         {
             entry.Status = null;
             entry.PartialValue = null;
-            // если обновление не передало RelapseCount, оставляем прежний
             entry.RelapseCount = request.RelapseCount ?? entry.RelapseCount ?? 1;
         }
     }
 
+    /// <summary>
+    /// Находит активную привычку по идентификаторам пользователя и привычки.
+    /// </summary>
     private async Task<Habit?> GetOwnedActiveHabitAsync(Guid userId, Guid habitId, CancellationToken cancellationToken)
     {
         return await _dbContext.Habits
@@ -191,6 +206,9 @@ public sealed class HabitEntryService : IHabitEntryService
                 cancellationToken);
     }
 
+    /// <summary>
+    /// Преобразует сущность <see cref="HabitEntry"/> в DTO.
+    /// </summary>
     private static HabitEntryDto MapToDto(HabitEntry entry)
     {
         return new HabitEntryDto

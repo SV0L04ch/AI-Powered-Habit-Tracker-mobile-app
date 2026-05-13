@@ -11,6 +11,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace HabitApi.Services;
 
+/// <summary>
+/// Сервис аутентификации и управления пользователями.
+/// Регистрация, подтверждение email, вход с выдачей JWT.
+/// </summary>
 public sealed class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -22,6 +26,9 @@ public sealed class AuthService : IAuthService
     private readonly string _jwtIssuer;
     private readonly string _jwtAudience;
 
+    /// <summary>
+    /// Инициализирует сервис аутентификации с зависимостями Identity, почты и конфигурации.
+    /// </summary>
     public AuthService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
@@ -41,8 +48,13 @@ public sealed class AuthService : IAuthService
         _jwtAudience = configuration["Jwt:Audience"] ?? "HabitApiClient";
     }
 
+    /// <inheritdoc/>
     public async Task<RegistrationResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken)
     {
+        // Дополнительная проверка длины email
+        if (request.Email.Length > 256)
+            throw new ArgumentException("Email is too long (max 256 characters).");
+
         var user = new ApplicationUser
         {
             UserName = request.Email,
@@ -50,12 +62,7 @@ public sealed class AuthService : IAuthService
             City = request.City.Trim(),
             CreatedAtUtc = DateTime.UtcNow
         };
-        
-        if (request.Email.Length > 256)
-        {
-            throw new ArgumentException("Email is too long (max 256 characters).");
-        }
-        
+
         var result = await _userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
@@ -63,12 +70,12 @@ public sealed class AuthService : IAuthService
             throw new ConflictException($"Registration failed: {errors}");
         }
 
-        // генерируем токен подтверждения
+        // Генерируем токен подтверждения email (JWT не выдаётся до подтверждения)
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var baseUrl = _configuration["AppBaseUrl"] ?? "http://localhost:5093";
         var confirmationLink = $"{baseUrl}/api/auth/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(token)}";
 
-        // Отправляем письмо, но не роняем регистрацию при ошибке SMTP
+        // Отправляем письмо; ошибка SMTP не прерывает регистрацию
         try
         {
             await _emailService.SendConfirmationEmailAsync(user.Email!, confirmationLink);
@@ -86,6 +93,7 @@ public sealed class AuthService : IAuthService
         };
     }
 
+    /// <inheritdoc/>
     public async Task<ApplicationUser?> ConfirmEmailAsync(Guid userId, string token)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -95,12 +103,14 @@ public sealed class AuthService : IAuthService
         return result.Succeeded ? user : null;
     }
 
+    /// <inheritdoc/>
     public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user is null)
             return null;
 
+        // JWT-токен выдаётся только после подтверждения email
         if (!await _userManager.IsEmailConfirmedAsync(user))
             throw new UnauthorizedAccessException("Email not confirmed. Please check your inbox.");
 
@@ -108,15 +118,18 @@ public sealed class AuthService : IAuthService
         if (!signInResult.Succeeded)
             return null;
 
-        var token = GenerateJwtToken(user);
+        var jwt = GenerateJwtToken(user);
         return new AuthResponseDto
         {
             UserId = user.Id,
             Email = user.Email!,
-            AccessToken = token
+            AccessToken = jwt
         };
     }
 
+    /// <summary>
+    /// Генерирует JWT-токен для указанного пользователя.
+    /// </summary>
     private string GenerateJwtToken(ApplicationUser user)
     {
         var claims = new[]
