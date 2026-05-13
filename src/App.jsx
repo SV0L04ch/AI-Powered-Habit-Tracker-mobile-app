@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import LoginPage from './pages/LoginPage/LoginPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
 import HabitsPage from './pages/HabitsPage/HabitsPage';
-import HabitDetailPage from './pages/HabitDetailPage';
 import CreateHabitPage from './pages/CreateHabitPage/CreateHabitPage';
 import PersonalInsightsPage from './pages/PersonalInsightsPage/PersonalInsightsPage';
 import CityInsightsPage from './pages/CityInsightsPage/CityInsightsPage';
@@ -35,7 +34,6 @@ function App() {
         <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><RegisterPage /> </GuestRoute>} />
         <Route path="/habits" element={<ProtectedAuth><HabitsPage /></ProtectedAuth>} />
-        <Route path="/habits/:id" element={<ProtectedAuth><HabitDetailPage /></ProtectedAuth>} />
         <Route path="/insights/personal" element={<ProtectedAuth><PersonalInsightsPage /></ProtectedAuth>} />
         <Route path="/habits/new" element={<ProtectedAuth><CreateHabitPage /></ProtectedAuth>} />
         <Route path="/insights/city" element={<ProtectedAuth><CityInsightsPage /></ProtectedAuth>} />
