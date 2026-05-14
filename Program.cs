@@ -21,7 +21,7 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Structured logging (убираем все провайдеры, добавляем консоль)
+// Structured logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
@@ -36,7 +36,7 @@ var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username=
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Identity – только основные функции, без cookie-схем
+// Identity
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedEmail = true;
@@ -52,7 +52,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders()
     .AddSignInManager();
 
-// JWT конфигурация с проверкой длины секрета
+// JWT конфигурация
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
@@ -62,7 +62,7 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "HabitApi";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "HabitApiClient";
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
-// CORS (origins из конфигурации, с fallback'ом)
+// CORS
 var corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>()
     ?? new[] { "http://localhost:3000", "http://localhost:19006", "http://localhost:5093" };
 builder.Services.AddCors(options =>
@@ -135,7 +135,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
 
-// HttpClient для WeatherService с Polly (timeout 10s + 3 retry с экспоненциальной задержкой)
+// HttpClient для WeatherService с Polly (timeout 10s + 3 retry)
 builder.Services
     .AddHttpClient<IWeatherService, WeatherService>(client =>
     {
@@ -145,10 +145,17 @@ builder.Services
         .HandleTransientHttpError()
         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
-// Swagger (только генерация, UI – только в dev)
+// HttpClient для AiInsightsService (таймаут 5 минут для медленных локальных моделей)
+builder.Services
+    .AddHttpClient<IAiInsightsService, AiInsightsService>(client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(5);
+    });
+
+// Swagger
 builder.Services.AddSwaggerGen();
 
-// Redis для кэширования погоды
+// Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis")
@@ -157,7 +164,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "HabitTracker_";
 });
 
-// Rate Limiter (5 запросов в минуту для auth-эндпоинтов)
+// Rate Limiter
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("auth", config =>
@@ -168,14 +175,14 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// Регистрация сервисов (WeatherService регистрируется через AddHttpClient выше, поэтому здесь не нужен)
+// Регистрация остальных сервисов
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IHabitEntryService, HabitEntryService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
-builder.Services.AddScoped<IAiInsightsService, AiInsightsService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+// IWeatherService и IAiInsightsService уже зарегистрированы через AddHttpClient
 
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
@@ -209,12 +216,10 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.MapControllers();
 
-// Health-check эндпоинт для мониторинга
 app.MapGet("/health", () => Results.Ok("Healthy"));
 
 app.Run();
 
-// Формирует ProblemDetails на основе типа исключения
 static ProblemDetails CreateProblemDetails(HttpContext context, Exception? exception, bool includeExceptionDetails)
 {
     var statusCode = exception switch
@@ -223,7 +228,7 @@ static ProblemDetails CreateProblemDetails(HttpContext context, Exception? excep
         ArgumentException => StatusCodes.Status400BadRequest,
         UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
         KeyNotFoundException => StatusCodes.Status404NotFound,
-        DbUpdateException => StatusCodes.Status400BadRequest,   // обработка ошибок валидации БД
+        DbUpdateException => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status500InternalServerError
     };
 
