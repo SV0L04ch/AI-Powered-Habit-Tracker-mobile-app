@@ -1,43 +1,29 @@
-using Microsoft.EntityFrameworkCore;
 using HabitApi.Models.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Data;
 
-/// <summary>
-/// Контекст базы данных для приложения трекера привычек.
-/// </summary>
-public sealed class AppDbContext : DbContext
+public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-    }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    // DbSet для всех сущностей
-    public DbSet<User> Users { get; set; }
     public DbSet<Habit> Habits { get; set; }
     public DbSet<HabitEntry> HabitEntries { get; set; }
-    public DbSet<WeatherData> WeatherData { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // ========== User ==========
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(u => u.Id);
-            entity.HasIndex(u => u.Email).IsUnique();
-            entity.Property(u => u.Email).IsRequired().HasMaxLength(256);
-            entity.Property(u => u.PasswordHash).IsRequired();
-            entity.Property(u => u.City).IsRequired().HasMaxLength(100);
-            entity.Property(u => u.Name).HasMaxLength(100);
-            entity.Property(u => u.TimeZoneId).HasDefaultValue("UTC");
-            entity.Property(u => u.HabitReminderEnabled).HasDefaultValue(false);
-            entity.Property(u => u.HabitReminderTime).HasMaxLength(5);
-            entity.Property(u => u.ThemePreference).IsRequired().HasMaxLength(10).HasDefaultValue("light");
-        });
+        // Игнорируем таблицы ролей и связанные
+        modelBuilder.Ignore<IdentityRole<Guid>>();
+        modelBuilder.Ignore<IdentityRoleClaim<Guid>>();
+        modelBuilder.Ignore<IdentityUserRole<Guid>>();
+        modelBuilder.Ignore<IdentityUserClaim<Guid>>();
+        modelBuilder.Ignore<IdentityUserLogin<Guid>>();
 
-        // ========== Habit ==========
+        // Habit
         modelBuilder.Entity<Habit>(entity =>
         {
             entity.HasKey(h => h.Id);
@@ -56,7 +42,7 @@ public sealed class AppDbContext : DbContext
             entity.HasIndex(h => h.UserId);
         });
 
-        // ========== HabitEntry ==========
+        //HabitEntry
         modelBuilder.Entity<HabitEntry>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -67,17 +53,6 @@ public sealed class AppDbContext : DbContext
             entity.Property(e => e.Status).HasConversion<string>();
             entity.Property(e => e.Note).HasMaxLength(500);
             entity.HasIndex(e => new { e.HabitId, e.Date }).IsUnique();
-        });
-
-        // ========== WeatherData (кеш погоды) ==========
-        modelBuilder.Entity<WeatherData>(entity =>
-        {
-            entity.HasKey(w => w.Id);
-            entity.HasIndex(w => new { w.City, w.Date }).IsUnique();
-            entity.Property(w => w.City).IsRequired().HasMaxLength(100);
-            entity.Property(w => w.Date).IsRequired();
-            entity.Property(w => w.Condition).HasMaxLength(50);
-            entity.Property(w => w.Precipitation).HasMaxLength(100);
         });
     }
 }

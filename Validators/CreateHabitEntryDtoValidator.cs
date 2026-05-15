@@ -4,7 +4,11 @@ using HabitApi.Models.Domain;
 
 namespace HabitApi.Validators;
 
-public class CreateHabitEntryDtoValidator : AbstractValidator<CreateHabitEntryDto>
+/// <summary>
+/// Валидатор запроса на создание отметки выполнения привычки.
+/// Проверяет дату, статус, частичное значение и количество срывов.
+/// </summary>
+public sealed class CreateHabitEntryDtoValidator : AbstractValidator<CreateHabitEntryDto>
 {
     public CreateHabitEntryDtoValidator()
     {

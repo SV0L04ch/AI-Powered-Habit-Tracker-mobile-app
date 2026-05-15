@@ -3,13 +3,18 @@ using HabitApi.Models.DTO;
 
 namespace HabitApi.Validators;
 
-public class RegisterRequestDtoValidator : AbstractValidator<RegisterRequestDto>
+/// <summary>
+/// Валидатор запроса на регистрацию нового пользователя.
+/// Проверяет email, пароль и город.
+/// </summary>
+public sealed class RegisterRequestDtoValidator : AbstractValidator<RegisterRequestDto>
 {
     public RegisterRequestDtoValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email format.");
+            .EmailAddress().WithMessage("Invalid email format.")
+            .MaximumLength(256).WithMessage("Email is too long (max 256 characters).");
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")

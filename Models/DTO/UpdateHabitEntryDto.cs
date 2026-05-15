@@ -5,7 +5,6 @@ namespace HabitApi.Models.DTO;
 
 /// <summary>
 /// DTO для обновления существующей отметки выполнения привычки.
-/// Все поля опциональны: можно обновлять только нужные значения.
 /// </summary>
 public sealed class UpdateHabitEntryDto
 {

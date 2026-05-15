@@ -8,10 +8,11 @@ namespace HabitApi.Controllers;
 
 /// <summary>
 /// Контроллер для управления привычками пользователя.
+/// Требует аутентификации.
 /// </summary>
 [ApiController]
 [Route("api/habits")]
-[Authorize] // Требуем аутентификацию
+[Authorize]
 public sealed class HabitsController : ControllerBase
 {
     private readonly IHabitService _habitService;
@@ -22,7 +23,7 @@ public sealed class HabitsController : ControllerBase
     }
 
     /// <summary>
-    /// Получить все привычки текущего пользователя.
+    /// Получить все активные привычки текущего пользователя.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>Коллекция привычек.</returns>
@@ -31,8 +32,7 @@ public sealed class HabitsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyCollection<HabitDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<IReadOnlyCollection<HabitDto>>> GetUserHabits(
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyCollection<HabitDto>>> GetUserHabits(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
         var habits = await _habitService.GetUserHabitsAsync(userId, cancellationToken);
@@ -52,9 +52,7 @@ public sealed class HabitsController : ControllerBase
     [ProducesResponseType(typeof(HabitDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<HabitDto>> GetHabitById(
-        Guid habitId,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<HabitDto>> GetHabitById(Guid habitId, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
         var habit = await _habitService.GetHabitByIdAsync(userId, habitId, cancellationToken);
@@ -68,7 +66,7 @@ public sealed class HabitsController : ControllerBase
     /// </summary>
     /// <param name="request">Данные для создания привычки.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Созданная привычка.</returns>
+    /// <returns>Созданная привычка с URL для получения.</returns>
     /// <response code="201">Привычка успешно создана.</response>
     /// <response code="400">Некорректные данные.</response>
     /// <response code="401">Пользователь не авторизован.</response>
@@ -76,9 +74,7 @@ public sealed class HabitsController : ControllerBase
     [ProducesResponseType(typeof(HabitDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<HabitDto>> CreateHabit(
-        [FromBody] CreateHabitDto request,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<HabitDto>> CreateHabit(CreateHabitDto request, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
         var habit = await _habitService.CreateHabitAsync(userId, request, cancellationToken);
@@ -101,10 +97,7 @@ public sealed class HabitsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<HabitDto>> UpdateHabit(
-        Guid habitId,
-        [FromBody] UpdateHabitDto request,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<HabitDto>> UpdateHabit(Guid habitId, UpdateHabitDto request, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
         var habit = await _habitService.UpdateHabitAsync(userId, habitId, request, cancellationToken);
@@ -114,7 +107,7 @@ public sealed class HabitsController : ControllerBase
     }
 
     /// <summary>
-    /// Удалить привычку (мягкое или жёсткое удаление – зависит от сервиса).
+    /// Мягко удалить привычку (помечает как неактивную).
     /// </summary>
     /// <param name="habitId">Идентификатор привычки.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
@@ -126,9 +119,7 @@ public sealed class HabitsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteHabit(
-        Guid habitId,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteHabit(Guid habitId, CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
         var deleted = await _habitService.DeleteHabitAsync(userId, habitId, cancellationToken);
@@ -138,7 +129,7 @@ public sealed class HabitsController : ControllerBase
     }
 
     /// <summary>
-    /// Вспомогательный метод для получения ID текущего пользователя из JWT.
+    /// Извлекает идентификатор текущего пользователя из JWT-токена.
     /// </summary>
     private Guid GetCurrentUserId()
     {

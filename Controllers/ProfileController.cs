@@ -7,7 +7,8 @@ using System.Security.Claims;
 namespace HabitApi.Controllers;
 
 /// <summary>
-/// Controller for the current user's profile settings.
+/// Контроллер для управления профилем текущего пользователя.
+/// Требует аутентификации.
 /// </summary>
 [ApiController]
 [Route("api/profile")]
@@ -21,6 +22,14 @@ public sealed class ProfileController : ControllerBase
         _profileService = profileService;
     }
 
+    /// <summary>
+    /// Получить профиль текущего пользователя.
+    /// </summary>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Профиль пользователя.</returns>
+    /// <response code="200">Профиль успешно получен.</response>
+    /// <response code="401">Пользователь не авторизован.</response>
+    /// <response code="404">Профиль не найден.</response>
     [HttpGet]
     [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -36,13 +45,23 @@ public sealed class ProfileController : ControllerBase
         return Ok(profile);
     }
 
+    /// <summary>
+    /// Обновить профиль текущего пользователя.
+    /// </summary>
+    /// <param name="request">Обновлённые данные профиля.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Обновлённый профиль.</returns>
+    /// <response code="200">Профиль успешно обновлён.</response>
+    /// <response code="400">Некорректные данные.</response>
+    /// <response code="401">Пользователь не авторизован.</response>
+    /// <response code="404">Профиль не найден.</response>
     [HttpPut]
     [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfileDto>> UpdateProfile(
-        [FromBody] UpdateUserProfileDto request,
+        UpdateUserProfileDto request,
         CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
@@ -54,6 +73,9 @@ public sealed class ProfileController : ControllerBase
         return Ok(profile);
     }
 
+    /// <summary>
+    /// Извлекает идентификатор текущего пользователя из JWT-токена.
+    /// </summary>
     private Guid GetCurrentUserId()
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);

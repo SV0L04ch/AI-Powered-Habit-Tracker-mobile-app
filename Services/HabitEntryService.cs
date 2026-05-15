@@ -9,11 +9,16 @@ namespace HabitApi.Services;
 
 /// <summary>
 /// Сервис для работы с отметками выполнения привычек.
+/// Добавление, получение, обновление и удаление записей дневного прогресса.
 /// </summary>
 public sealed class HabitEntryService : IHabitEntryService
 {
     private readonly AppDbContext _dbContext;
 
+    /// <summary>
+    /// Инициализирует сервис отметок с контекстом базы данных.
+    /// </summary>
+    /// <param name="dbContext">Контекст базы данных приложения.</param>
     public HabitEntryService(AppDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -73,12 +78,16 @@ public sealed class HabitEntryService : IHabitEntryService
 
         if (habit.IsPositive)
         {
-            // Валидация Status и PartialValue уже выполнена FluentValidation
+            // Дополнительная валидация, несмотря на FluentValidation
+            if (request.Status is null)
+                throw new ArgumentException("Status is required for positive habits.");
             entry.Status = request.Status;
-            entry.PartialValue = request.PartialValue;
+            if (request.Status == HabitEntryStatus.Partial && request.PartialValue is null)
+                throw new ArgumentException("PartialValue is required when Status is Partial.");
+            entry.PartialValue = request.Status == HabitEntryStatus.Partial ? request.PartialValue : null;
             entry.RelapseCount = null;
         }
-        else // Отрицательная привычка
+        else // отрицательная привычка
         {
             entry.Status = null;
             entry.PartialValue = null;
@@ -150,6 +159,9 @@ public sealed class HabitEntryService : IHabitEntryService
         return true;
     }
 
+    /// <summary>
+    /// Применяет значения из DTO к записи в зависимости от типа привычки.
+    /// </summary>
     private static void ApplyEntryValuesByHabitType(Habit habit, HabitEntry entry, UpdateHabitEntryDto request)
     {
         if (habit.IsPositive)
@@ -166,22 +178,24 @@ public sealed class HabitEntryService : IHabitEntryService
                 var targetPartialValue = request.PartialValue ?? entry.PartialValue;
                 if (!targetPartialValue.HasValue)
                     throw new ArgumentException("PartialValue is required when status is Partial.");
-
                 entry.PartialValue = targetPartialValue.Value;
             }
             else
             {
                 entry.PartialValue = null;
             }
-
-            return;
         }
-
-        entry.Status = null;
-        entry.PartialValue = null;
-        entry.RelapseCount = request.RelapseCount ?? entry.RelapseCount ?? 1;
+        else
+        {
+            entry.Status = null;
+            entry.PartialValue = null;
+            entry.RelapseCount = request.RelapseCount ?? entry.RelapseCount ?? 1;
+        }
     }
 
+    /// <summary>
+    /// Находит активную привычку по идентификаторам пользователя и привычки.
+    /// </summary>
     private async Task<Habit?> GetOwnedActiveHabitAsync(Guid userId, Guid habitId, CancellationToken cancellationToken)
     {
         return await _dbContext.Habits
@@ -192,6 +206,9 @@ public sealed class HabitEntryService : IHabitEntryService
                 cancellationToken);
     }
 
+    /// <summary>
+    /// Преобразует сущность <see cref="HabitEntry"/> в DTO.
+    /// </summary>
     private static HabitEntryDto MapToDto(HabitEntry entry)
     {
         return new HabitEntryDto

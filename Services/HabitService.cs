@@ -7,12 +7,17 @@ using Microsoft.EntityFrameworkCore;
 namespace HabitApi.Services;
 
 /// <summary>
-/// Сервис для управления привычками.
+/// Сервис для управления привычками пользователя.
+/// Обеспечивает создание, чтение, обновление и мягкое удаление привычек.
 /// </summary>
 public sealed class HabitService : IHabitService
 {
     private readonly AppDbContext _dbContext;
 
+    /// <summary>
+    /// Инициализирует сервис привычек с контекстом базы данных.
+    /// </summary>
+    /// <param name="dbContext">Контекст базы данных приложения.</param>
     public HabitService(AppDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -39,6 +44,10 @@ public sealed class HabitService : IHabitService
     /// <inheritdoc />
     public async Task<HabitDto> CreateHabitAsync(Guid userId, CreateHabitDto request, CancellationToken cancellationToken)
     {
+        // Проверка валидности TriggerValue при создании (пункт 10 аудита)
+        if (!IsValidTriggerValue(request.TriggerType, request.TriggerValue))
+            throw new ArgumentException("TriggerValue is invalid for the selected TriggerType.");
+
         var habit = new Habit
         {
             UserId = userId,
@@ -83,6 +92,10 @@ public sealed class HabitService : IHabitService
         if (request.Reminders != null)
             habit.Reminders = request.Reminders;
 
+        // Проверка корректности TriggerValue после обновления
+        if (!string.IsNullOrEmpty(habit.TriggerValue) && !IsValidTriggerValue(habit.TriggerType, habit.TriggerValue))
+            throw new ArgumentException("TriggerValue is invalid for the selected TriggerType.");
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return MapToDto(habit);
     }
@@ -99,6 +112,25 @@ public sealed class HabitService : IHabitService
         return true;
     }
 
+    /// <summary>
+    /// Проверяет, соответствует ли значение триггера его типу.
+    /// </summary>
+    /// <param name="type">Тип триггера (TimeOfDay или CountPerDay).</param>
+    /// <param name="value">Строковое значение (время или количество).</param>
+    /// <returns>true, если значение валидно для указанного типа.</returns>
+    private static bool IsValidTriggerValue(TriggerType type, string value)
+    {
+        if (string.IsNullOrEmpty(value)) return false;
+        if (type == TriggerType.CountPerDay)
+            return int.TryParse(value, out var count) && count > 0;
+        if (type == TriggerType.TimeOfDay)
+            return TimeSpan.TryParseExact(value, @"hh\:mm", null, out _);
+        return false;
+    }
+
+    /// <summary>
+    /// Преобразует сущность Habit в DTO для передачи клиенту.
+    /// </summary>
     private static HabitDto MapToDto(Habit habit)
     {
         return new HabitDto

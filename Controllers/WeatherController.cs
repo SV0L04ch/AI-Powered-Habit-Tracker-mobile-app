@@ -7,10 +7,11 @@ namespace HabitApi.Controllers;
 
 /// <summary>
 /// Контроллер для получения погодных данных.
+/// Требует аутентификации для предотвращения злоупотреблений.
 /// </summary>
 [ApiController]
 [Route("api/weather")]
-[Authorize] // Требуем аутентификацию, чтобы избежать злоупотреблений
+[Authorize]
 public sealed class WeatherController : ControllerBase
 {
     private readonly IWeatherService _weatherService;
@@ -22,14 +23,14 @@ public sealed class WeatherController : ControllerBase
 
     /// <summary>
     /// Получить погоду для указанного города на указанную дату.
-    /// Данные кешируются на сервере, обновление не реже 1 раза в 3 часа.
+    /// Данные кешируются на сервере, обновление не реже одного раза в 3 часа.
     /// </summary>
     /// <param name="city">Название города (обязательно).</param>
-    /// <param name="date">Дата (опционально, по умолчанию сегодня).</param>
+    /// <param name="date">Дата.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>Снимок погоды: температура, осадки, облачность.</returns>
     /// <response code="200">Погода успешно получена.</response>
-    /// <response code="400">Не указан город или дата в будущем.</response>
+    /// <response code="400">Не указан город, превышена длина названия или дата в будущем.</response>
     /// <response code="401">Пользователь не авторизован.</response>
     /// <response code="404">Город не найден.</response>
     [HttpGet]
@@ -38,21 +39,20 @@ public sealed class WeatherController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<WeatherSnapshotDto>> GetWeather(
-        [FromQuery] string city,
-        [FromQuery] DateOnly? date,
+        string city,
+        DateOnly? date,
         CancellationToken cancellationToken)
     {
         // Валидация города
         if (string.IsNullOrWhiteSpace(city))
             return BadRequest(new { error = "City parameter is required." });
 
-        // Ограничиваем длину
         if (city.Length > 100)
             return BadRequest(new { error = "City name is too long." });
 
         var targetDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
-        // Не даём запрашивать будущие даты (погода не известна)
+        // Запрещаем будущие даты
         if (targetDate > DateOnly.FromDateTime(DateTime.UtcNow))
             return BadRequest(new { error = "Cannot get weather for future date." });
 
@@ -69,6 +69,6 @@ public sealed class WeatherController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
-        // Другие исключения обрабатываются глобальным фильтром
+        // Остальные исключения обрабатываются глобальным фильтром
     }
 }

@@ -1,55 +1,82 @@
 using DotNetEnv;
 using HabitApi.Data;
 using HabitApi.Exceptions;
+using HabitApi.Models.Domain;
 using HabitApi.Services;
 using HabitApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Polly;
+using Polly.Extensions.Http;
+using Microsoft.AspNetCore.RateLimiting;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Structured logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // Настройка подключения к PostgreSQL
-var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var database = Environment.GetEnvironmentVariable("DB_NAME") ?? "habit_tracker";
-var username = Environment.GetEnvironmentVariable("DB_USER") ?? "habit_user";
-var password = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "default_password";
-var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "habit_tracker";
+var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "habit_user";
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "default_password";
+var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+// Identity
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedEmail = true;
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+})
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders()
+    .AddSignInManager();
 
 // JWT конфигурация
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
+if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Length < 32)
+    throw new InvalidOperationException("JWT secret must be at least 32 characters long.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "HabitApi";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "HabitApiClient";
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
-// ----- НАСТРОЙКА CORS ДЛЯ КУК -----
+// CORS
+var corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:3000", "http://localhost:19006", "http://localhost:5093" };
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:3000",     // React Native Metro (обычно)
-                "http://localhost:19006",    // Expo Web
-                "http://localhost:5093")     // Ваш API (если нужно)
-              .AllowCredentials()            // ОБЯЗАТЕЛЬНО для кук
+        policy.WithOrigins(corsOrigins)
+              .AllowCredentials()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
+// Аутентификация через JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -64,7 +91,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = signingKey
         };
 
-        // ----- ЧТЕНИЕ ТОКЕНА ИЗ КУКИ -----
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -108,17 +134,55 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddProblemDetails();
-builder.Services.AddHttpClient();
 
-// Регистрация сервисов
-builder.Services.AddScoped<IWeatherService, WeatherService>();
+// HttpClient для WeatherService с Polly (timeout 10s + 3 retry)
+builder.Services
+    .AddHttpClient<IWeatherService, WeatherService>(client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(10);
+    })
+    .AddPolicyHandler(HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+
+// HttpClient для AiInsightsService (таймаут 5 минут для медленных локальных моделей)
+builder.Services
+    .AddHttpClient<IAiInsightsService, AiInsightsService>(client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(5);
+    });
+
+// Swagger
+builder.Services.AddSwaggerGen();
+
+// Redis
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis")
+                            ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION")
+                            ?? "localhost:6379";
+    options.InstanceName = "HabitTracker_";
+});
+
+// Rate Limiter
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("auth", config =>
+    {
+        config.PermitLimit = 5;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueLimit = 0;
+    });
+});
+
+// Регистрация остальных сервисов
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IHabitEntryService, HabitEntryService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
-builder.Services.AddScoped<IAiInsightsService, AiInsightsService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+// IWeatherService и IAiInsightsService уже зарегистрированы через AddHttpClient
 
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
@@ -139,10 +203,17 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
+// Swagger UI только в режиме разработки
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseCors("AllowFrontend");
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.MapControllers();
 
 app.MapGet("/health", () => Results.Ok("Healthy"));
@@ -157,6 +228,7 @@ static ProblemDetails CreateProblemDetails(HttpContext context, Exception? excep
         ArgumentException => StatusCodes.Status400BadRequest,
         UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
         KeyNotFoundException => StatusCodes.Status404NotFound,
+        DbUpdateException => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status500InternalServerError
     };
 

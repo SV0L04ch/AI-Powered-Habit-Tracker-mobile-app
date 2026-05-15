@@ -8,9 +8,12 @@ namespace HabitApi.Models.Domain;
 /// </summary>
 public enum HabitEntryStatus
 {
-    Completed = 1,  // полностью выполнено
-    Partial = 2,    // выполнено частично (требуется PartialValue)
-    Skipped = 3     // пропущено
+    /// <summary>Полностью выполнено.</summary>
+    Completed = 1,
+    /// <summary>Выполнено частично (требуется PartialValue).</summary>
+    Partial = 2,
+    /// <summary>Пропущено.</summary>
+    Skipped = 3
 }
 
 /// <summary>
@@ -18,16 +21,19 @@ public enum HabitEntryStatus
 /// </summary>
 public sealed class HabitEntry
 {
+    /// <summary>Уникальный идентификатор отметки.</summary>
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
 
+    /// <summary>Внешний ключ на привычку.</summary>
     public Guid HabitId { get; set; }
 
+    /// <summary>Дата, за которую ставится отметка.</summary>
     public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
 
     /// <summary>
     /// Статус выполнения (для положительных привычек).
-    /// Может быть null, если отметка ещё не проставлена.
+    /// Может быть null, если отметка не проставлена.
     /// </summary>
     public HabitEntryStatus? Status { get; set; }
 
@@ -43,14 +49,14 @@ public sealed class HabitEntry
     /// </summary>
     public int? RelapseCount { get; set; }
 
-    /// <summary>
-    /// Пользовательская заметка (опционально).
-    /// </summary>
+    /// <summary>Пользовательская заметка.</summary>
+    [MaxLength(500)]
     public string? Note { get; set; }
 
+    /// <summary>Дата и время создания записи (UTC).</summary>
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
-    // Навигационные свойства
+    /// <summary>Навигационное свойство к привычке.</summary>
     [ForeignKey(nameof(HabitId))]
     public Habit? Habit { get; set; }
 }
