@@ -3,6 +3,7 @@ using HabitApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using HabitApi.Exceptions;
 
 namespace HabitApi.Controllers;
 
@@ -124,6 +125,14 @@ public sealed class HabitEntriesController : ControllerBase
                 return NotFound(new { error = "Habit entry not found or does not belong to user." });
 
             return Ok(entry);
+        }
+        catch (ConflictException)
+        {
+            return Conflict(new { error = "Another entry already exists for this date." });
+        }
+        catch (ConflictException)
+        {
+            return Conflict(new { error = "Habit entry for this date already exists." });
         }
         catch (ArgumentException ex)
         {
