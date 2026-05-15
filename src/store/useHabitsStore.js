@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createHabit, fetchHabits, updHabit, delHabit } from "../services/habitService";
+import { getErrorMessage } from "../utils/handleServerError";
 
 
 const useHabits = create(
@@ -20,7 +21,7 @@ const useHabits = create(
                             isLoading: false
                         }))
                     } catch(err) {
-                        set({error: err.message, isLoading: false})
+                        set({error: getErrorMessage(err), isLoading: false})
                     }
                 },
 
@@ -35,9 +36,15 @@ const useHabits = create(
                             isLoading: false
                         }))
                     } catch(err) {
-                        set({error: err.message, isLoading: false})
+                        set({error: getErrorMessage(err), isLoading: false})
                     }
                 },
+
+                clearHabits: () => set({
+                    habits: [],
+                    isLoaded: false,
+                    error: null
+                }),
 
                 deleteHabit: async (id) => {
                     set({isLoading: true, error: null})
@@ -59,7 +66,7 @@ const useHabits = create(
                         const data = await fetchHabits()
                         set({habits: data, isLoading: false, isLoaded})
                     } catch (err) {
-                        set({error: err.message, isLoading: false})
+                        set({error: getErrorMessage(err), isLoading: false})
                     }
                 }
             }),
