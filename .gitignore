@@ -71,4 +71,4 @@ appsettings.Production.json
 test-results/
 playwright-report/
 *.last-run.json
->>>>>>> QA
+>>>>>>> QAcookies.txt
