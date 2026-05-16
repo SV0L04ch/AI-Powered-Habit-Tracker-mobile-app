@@ -80,6 +80,7 @@ const handleSubmit = async (e) => {
             value={habit.name}
             onChange={handleChange}
             disabled={isLoading}
+            data-testid="name-input"
           />
         </div>
 
@@ -90,6 +91,7 @@ const handleSubmit = async (e) => {
               <Button
                 variant={!habit.type ? 'primary' : 'secondary'}
                 onClick={() => setHabit({ ...habit, type: false })}
+                data-testid="controlType-time-button"
               >
                 <div className={styles.optionContent}>
                   <icons.Wristwatch />
@@ -100,6 +102,7 @@ const handleSubmit = async (e) => {
               <Button
                 variant={habit.type ? 'primary' : 'secondary'}
                 onClick={() => setHabit({ ...habit, type: true })}
+                data-testid="controlType-counter-button"
               >
                 <div className={styles.optionContent}>
                   <icons.Count className={styles.basicText} />
@@ -116,6 +119,7 @@ const handleSubmit = async (e) => {
               <Button
                 variant={habit.category ? 'primary' : 'secondary'}
                 onClick={() => setHabit({ ...habit, category: true })}
+                data-testid="categoryType-hard-button"
               >
                 <div className={styles.optionContent}>
                   <div className={styles.stars}>
@@ -130,6 +134,7 @@ const handleSubmit = async (e) => {
               <Button
                 variant={!habit.category ? 'primary' : 'secondary'}
                 onClick={() => setHabit({ ...habit, category: false })}
+                data-testid="categoryType-easy-button"
               >
                 <div className={styles.optionContent}>
                   <div className={styles.stars}>
@@ -155,22 +160,23 @@ const handleSubmit = async (e) => {
               value={habit.trigger_value}
               onChange={handleChange}
               disabled={isLoading}
+              data-testid="trigger-type"
             />
           </div>
         </div>
 
         {validationError && (
-          <Typography variant="caption" className={styles.errorText}>
+          <Typography variant="caption" className={styles.errorText} data-testid="validation-error">
             {validationError}
           </Typography>
         )}
         {error && (
-          <Typography variant="caption" className={styles.errorText}>
+          <Typography variant="caption" className={styles.errorText} data-testid="server-error">
             {error}
           </Typography>
         )}
 
-        <Button type="submit" variant='primary' disabled={isLoading}>
+        <Button type="submit" variant='primary' disabled={isLoading} data-testid="submit-button">
           {isLoading ? 'Создание...' : 'Создать привычку'}
         </Button>
       </form>

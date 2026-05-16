@@ -47,9 +47,8 @@ function HabitsPage() {
     <PageLayout>
       <Typography variant="headline1">Главная</Typography>
 
-      {isLoading && <Typography variant="body1">Загрузка...</Typography>}
-      {error && <Typography variant="body1" style={{ color: 'red' }}>Ошибка: {error}</Typography>}
-      {!isAuthenticated && <Typography variant="body1">Войдите, чтобы увидеть привычки.</Typography>}
+      {isLoading && <Typography variant="body1" data-testid="data-loading">Загрузка...</Typography>}
+      {error && <Typography variant="body1" style={{ color: 'red' }} data-testid="server-error">Ошибка: {error}</Typography>}
 
       <Typography variant="body1">
         Твой прогресс сегодня: 2/5 привычек
@@ -60,29 +59,27 @@ function HabitsPage() {
           <Typography variant="body2">Пока нет активных привычек</Typography>
         )}
         {activeHabits.map((habit) => (
-  <Substrate key={habit.id} variant="secondary">
+  <Substrate key={habit.id} variant="secondary" data-testid={`active-habit-${habit.id}`}>
   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
     <div className={styles.checkDesc}>
-      <Checkbox checked={!!habit.is_active} />
+      <Checkbox checked={!!habit.is_active} data-testid={`active-habit${habit.id}-checkbox`}/>
       <div className={styles.desc}>
-        <Typography variant="headline3">{habit.name}</Typography>
+        <Typography variant="headline3" data-testid={`active-habit-${habit.id}-name`}>{habit.name}</Typography>
         <div className={styles.captions}>
           {/* Формат значения в зависимости от типа */}
-          <Typography variant="caption">
-            {habit.triggerType === 1
-              ? habit.triggerValue                           // время, например "08:00"
-              : `${habit.triggerValue} раз`}                
+          <Typography variant="caption" data-testid={`active-habit-${habit.id}-trigger`}>
+            {habit.triggerType === 1 ? habit.triggerValue : `${habit.triggerValue} раз`}                
           </Typography>
           {/* Разделитель и количество дней (пока статика, потом можно брать из API) */}
-          <Typography variant="caption">
+          <Typography variant="caption" data-testid={`active-habit-${habit.id}-counter`}>
             • {habit.daysCount ?? 0} дн.
           </Typography>
         </div>
       </div>
     </div>
     <div className={styles.actions}>
-      <button onClick={() => setEditingHabit(habit)}>✎</button>
-      <button onClick={() => handleDelete(habit.id)}>✕</button>
+      <button onClick={() => setEditingHabit(habit)} data-testid={`active-habit-${habit.id}-edit-button`}>✎</button>
+      <button onClick={() => handleDelete(habit.id)} data-testid={`active-habit-${habit.id}-delete-button`}>✕</button>
     </div>
   </div>
 </Substrate>
@@ -94,14 +91,20 @@ function HabitsPage() {
           <Typography variant="body2">Нет завершённых привычек</Typography>
         )}
         {completedHabits.map((habit) => (
-          <Substrate key={habit.id} variant="secondary">
+          <Substrate key={habit.id} variant="secondary" data-testid={`inactive-habit-${habit.id}`}>
             <div className={styles.checkDesc}>
-              <Checkbox checked={false} />
+              <Checkbox checked={false} data-testid={`inactive-habit-${habit.id}-checkbox`}/>
               <div className={styles.desc}>
-                <Typography variant="headline3">{habit.name}</Typography>
+                <Typography variant="headline3" data-testid={`inactive-habit-${habit.id}-name`}>
+                  {habit.name}
+                </Typography>
                 <div className={styles.captions}>
-                  <Typography variant="caption">{habit.target_days || '0'} дней</Typography>
-                  <Typography variant="caption">{habit.trigger_value || ''}</Typography>
+                  <Typography variant="caption" data-testid={`inactive-habit-${habit.id}-trigger`}>
+                    {habit.triggerType === 1 ? habit.triggerValue : `${habit.triggerValue} раз`}                
+                  </Typography>
+                  <Typography variant="caption" data-testid={`inactive-habit-${habit.id}-counter`}>
+                    • {habit.daysCount ?? 0} дн.
+                  </Typography>
                 </div>
               </div>
             </div>

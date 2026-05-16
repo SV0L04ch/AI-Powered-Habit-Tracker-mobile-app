@@ -72,7 +72,7 @@ const RegisterPage = () => {
       <div className={styles.page}>
         <Typography variant="headline1" className={styles.auth}>Регистрация</Typography>
         <Substrate variant="form" >
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} data-testid="register-form">
             <div className={styles.form}>
               <Input
                 name="email"
@@ -80,19 +80,21 @@ const RegisterPage = () => {
                 placeholder="Эл. почта"
                 value={form.email}
                 onChange={handleChange}
+                data-testid="email-input"
               />
-              {errors.email && <p className={styles.error}>{errors.email}</p>}
+              {errors.email && <p className={styles.error} data-testid="error-email">{errors.email}</p>}
 
               <select
                 name="city"
                 value={form.city}
                 onChange={handleChange}
                 className={styles.selectSpacing}
+                data-testid="city-select"
               >
                 <option value="" disabled>Город</option>
                 {cities.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-              {errors.city && <p className={styles.error}>{errors.city}</p>}
+              {errors.city && <p className={styles.error} data-testid="city-error">{errors.city}</p>}
 
               <Input
                 name="password"
@@ -100,8 +102,9 @@ const RegisterPage = () => {
                 placeholder="Пароль"
                 value={form.password}
                 onChange={handleChange}
+                data-testid="input-password"
               />
-              {errors.password && <p className={styles.error}>{errors.password}</p>}
+              {errors.password && <p className={styles.error} data-testid="password-error">{errors.password}</p>}
 
               <Input
                 name="confirm"
@@ -109,12 +112,13 @@ const RegisterPage = () => {
                 placeholder="Подтвердить пароль"
                 value={form.confirm}
                 onChange={handleChange}
+                data-testid="confPass-input"
               />
-              {errors.confirm && <p className={styles.error}>{errors.confirm}</p>}
-              {error && <p className={styles.error}>{error}</p>}
+              {errors.confirm && <p className={styles.error} data-testid="confPass-error">{errors.confirm}</p>}
+              {error && <p className={styles.error} data-testid="server-error">{error}</p>}
               <div className={styles.Buttons}>
-                <Button variant="form" disabled={isLoading} type="submit">Регистрация</Button>
-                <Link to="/login" className={styles.link}>Авторизация</Link>
+                <Button variant="form" disabled={isLoading} type="submit" data-testid="reg-button">Регистрация</Button>
+                <Link to="/login" className={styles.link} data-testid="auth-link">Авторизация</Link>
               </div>
             </div>
             

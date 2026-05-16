@@ -59,7 +59,7 @@ const LoginPage = () => {
       <div className={styles.circle4} />
       <div className={styles.page}>
       <Typography variant='headline1' className={styles.auth}>Авторизация</Typography>
-      <Substrate variant='form' >
+      <Substrate variant='form' data-testid="login-form">
         <form onSubmit={handleSubmit}>
           <div className={styles.form}>
           
@@ -69,6 +69,7 @@ const LoginPage = () => {
       placeholder="Эл. почта"
       value={form.email}
       onChange={handleChange}
+      data-testid="email-input"
       />
       <Input
       name="password"
@@ -76,13 +77,14 @@ const LoginPage = () => {
       placeholder="Пароль"
       value={form.password}
       onChange={handleChange}
+      data-testid="password-input"
       />
 
-          {error && <p className={styles.error}>{error}</p>}
-          {aErorr && <p className={styles.error}>{aErorr}</p>}
+          {error && <p className={styles.error} data-testid="validate-error">{error}</p>}
+          {aErorr && <p className={styles.error} data-testid="server-error">{aErorr}</p>}
           <div className={styles.Buttons}>
-            <Button type="submit" variant='form' className={styles.submitButton} disabled={isLoading}>Войти</Button>
-            <Link to="/register" className={styles.link}>Регистрация</Link>
+            <Button type="submit" variant='form' className={styles.submitButton} disabled={isLoading} data-testid="login-button">Войти</Button>
+            <Link to="/register" className={styles.link} data-testid="register-link">Регистрация</Link>
           </div>
           </div>
         </form>
