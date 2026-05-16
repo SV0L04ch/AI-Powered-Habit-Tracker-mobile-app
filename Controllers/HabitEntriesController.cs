@@ -111,8 +111,6 @@ public sealed class HabitEntriesController : ControllerBase
         UpdateHabitEntryDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
             var userId = GetCurrentUserId();
             var entry = await _habitEntryService.UpdateHabitEntryAsync(
                 userId,
@@ -125,19 +123,6 @@ public sealed class HabitEntriesController : ControllerBase
                 return NotFound(new { error = "Habit entry not found or does not belong to user." });
 
             return Ok(entry);
-        }
-        catch (ConflictException)
-        {
-            return Conflict(new { error = "Another entry already exists for this date." });
-        }
-        catch (ConflictException)
-        {
-            return Conflict(new { error = "Habit entry for this date already exists." });
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
     }
 
     /// <summary>

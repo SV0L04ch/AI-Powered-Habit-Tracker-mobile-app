@@ -1,6 +1,8 @@
 using FluentValidation.TestHelper;
 using HabitApi.Models.DTO;
 using HabitApi.Validators;
+using Moq;
+using Xunit;
 
 namespace HabitApi.Tests.Validators;
 

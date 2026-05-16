@@ -4,6 +4,8 @@ using Microsoft.Extensions.Options;
 using HabitApi.Services;
 using System.Net;
 using System.Text.Json;
+using Xunit;
+using Moq;
 
 namespace HabitApi.Tests.Services;
 

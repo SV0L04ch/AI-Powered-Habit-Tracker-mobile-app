@@ -23,7 +23,7 @@ public interface IAuthService
     /// <param name="userId">Идентификатор пользователя.</param>
     /// <param name="token">Токен подтверждения.</param>
     /// <returns>Подтверждённый пользователь или null.</returns>
-    Task<User?> ConfirmEmailAsync(Guid userId, string token);
+    Task<ApplicationUser?> ConfirmEmailAsync(Guid userId, string token);
 
     /// <summary>
     /// Вход пользователя в систему.

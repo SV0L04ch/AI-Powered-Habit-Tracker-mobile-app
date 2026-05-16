@@ -12,13 +12,21 @@ public class AuthControllerTests
     [Fact]
     public async Task Login_ValidCredentials_ReturnsOkWithToken()
     {
-        var request = new LoginRequestDto { Email = "test@example.com", Password = "Strong1!" };
+        var request = new LoginRequestDto
+        {
+            Email = "test@example.com",
+            Password = "Strong1!"
+        };
+
         var token = "jwt_token";
         var mockAuth = new Mock<IAuthService>();
-        mockAuth.Setup(s => s.LoginAsync(request)).ReturnsAsync(token);
+            
+        mockAuth
+            .Setup(s => s.LoginAsync(It.IsAny<LoginRequestDto>(), It.IsAny<CancellationToken>()));
 
         var controller = new AuthController(mockAuth.Object);
-        var result = await controller.Login(request);
+
+        var result = await controller.Login(request, CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.NotNull(ok.Value);
@@ -27,12 +35,20 @@ public class AuthControllerTests
     [Fact]
     public async Task Login_InvalidCredentials_ReturnsUnauthorized()
     {
-        var request = new LoginRequestDto { Email = "wrong@mail.com", Password = "wrong" };
+        var request = new LoginRequestDto
+        {
+            Email = "wrong@mail.com",
+            Password = "wrong"
+        };
+
         var mockAuth = new Mock<IAuthService>();
-        mockAuth.Setup(s => s.LoginAsync(request)).ReturnsAsync((string?)null);
+
+        mockAuth
+            .Setup(s => s.LoginAsync(request, It.IsAny<CancellationToken>()));
 
         var controller = new AuthController(mockAuth.Object);
-        var result = await controller.Login(request);
+
+        var result = await controller.Login(request, CancellationToken.None);
 
         Assert.IsType<UnauthorizedObjectResult>(result);
     }
@@ -44,14 +60,17 @@ public class AuthControllerTests
         {
             Email = "new@mail.com",
             Password = "Strong1!",
-            UserName = "user",
             City = "Moscow"
         };
+
         var mockAuth = new Mock<IAuthService>();
-        mockAuth.Setup(s => s.RegisterAsync(request)).ReturnsAsync(true);
+
+        mockAuth
+            .Setup(s => s.RegisterAsync(request, It.IsAny<CancellationToken>()));
 
         var controller = new AuthController(mockAuth.Object);
-        var result = await controller.Register(request);
+
+        var result = await controller.Register(request, CancellationToken.None);
 
         Assert.IsType<CreatedResult>(result);
     }
@@ -59,12 +78,21 @@ public class AuthControllerTests
     [Fact]
     public async Task Register_ServiceReturnsFalse_ReturnsBadRequest()
     {
-        var request = new RegisterRequestDto();
+        var request = new RegisterRequestDto
+        {
+            Email = "",
+            Password = "",
+            City = ""
+        };
+
         var mockAuth = new Mock<IAuthService>();
-        mockAuth.Setup(s => s.RegisterAsync(request)).ReturnsAsync(false);
+
+        mockAuth
+            .Setup(s => s.RegisterAsync(request, It.IsAny<CancellationToken>()));
 
         var controller = new AuthController(mockAuth.Object);
-        var result = await controller.Register(request);
+
+        var result = await controller.Register(request, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }

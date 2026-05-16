@@ -5,6 +5,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using HabitApi.Services;
 using System.Net;
+using FluentValidation.TestHelper;
+using FluentValidation;
+using FluentValidation.Validators;
 
 namespace HabitApi.Tests.Services;
 

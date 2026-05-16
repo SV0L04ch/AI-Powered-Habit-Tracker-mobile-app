@@ -5,6 +5,7 @@ using System.Security.Claims;
 using HabitApi.Controllers;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace HabitApi.Tests.Controllers;
 
@@ -30,7 +31,7 @@ public class HabitEntriesControllerTests
     public async Task CreateEntry_ValidRequest_ReturnsCreated()
     {
         var userId = Guid.NewGuid();
-        var request = new CreateHabitEntryDto { HabitId = Guid.NewGuid(), IsCompleted = true };
+        var request = new CreateHabitEntryDto { Date = DateOnly.FromDateTime(DateTime.UtcNow), Status = , Note = "dasda"};
         var createdEntry = new HabitEntryDto { Id = Guid.NewGuid(), HabitId = request.HabitId };
 
         var mockService = new Mock<IHabitEntryService>();
