@@ -40,13 +40,14 @@ const EditHabitModal = ({ isOpen, onClose, habit }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className={styles.container}>
+      <div className={styles.container} data-testid="edit-habit-modal">
         <Typography variant="headline2">Редактирование привычки</Typography>
 
         <Input
           placeholder="Название"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          data-testid="habit-name"
         />
 
         {/* Тип контроля */}
@@ -56,6 +57,7 @@ const EditHabitModal = ({ isOpen, onClose, habit }) => {
             <Button
               variant={!type ? 'primary' : 'secondary'}
               onClick={() => setType(false)}
+              data-testid="controlType-time-button"
             >
               <div className={styles.optionContent}>
                 <icons.Wristwatch />
@@ -65,6 +67,7 @@ const EditHabitModal = ({ isOpen, onClose, habit }) => {
             <Button
               variant={type ? 'primary' : 'secondary'}
               onClick={() => setType(true)}
+              data-testid="controlType-counter-button"
             >
               <div className={styles.optionContent}>
                 <icons.Count />
@@ -81,6 +84,7 @@ const EditHabitModal = ({ isOpen, onClose, habit }) => {
             <Button
               variant={category ? 'primary' : 'secondary'}
               onClick={() => setCategory(true)}
+              data-testid="categoryType-hard-button"
             >
               <div className={styles.optionContent}>
                 <div className={styles.stars}>
@@ -94,6 +98,7 @@ const EditHabitModal = ({ isOpen, onClose, habit }) => {
             <Button
               variant={!category ? 'primary' : 'secondary'}
               onClick={() => setCategory(false)}
+              data-testid="categoryType-easy-button"
             >
               <div className={styles.optionContent}>
                 <div className={styles.stars}>
@@ -111,11 +116,12 @@ const EditHabitModal = ({ isOpen, onClose, habit }) => {
           placeholder="Значение (время или количество)"
           value={triggerValue}
           onChange={(e) => setTriggerValue(e.target.value)}
+          data-testid="trigger-type"
         />
 
         <div className={styles.actions}>
-          <Button variant="secondary" onClick={onClose}>Отмена</Button>
-          <Button variant="primary" onClick={handleSave}>Сохранить</Button>
+          <Button variant="secondary" onClick={onClose} data-testid="close-button">Отмена</Button>
+          <Button variant="primary" onClick={handleSave} data-testid="save-button">Сохранить</Button>
         </div>
       </div>
     </Modal>
