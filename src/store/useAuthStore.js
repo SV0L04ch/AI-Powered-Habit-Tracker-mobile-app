@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { loginUser, registerUser } from "../services/AuthService";
-
+import { getErrorMessage } from "../utils/handleServerError";
+import axios from "axios";
+import useHabits from "./useHabitsStore";
 
 const useAuthUser = create(
     persist((set) => ({
@@ -22,7 +24,7 @@ const useAuthUser = create(
                     isLoading: false,
                 });
             } catch (err) {
-                set({ error: err.response?.data?.message || err.message, isLoading: false });
+                set({ error: getErrorMessage(err), isLoading: false });
             }
         },
         
@@ -39,14 +41,23 @@ const useAuthUser = create(
                     city: data.city,
                 });
             } catch (err) {
-                set({ error: err.message, isLoading: false });
+                set({ error: getErrorMessage(err), isLoading: false });
             }
         },
 
         logout: async () => {
-            try { await axios.post('/api/auth/logout'); } catch(e){}
+            try { await axios.post('/api/auth/logout'); } catch(e){ }
+            useHabits.getState().clearHabits();
             set({ email: null, city: null, isAuthenticated: false });
         },
-    })),
+    }),
+    {
+        name: 'auth-storage',
+        partialize: (state) => ({
+            email: state.email,
+            city: state.city,
+            isAuthenticated: state.isAuthenticated
+        })
+    })
 );
 export default useAuthUser;
