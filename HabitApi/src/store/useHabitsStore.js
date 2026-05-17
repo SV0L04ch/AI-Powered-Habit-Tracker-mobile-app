@@ -5,7 +5,7 @@ import { getErrorMessage } from "../utils/handleServerError";
 
 
 const useHabits = create(
-    persist((set) => ({
+    persist((set, get) => ({
                 habits: [],
                 isLoading: false,
                 error: false,
@@ -64,7 +64,7 @@ const useHabits = create(
                     set({ isLoading: true, error: null})
                     try {
                         const data = await fetchHabits()
-                        set({habits: data, isLoading: false, isLoaded})
+                        set({habits: data, isLoading: false, isLoaded: true})
                     } catch (err) {
                         set({error: getErrorMessage(err), isLoading: false})
                     }
