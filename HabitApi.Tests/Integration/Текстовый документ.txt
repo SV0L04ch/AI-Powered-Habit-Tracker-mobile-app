@@ -1,0 +1,10 @@
+dotnet test HabitApi.Tests\HabitApi.Tests.csproj
+# passed: 131, skipped integration: 6
+
+
+powershell -ExecutionPolicy Bypass -File .\scripts\Run-BackendIntegrationTests.ps1
+# backend integration: 4/4 passed
+
+
+powershell -ExecutionPolicy Bypass -File .\scripts\Run-LlmIntegrationTests.ps1 -Model tinyllama
+# LLM integration: 2/2 passed

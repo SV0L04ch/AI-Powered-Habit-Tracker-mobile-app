@@ -99,20 +99,20 @@ public sealed class StatsService : IStatsService
             .Where(e => habitIds.Contains(e.HabitId) && e.Date >= weekStart && e.Date <= weekEnd)
             .ToListAsync(cancellationToken);
 
+        var completedHabitIds = entries.Select(e => e.HabitId).ToHashSet();
+
         // Группируем по названию привычки и считаем уникальных пользователей
         var habitStats = habits
-            .GroupJoin(entries,
-                h => h.Id,
-                e => e.HabitId,
-                (h, entryGroup) => new
-                {
-                    HabitName = h.Name,
-                    UserCount = entryGroup
-                        .Select(e => e.Habit?.UserId)
-                        .Where(uid => uid.HasValue)
-                        .Distinct()
-                        .Count()
-                })
+            .GroupBy(h => h.Name)
+            .Select(group => new
+            {
+                HabitName = group.Key,
+                UserCount = group
+                    .Where(h => completedHabitIds.Contains(h.Id))
+                    .Select(h => h.UserId)
+                    .Distinct()
+                    .Count()
+            })
             .OrderByDescending(x => x.UserCount)
             .Take(10)
             .Select(x => new CityHabitStatDto
