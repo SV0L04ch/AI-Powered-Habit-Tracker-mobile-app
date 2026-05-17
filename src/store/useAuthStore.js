@@ -4,6 +4,7 @@ import { loginUser, registerUser } from "../services/AuthService";
 import { getErrorMessage } from "../utils/handleServerError";
 import axios from "axios";
 import useHabits from "./useHabitsStore";
+import useInsight from "./useInsightStore"
 
 const useAuthUser = create(
     persist((set) => ({
@@ -48,6 +49,7 @@ const useAuthUser = create(
         logout: async () => {
             try { await axios.post('/api/auth/logout'); } catch(e){ }
             useHabits.getState().clearHabits();
+            useInsight.getState().clearInsight()
             set({ email: null, city: null, isAuthenticated: false });
         },
     }),
