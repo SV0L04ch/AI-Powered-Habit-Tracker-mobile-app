@@ -21,7 +21,6 @@ const useAuthUser = create(
                 set({
                     email: data.email,
                     city: data.city,
-                    isAuthenticated: true,
                     isLoading: false,
                 });
             } catch (err) {

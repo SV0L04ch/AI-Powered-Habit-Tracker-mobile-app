@@ -11,4 +11,10 @@ public sealed class ConflictException : Exception
     public ConflictException(string message) : base(message)
     {
     }
+
+    // Новый конструктор
+    public ConflictException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
 }

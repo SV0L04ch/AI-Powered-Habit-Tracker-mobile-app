@@ -1,4 +1,5 @@
 using HabitApi.Data;
+using Npgsql;
 using HabitApi.Exceptions;
 using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
