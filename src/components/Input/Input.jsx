@@ -1,17 +1,21 @@
-import React from 'react'
-import styles from './Input.module.scss'
+import React from 'react';
+import styles from './Input.module.scss';
 
-const Input = ({placeholder = "Введите текст", type = "text", icon, disabled = false, ...rest}) => {
+const Input = ({ icon, disabled = false, ...rest }) => {
+  const { className, ...inputProps } = rest;
+  const containerClass = `${styles.inputContainer} ${className || ''}`.trim();
   return (
-    <label className={styles.inputContainer}>
-        {icon && (
-            <span className={styles.icon} aria-hidden='true'>
-                {icon}
-            </span>
-            )}
-        <input type={type} placeholder={placeholder} disabled = {disabled} className={styles.field} {...rest}/>
+    <label className={containerClass}>
+      {icon && <span className={styles.icon}>{icon}</span>}
+      <input
+        type="text"
+        placeholder="Введите текст"
+        disabled={disabled}
+        className={styles.field}
+        {...inputProps}
+      />
     </label>
-  )
-}
+  );
+};
 
-export default Input
+export default Input;

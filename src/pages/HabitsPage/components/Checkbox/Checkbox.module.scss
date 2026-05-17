@@ -8,7 +8,10 @@
   position: relative;
 }
 
+<<<<<<< HEAD
 // Скрываем нативный чекбокс, но оставляем его доступным
+=======
+>>>>>>> feature/frontend-city-insights-page
 .input {
   position: absolute;
   opacity: 0;
@@ -17,7 +20,10 @@
   pointer-events: none;
 }
 
+<<<<<<< HEAD
 // Фон чекбокса (пустой квадратик)
+=======
+>>>>>>> feature/frontend-city-insights-page
 .checkmark {
   width: 15px;
   height: 15px;
@@ -27,6 +33,7 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
+<<<<<<< HEAD
   color: white; // чтобы иконка внутри стала белой
 }
 
@@ -38,11 +45,28 @@
 // Иконка (галочка) внутри .checkmark
 .icon {
   display: none; // по умолчанию скрыта
+=======
+  color: white; 
+}
+
+.input:checked + .checkmark {
+  background-color: var.$dark-buttons; 
+}
+
+.icon {
+  display: none; 
+>>>>>>> feature/frontend-city-insights-page
   width: 12px;
   height: 12px;
 }
 
+<<<<<<< HEAD
 // При :checked показываем иконку
 .input:checked + .checkmark .icon {
   display: block;
 }
+=======
+.input:checked + .checkmark .icon {
+  display: block;
+}
+>>>>>>> feature/frontend-city-insights-page
