@@ -1,0 +1,69 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, master, QA ]
+  pull_request:
+    branches: [ main, master, QA ]
+
+jobs:
+  playwright:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start all services with Docker Compose
+        run: docker compose up -d
+
+      - name: Wait for API to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:5093/health; then
+              echo "API is ready"
+              break
+            fi
+            echo "Waiting for API... ($i/30)"
+            sleep 2
+          done
+
+      - name: Reset database
+        run: |
+          for i in {1..10}; do
+            if docker exec habit_tracker_db pg_isready -U habit_user -d habit_tracker; then
+              break
+            fi
+            echo "Waiting for DB..."
+            sleep 2
+          done
+          docker exec habit_tracker_db psql -U habit_user -d habit_tracker -c 'TRUNCATE TABLE "Users", "Habits", "HabitEntries" CASCADE;'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (Chromium only)
+        run: npx playwright install chromium --with-deps
+
+      - name: Install wait-on
+        run: npm install -g wait-on
+
+      - name: Start frontend dev server
+        run: |
+          npx vite --port 5173 --host 0.0.0.0 > frontend.log 2>&1 &
+          echo $! > frontend.pid
+          echo "Frontend started with PID $(cat frontend.pid)"
+          sleep 5
+          cat frontend.log
+
+      - name: Wait for frontend to be ready
+        run: npx wait-on --timeout 60000 http://localhost:5173
+
+      - name: Run Playwright tests
+        run: npx playwright test --workers=1

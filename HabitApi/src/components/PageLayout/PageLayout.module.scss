@@ -1,0 +1,8 @@
+@use '../../styles/abstracts/variables' as var;
+
+.page{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding-top: var.$spacing-2;
+}
