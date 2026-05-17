@@ -52,10 +52,10 @@ const RegisterPage = () => {
     console.log(useAuthUser.getState())
   
     const email = useAuthUser.getState().email
-
-    const isAuth = useAuthUser.getState().isAuthenticated
-    if (isAuth){
-      navigate('/habits/new')
+    const error = useAuthUser.getState().error;
+    
+    if (!error){
+      navigate('/login', {replace: true})
     }
 
     
