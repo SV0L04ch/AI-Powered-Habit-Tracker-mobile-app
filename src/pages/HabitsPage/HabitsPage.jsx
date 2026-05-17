@@ -10,27 +10,40 @@ import EditHabitModal from "../../components/EditHabitModal/EditHabitModal";
 import { useState, useEffect } from "react";
 import useAuthUser from '../../store/useAuthStore';
 import useHabits from "../../store/useHabitsStore";
+import useInsight from "../../store/useInsightStore";
+import Modal from "../../components/Modal/Modal";
+import Button from "../../components/Button/Button";
 
 function HabitsPage() {
   const [editingHabit, setEditingHabit] = useState(null)
-
+  const {message: insightMessage, isLoading: isInsightLoading, error: insightError, fetchSupport, clearInsight} = useInsight()
   const navigate = useNavigate();
   const habits = useHabits((state) => state.habits)
-  const isLoading = useHabits((state) => state.isLoading)
-  const error = useHabits((state) => state.error)
+  const isHabitsLoading = useHabits((state) => state.isLoading)
+  const habitsError = useHabits((state) => state.error)
   const getHabits = useHabits((state) => state.getHabits)
   const deleteHabit = useHabits((state) => state.deleteHabit);
   const clearError = useHabits((state) => state.clearError);
   const isAuthenticated = useAuthUser((state) => state.isAuthenticated);
+  const isLoaded = useHabits((state) => state.isLoaded)
+  
+  const [showInsightModal, setShowInsightModal] = useState(false)
 
 
 
-  //   useEffect(() => {
-  //   clearError();
-  //   if (isAuthenticated) {
-  //     getHabits();
-  //   }
-  // }, [isAuthenticated])
+    useEffect(() => {
+      clearError()
+      getHabits()
+      if (insightMessage) {
+        setShowInsightModal(true)
+      }
+      
+    }, [insightMessage]);
+
+    const handleCloseInsight = () => {
+      setShowInsightModal(false);
+      clearInsight();
+    };
 
   const handleDelete = async (id) => {
     if (window.confirm('Удалить привычку?')) {
@@ -47,54 +60,55 @@ function HabitsPage() {
     <PageLayout>
       <Typography variant="headline1">Главная</Typography>
 
-      {isLoading && <Typography variant="body1" data-testid="data-loading">Загрузка...</Typography>}
-      {error && <Typography variant="body1" style={{ color: 'red' }} data-testid="server-error">Ошибка: {error}</Typography>}
+      {isHabitsLoading && <Typography variant="body1" data-testid="data-loading">Загрузка...</Typography>}
+      {habitsError && <Typography variant="body1" style={{ color: 'red' }} data-testid="server-error">Ошибка: {habitsError}</Typography>} {/*Здесь выводится ошибка*/ }
 
       <Typography variant="body1">
         Твой прогресс сегодня: 2/5 привычек
       </Typography>
       <div className={styles.blockHabits}>
         <Typography variant="headline2">Активные привычки</Typography>
-                {activeHabits.length === 0 && !isLoading && isAuthenticated && (
+                {activeHabits.length === 0 && !isHabitsLoading && isAuthenticated && (
           <Typography variant="body2">Пока нет активных привычек</Typography>
         )}
         {activeHabits.map((habit) => (
-  <Substrate key={habit.id} variant="secondary" data-testid={`active-habit-${habit.id}`}>
-  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-    <div className={styles.checkDesc}>
-      <Checkbox checked={!!habit.is_active} data-testid={`active-habit${habit.id}-checkbox`}/>
-      <div className={styles.desc}>
-        <Typography variant="headline3" data-testid={`active-habit-${habit.id}-name`}>{habit.name}</Typography>
-        <div className={styles.captions}>
-          {/* Формат значения в зависимости от типа */}
-          <Typography variant="caption" data-testid={`active-habit-${habit.id}-trigger`}>
-            {habit.triggerType === 1 ? habit.triggerValue : `${habit.triggerValue} раз`}                
-          </Typography>
-          {/* Разделитель и количество дней (пока статика, потом можно брать из API) */}
-          <Typography variant="caption" data-testid={`active-habit-${habit.id}-counter`}>
-            • {habit.daysCount ?? 0} дн.
-          </Typography>
-        </div>
-      </div>
-    </div>
-    <div className={styles.actions}>
-      <button onClick={() => setEditingHabit(habit)} data-testid={`active-habit-${habit.id}-edit-button`}>✎</button>
-      <button onClick={() => handleDelete(habit.id)} data-testid={`active-habit-${habit.id}-delete-button`}>✕</button>
-    </div>
-  </div>
-</Substrate>
-))}
+          <Substrate key={habit.id} variant="secondary" data-testid={`active-habit-${habit.id}`}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+              <div className={styles.checkDesc}>
+                <Checkbox checked={!!habit.is_active} data-testid={`active-habit${habit.id}-checkbox`}/>
+                <div className={styles.desc}>
+                  <Typography variant="headline3" data-testid={`active-habit-${habit.id}-name`}>{habit.name}</Typography>
+                  <div className={styles.captions}>
+                    {/* Формат значения в зависимости от типа */}
+                    <Typography variant="caption" data-testid={`active-habit-${habit.id}-trigger`}>
+                      {habit.triggerType === 1 ? habit.triggerValue : `${habit.triggerValue} раз`}                
+                    </Typography>
+                    {/* Разделитель и количество дней (пока статика, потом можно брать из API) */}
+                    <Typography variant="caption" data-testid={`active-habit-${habit.id}-counter`}>
+                      • {habit.daysCount ?? 0} дн.
+                    </Typography>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.actions}>
+                <button onClick={() => setEditingHabit(habit)} data-testid={`active-habit-${habit.id}-edit-button`}>✎</button>
+                <button onClick={() => handleDelete(habit.id)} data-testid={`active-habit-${habit.id}-delete-button`}>✕</button>
+                <button onClick={() => fetchSupport(habit.id, habit.name)} disabled={isInsightLoading} data-testid={`ai-insight-${habit.id}`}>💡</button>
+              </div>
+            </div>
+          </Substrate>
+        ))}
       </div>
       <div className={styles.blockHabits}>
         <Typography variant="headline2">Завершены</Typography>
-                {completedHabits.length === 0 && !isLoading && isAuthenticated && (
+                {completedHabits.length === 0 && !isHabitsLoading && isAuthenticated && (
           <Typography variant="body2">Нет завершённых привычек</Typography>
         )}
         {completedHabits.map((habit) => (
           <Substrate key={habit.id} variant="secondary" data-testid={`inactive-habit-${habit.id}`}>
             <div className={styles.checkDesc}>
               <Checkbox checked={false} data-testid={`inactive-habit-${habit.id}-checkbox`}/>
-              <div className={styles.desc}>
+              <div className={styles.desc}>  clearError();
                 <Typography variant="headline3" data-testid={`inactive-habit-${habit.id}-name`}>
                   {habit.name}
                 </Typography>
@@ -112,12 +126,25 @@ function HabitsPage() {
         ))}
       </div>
       <AddButton click={handleClick}></AddButton>
-
-            <EditHabitModal
+      <EditHabitModal
         isOpen={!!editingHabit}
         onClose={() => setEditingHabit(null)}
         habit={editingHabit}
       />
+
+    <Modal isOpen={showInsightModal} onClose={handleCloseInsight} data-testid="insight-modal">
+      <div className={styles.insightContainer}>
+        <Typography variant="headline3">Совет дня</Typography>
+        {isInsightLoading && <Typography>Генерация совета...</Typography>}
+        {insightError && <Typography className={styles.errorText} data-testid="insight-error">{insightError}</Typography>}
+        {insightMessage && <Typography variant="body1" data-testid="insight-message">{insightMessage}</Typography>}
+      </div>
+      <div className={styles.modalActions}>
+          <Button variant="primary" onClick={handleCloseInsight} data-testid="insight-close-button">
+            Отлично!
+          </Button>
+        </div>
+    </Modal>
 
     </PageLayout>
   );

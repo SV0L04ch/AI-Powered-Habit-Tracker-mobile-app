@@ -83,7 +83,7 @@ const LoginPage = () => {
           {error && <p className={styles.error} data-testid="validate-error">{error}</p>}
           {aErorr && <p className={styles.error} data-testid="server-error">{aErorr}</p>}
           <div className={styles.Buttons}>
-            <Button type="submit" variant='form' className={styles.submitButton} disabled={isLoading} data-testid="login-button">Войти</Button>
+            <Button type="submit" variant='form' disabled={isLoading} data-testid="login-button">Войти</Button>
             <Link to="/register" className={styles.link} data-testid="register-link">Регистрация</Link>
           </div>
           </div>
