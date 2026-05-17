@@ -23,3 +23,16 @@
     gap: var.$spacing-1;
     flex-direction: column;
 }
+
+.insightContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
