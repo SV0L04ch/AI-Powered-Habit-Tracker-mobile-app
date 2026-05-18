@@ -42,7 +42,7 @@ function App() {
         <Route path="/profile" element={<ProtectedAuth><ProfilePage /></ProtectedAuth>} />
         <Route path="/" element={<Navigate to="/habits" replace />} />
       </Routes>
-      <BottomNav activeTab={activeTab} onTabChange={handleTabChange}/>
+      {location.pathname !== '/login' && location.pathname !== '/register' && (<BottomNav activeTab={activeTab} onTabChange={handleTabChange}/>)}
     </div>
   );
 }

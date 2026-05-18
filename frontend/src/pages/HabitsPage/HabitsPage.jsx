@@ -29,6 +29,7 @@ function HabitsPage() {
   const updateHabit = useHabits((state) => state.updateHabit);
   const clearError = useHabits((state) => state.clearError);
   const isAuthenticated = useAuthUser((state) => state.isAuthenticated);
+  
 
   // Загрузка привычек при входе
   useEffect(() => {
@@ -89,11 +90,12 @@ const closeMenu = () => setMenuData(null);
     <Substrate key={habit.id} variant="secondary" data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}`}>
       <div className={styles.habitWrap}>
         <div className={styles.checkDesc}>
-          <Checkbox
+          <Checkbox 
             checked={!!habit.is_active}
             onChange={() => !isCompleted && handleToggleActive(habit)}
             disabled={isCompleted}
             data-testid={`${isCompleted ? 'inactive' : 'active'}-habit${habit.id}-checkbox`}
+            data-testid={`contextmenu-${habit.id}`}
           />
           <div className={styles.desc}>
             <Typography variant="headline3" data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}-name`}>
@@ -159,7 +161,7 @@ const closeMenu = () => setMenuData(null);
         {completedHabits.map(habit => renderHabitCard(habit, true))}
       </div>
 
-      <AddButton click={handleClick} />
+      <AddButton click={handleClick} data-testid="add-button"/>
 
       <EditHabitModal
         isOpen={!!editingHabit}
@@ -176,7 +178,7 @@ const closeMenu = () => setMenuData(null);
         </div>
         <div className={styles.modalActions}>
           <Button variant="primary" onClick={handleCloseInsight} data-testid="insight-close-button">
-            Отлично!
+            Хорошо
           </Button>
         </div>
       </Modal>
