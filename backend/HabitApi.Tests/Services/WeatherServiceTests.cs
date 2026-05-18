@@ -1,3 +1,4 @@
+using System.Net;
 using Xunit;
 using Moq;
 using RichardSzalay.MockHttp;
@@ -122,6 +123,33 @@ public class WeatherServiceTests
 
         Assert.NotNull(result);
         Assert.Equal("Service unavailable", result.Condition);
+    }
+
+    [Fact]
+    public async Task GetWeatherAsync_CityNotFound_ThrowsKeyNotFoundException()
+    {
+        var mockHttp = new MockHttpMessageHandler();
+        mockHttp.When("https://api.openweathermap.org/data/2.5/weather*")
+                .Respond(HttpStatusCode.NotFound, "application/json", @"{ ""cod"": 404, ""message"": ""city not found"" }");
+
+        var service = CreateService(mockHttp.ToHttpClient());
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => service.GetWeatherAsync("InvalidCity", DateOnly.FromDateTime(DateTime.UtcNow), CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GetWeatherAsync_RateLimited_ThrowsTooManyRequestsException()
+    {
+        var mockHttp = new MockHttpMessageHandler();
+        mockHttp.When("https://api.openweathermap.org/data/2.5/weather*")
+                .Respond(HttpStatusCode.TooManyRequests, "application/json", @"{ ""cod"": 429, ""message"": ""rate limit exceeded"" }");
+
+        var service = CreateService(mockHttp.ToHttpClient());
+
+        var exception = await Assert.ThrowsAsync<HttpRequestException>(
+            () => service.GetWeatherAsync("ratelimit", DateOnly.FromDateTime(DateTime.UtcNow), CancellationToken.None));
+        Assert.Equal(HttpStatusCode.TooManyRequests, exception.StatusCode);
     }
 
     [Fact]

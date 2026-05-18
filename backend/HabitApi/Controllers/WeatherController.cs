@@ -1,3 +1,4 @@
+using System.Net;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -38,6 +39,7 @@ public sealed class WeatherController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<WeatherSnapshotDto>> GetWeather(
         string city,
         DateOnly? date,
@@ -64,6 +66,10 @@ public sealed class WeatherController : ControllerBase
         catch (KeyNotFoundException)
         {
             return NotFound(new { error = $"Weather data for city '{city}' not found." });
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            return StatusCode(StatusCodes.Status429TooManyRequests, new { error = "Too many requests to weather API." });
         }
         catch (ArgumentException ex)
         {

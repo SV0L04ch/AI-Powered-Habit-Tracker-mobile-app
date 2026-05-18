@@ -1,3 +1,4 @@
+using System.Net;
 using Xunit;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
@@ -123,6 +124,27 @@ public class WeatherControllerTests
         var result = await controller.GetWeather(city, date, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetWeather_ServiceThrowsTooManyRequests_ReturnsTooManyRequests()
+    {
+        var userId = Guid.NewGuid();
+        var city = "ratelimit";
+        var date = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var mockService = new Mock<IWeatherService>();
+        mockService.Setup(s => s.GetWeatherAsync(city, date, It.IsAny<CancellationToken>()))
+                   .ThrowsAsync(new HttpRequestException(
+                       "Too many requests to weather API.",
+                       null,
+                       HttpStatusCode.TooManyRequests));
+
+        var controller = CreateController(mockService, userId);
+        var result = await controller.GetWeather(city, date, CancellationToken.None);
+
+        var statusResult = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status429TooManyRequests, statusResult.StatusCode);
     }
 
     // Тест GetWeather_Unauthenticated_ReturnsUnauthorized удалён, так как

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
@@ -85,12 +86,23 @@ public sealed class WeatherService : IWeatherService
         try
         {
             var response = await _httpClient.GetAsync(url, cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new KeyNotFoundException($"Weather data for city '{city}' not found.");
+
+            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                throw new HttpRequestException(
+                    "Too many requests to weather API.",
+                    null,
+                    HttpStatusCode.TooManyRequests);
+
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
             snapshot = ParseWeatherResponse(city, date, json);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex) when (ex is TaskCanceledException ||
+                                   ex is HttpRequestException { StatusCode: not HttpStatusCode.TooManyRequests })
         {
             _logger.LogWarning(ex, "Weather API unavailable for {City}, returning fallback", city);
             snapshot = CreateFallback(city, date);

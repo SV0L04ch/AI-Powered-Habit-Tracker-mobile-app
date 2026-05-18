@@ -1,9 +1,12 @@
+using HabitApi.Controllers;
 using HabitApi.Exceptions;
 using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
 using HabitApi.Tests.Integration.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HabitApi.Tests.Integration.Backend;
@@ -209,6 +212,24 @@ public sealed class BackendWorkflowIntegrationTests
         Assert.Equal(2, reading.UserCount);
         Assert.Equal(2, reading.TotalUsers);
         Assert.Equal(100, reading.Percentage);
+    }
+
+    [BackendIntegrationFact]
+    public async Task WeatherController_MapsProviderNotFoundAndRateLimitToHttpStatuses()
+    {
+        await using var provider = BackendTestServiceFactory.Create(_postgres.ConnectionString);
+        using var scope = provider.CreateScope();
+
+        var weatherService = scope.ServiceProvider.GetRequiredService<IWeatherService>();
+        var controller = new WeatherController(weatherService);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var missingCityResult = await controller.GetWeather("InvalidCity", today, CancellationToken.None);
+        Assert.IsType<NotFoundObjectResult>(missingCityResult.Result);
+
+        var rateLimitResult = await controller.GetWeather("ratelimit", today, CancellationToken.None);
+        var statusResult = Assert.IsType<ObjectResult>(rateLimitResult.Result);
+        Assert.Equal(StatusCodes.Status429TooManyRequests, statusResult.StatusCode);
     }
 
     private static async Task<ApplicationUser> CreateConfirmedUserAsync(
