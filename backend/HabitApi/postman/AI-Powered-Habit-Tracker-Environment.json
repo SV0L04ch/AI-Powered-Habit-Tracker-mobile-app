@@ -1,0 +1,34 @@
+{
+	"id": "30699f72-f49a-4892-87d1-ecff2f363058",
+	"name": "AI-Powered-Habit-Tracker-Environment",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5093/api",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "positiveHabitId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "negativeHabitId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-05-02T19:28:59.204Z",
+	"_postman_exported_using": "Postman/12.8.4"
+}
