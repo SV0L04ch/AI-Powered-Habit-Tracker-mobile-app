@@ -1,0 +1,13 @@
+@use '../../styles/abstracts/mixins' as mix;
+
+.typography {
+    margin: 0;
+    padding: 0;
+}
+
+.headline1 {@include mix.headline1}
+.headline2 {@include mix.headline2}
+.headline3 {@include mix.headline3}
+.body1 {@include mix.body1}
+.body2 {@include mix.body2}
+.caption {@include mix.caption}

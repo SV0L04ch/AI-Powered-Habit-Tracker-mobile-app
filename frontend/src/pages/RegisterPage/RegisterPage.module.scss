@@ -1,0 +1,112 @@
+@use '../../styles/abstracts/variables' as var;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;    
+  justify-content: center;
+  gap: 10px;
+}
+
+.auth {
+  color: var.$dark-main-text;
+}
+
+.circle1 {
+  position: absolute;
+  width: 108px;
+  height: 108px;
+  left: 94px;
+  top: -36px;
+  border-radius: var.$circle;          
+  background: var.$dark-decorate;        
+  pointer-events: none;        
+  z-index: -1;                    
+  box-shadow: var.$box-shadow;
+  };
+  
+.circle2 {
+  position: absolute;
+  width: 217px;
+  height: 217px;
+  left: 281px;
+  top: -68px;
+  border-radius: var.$circle;
+  background: var.$dark-decorate;
+  pointer-events: none;        
+  z-index: 0;                    
+  box-shadow: var.$box-shadow;
+  };
+
+.circle3 {
+  position: absolute;
+  width: 217px;
+  height: 217px;
+  left: -85px;
+  top: 600px;
+  border-radius: var.$circle;
+  background: var.$dark-decorate;
+  pointer-events: none;        
+  z-index: -1;                    
+  box-shadow: var.$box-shadow;
+  };
+  
+.circle4 {
+  position: absolute;
+  width: 108px;
+  height: 108px;
+  left: 360px;
+  top: 840px;
+  border-radius: var.$circle;
+  background: var.$dark-decorate;
+  pointer-events: none;        
+  z-index: 0;                    
+  box-shadow: var.$box-shadow;     
+  };
+
+.selectSpacing {
+  width: 100%;
+  height: var.$h1-line-height;
+  padding: 0 20px;
+  font-size: var.$body1-font-size;
+  border: var.$dark-border;
+  border-radius: var.$base-radius;
+  background: var.$dark-input;
+  color: var.$dark-placeholder;
+  font-family: var.$font-family;
+}
+
+.error {
+  font-size: 13px;
+  color: #ff3b30;
+  text-align: left;
+}
+
+.link {
+  font-size: var.$buttons-font-size;
+  color: var.$dark-main-text;
+  text-decoration: none;
+  width: auto;
+}
+
+.centeredPage {
+  min-height: 100vh;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.form{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+}
+
+.Buttons{
+  width: 195px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}

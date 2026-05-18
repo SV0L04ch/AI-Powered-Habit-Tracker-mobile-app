@@ -1,12 +1,13 @@
-<<<<<<< HEAD
-bin/
-obj/
+# ===== .NET Backend =====
+**/bin/
+**/obj/
 *.user
 *.suo
 *.cache
 *.log
 .vs/
 .vscode/
+.idea/
 appsettings.Development.json
 appsettings.Production.json
 Migrations/
@@ -14,61 +15,29 @@ Migrations/
 *.db-shm
 *.db-wal
 secrets.json
-appsettings.Development.json
-appsettings.Production.json
 .env
-.idea/ 
-=======
-# Logs
-logs
-*.log
+
+# ===== Frontend =====
+node_modules/
+dist/
+dist-ssr/
+*.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# ===== Editor & OS =====
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
+*.swp
 *.sln
-*.sw?
->>>>>>> Frontend
 
-
-bin/
-obj/
-*.user
-*.suo
-*.cache
-*.log
-.vs/
-.vscode/
-appsettings.Development.json
-appsettings.Production.json
-Migrations/
-*.db
-*.db-shm
-*.db-wal
-secrets.json
-appsettings.Development.json
-appsettings.Production.json
-.env
-.idea/ 
->>>>>>> Backend
-
-
-test-results/
-playwright-report/
-*.last-run.json
->>>>>>> QAcookies.txt
+# ===== Tests =====
+**/TestResults/

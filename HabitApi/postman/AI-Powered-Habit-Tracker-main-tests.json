@@ -1,0 +1,1591 @@
+{
+  "info": {
+    "_postman_id": "cc1dbe96-3fc1-4d4d-a643-e1adb8e7c1db",
+    "name": "AI-Powered-Habit-Tracker-main-tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54131391"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "/register",
+          "item": [
+            {
+              "name": "POST requests",
+              "item": [
+                {
+                  "name": "Returns 409 and error \"user exists\"",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const response = pm.response.json()\r",
+                          "\r",
+                          "// Проверка, что статус-код равен 409\r",
+                          "pm.test(\"Status code is 409\", function () {\r",
+                          "    pm.response.to.have.status(409);\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что json возрвщает ошибку с корректным названием и описанием ошибки\r",
+                          "pm.test(\"Response body contains correct error message\", function () {\r",
+                          "    // Проверка, что поле \"title\" существует\r",
+                          "    pm.expect(response).to.have.property(\"title\");\r",
+                          "    // Проверка. что поле \"detail\" существует\r",
+                          "    pm.expect(response).to.have.property(\"detail\");\r",
+                          "    \r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что \"title\" и \"detail\" имеют корректные значения\r",
+                          "pm.test(\"\\\"title\\\" and \\\"detail\\\" has correct values\", function () {\r",
+                          "    pm.expect(response.title).to.include(\"Conflict\");\r",
+                          "    pm.expect(response.detail).to.include(\"User with this email already exists.\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"tester@example.com\",\r\n    \"password\": \"password1\",\r\n    \"city\": \"{{city}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/register",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "register"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Returns 400 and error \"Invalid password\"",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const response = pm.response.json();\r",
+                          "\r",
+                          "// Проверка, что статус-код 409\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.expect(response.status).to.eql(400);\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что поле \"errors\" и \"Password\" существует\r",
+                          "pm.test(\"Response body contains \\\"Errors\\\" property\", function () {\r",
+                          "    pm.expect(response).to.have.property(\"errors\");\r",
+                          "    pm.expect(response.errors).to.have.property(\"Password\");\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка корректного сообщения в поле \"Password\"\r",
+                          "pm.test(\"Response body contains \\\"Password\\\" property correct error message\", function () {\r",
+                          "    const errorMessage = Array.isArray(response.errors.Password)\r",
+                          "        ? response.errors.Password[0]\r",
+                          "        : response.errors.Password;\r",
+                          "    \r",
+                          "    pm.expect(errorMessage).to.include(\"Password must be\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"pass\",\r\n    \"city\": \"{{city}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/register",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "register"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Returns 400 and error \"Invalid email\"",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const response = pm.response.json();\r",
+                          "\r",
+                          "// Проверка, что статус-код 400\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что поля \"errors\" и \"Email\" существуют\r",
+                          "pm.test(\"Response body contains \\\"errors\\\" and \\\"email\\\" property\", function () {\r",
+                          "    pm.expect(response).to.have.property(\"errors\");\r",
+                          "    pm.expect(response.errors).to.have.property(\"Email\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response body contains \\\"Email\\\" property correct error message\", function () {\r",
+                          "    const errorMessage = Array.isArray(response.errors.Email)\r",
+                          "        ? response.errors.Email[0]\r",
+                          "        : response.errors.Email;\r",
+                          "    // Проверка корректного сообщения в поле \"Email\"\r",
+                          "    pm.expect(errorMessage).to.include(\"valid e-mail\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text",
+                        "disabled": true
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"example.com\",\r\n    \"password\": \"password\",\r\n    \"city\": \"Moscow\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/register",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "register"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "/login",
+          "item": [
+            {
+              "name": "POST requstes",
+              "item": [
+                {
+                  "name": "Returns 401 and error \"Invalid password or email\" (invalid email)",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const response = pm.response.json();\r",
+                          "\r",
+                          "// Проверка, что статус-код 401\r",
+                          "pm.test(\"Status code is 401\", function () {\r",
+                          "    pm.response.to.have.status(401);\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что в ответе есть поле \"error\"\r",
+                          "pm.test(\"Response body contains 'error' field\", function () {\r",
+                          "    pm.expect(response).to.have.property(\"error\");\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что в поле \"error\" написано корректное сообщение об ошибке\r",
+                          "pm.test(\"\\\"error\\\" property has correct error message\", function () {\r",
+                          "    pm.expect(response.error).to.eql(\"Invalid email or password.\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"testo@example.com\",\r\n    \"password\": \"password\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Returns 401 and error \"Invalid email or password\" (invalid password)",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const response = pm.response.json();\r",
+                          "\r",
+                          "// Проверка, что статус-код 401\r",
+                          "pm.test(\"Status code is 401\", function () {\r",
+                          "    pm.response.to.have.status(401);\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что в ответе есть поле \"error\"\r",
+                          "pm.test(\"Response body contains 'error' field\", function () {\r",
+                          "    pm.expect(response).to.have.property(\"error\");\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что в поле \"error\" написано корректное сообщение об ошибке\r",
+                          "pm.test(\"\\\"error\\\" property has correct error message\", function () {\r",
+                          "    pm.expect(response.error).to.include(\"Invalid email or password.\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"test_password\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "/city-summary",
+          "item": [
+            {
+              "name": "GET requests",
+              "item": [
+                {
+                  "name": "Returns 200 and summary of Moscow",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "pm.test(\"response is ok\", function () {",
+                          "    pm.response.to.have.status(200);",
+                          "});",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/stats/city-summary?city=Moscow",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "stats",
+                        "city-summary"
+                      ],
+                      "query": [
+                        {
+                          "key": "city",
+                          "value": "Moscow"
+                        }
+                      ]
+                    },
+                    "description": "This test is to validate the response status code. This Snippet is also available on the right sidebar under `Status code: Code in 200`."
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Weather",
+      "item": []
+    },
+    {
+      "name": "Insights",
+      "item": []
+    },
+    {
+      "name": "HabitsEntries",
+      "item": [
+        {
+          "name": "POST requests",
+          "item": [
+            {
+              "name": "Returns 404 and error \"Not found\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Проверка, что статус-код 404\r",
+                      "pm.test(\"Status code is 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"date\": \"2026-04-30\",\r\n    \"status\": 10,\r\n    \"partialValue\": 5,\r\n    \"note\": \"Drink a glass of water\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/0/entries",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "0",
+                    "entries"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 401 and error \"Not authorize\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Првоерка, что ответ содержит правильные поля\r",
+                      "pm.test(\"Response body contains correct properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что необходимые поля имеют корректные значения\r",
+                      "pm.test(\"Properties have correct values\", function () {\r",
+                      "    pm.expect(response.title).to.equal(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).to.include(\"A valid access token is required to access\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableCookies": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"date\": \"2026-04-30\",\r\n    \"status\": 10,\r\n    \"partialValue\": 5,\r\n    \"note\": \"Drink a glass of water\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}/entries",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}",
+                    "entries"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "GET requests",
+          "item": [
+            {
+              "name": "Returns 200 and array with habit entries",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус код 200\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "// Проврка, что возвращается список habit entries\r",
+                      "pm.test(\"Response body is an array\", function () {\r",
+                      "    pm.expect(response).to.be.an('array');\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}/entries?fromDate=2026-04-01&toDate=2026-04-30",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}",
+                    "entries"
+                  ],
+                  "query": [
+                    {
+                      "key": "fromDate",
+                      "value": "2026-04-01"
+                    },
+                    {
+                      "key": "toDate",
+                      "value": "2026-04-30"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Habits",
+      "item": [
+        {
+          "name": "POST requests",
+          "item": [
+            {
+              "name": "Returns 401 and error \"Not authorize\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что в в теле ответа есть поля \"title\" и \"detail\"\r",
+                      "pm.test(\"Response body contains \\\"title\\\" and \\\"detail\\\"\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что в полях \"title\" и \"detail\" содержатся конкретные значения\r",
+                      "pm.test(\"\\\"title\\\" and \\\"details\\\" have correct error messages\", function () {\r",
+                      "    pm.expect(response.title).to.include(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).to.include(\"access token is required\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableCookies": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"test habit\",\r\n    \"triggerType\": 1,\r\n    \"triggerValue\": \"08:00\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 400 and error \"Invalid data\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проврека, что статус-код 415\r",
+                      "pm.test(\"Status code is 415\", function () {\r",
+                      "    pm.response.to.have.status(415);\r",
+                      "});\r",
+                      "\r",
+                      "// Проврека, что поле \"title\" существует\r",
+                      "pm.test(\"Response body contains \\\"Unsupported Media Type\\\"\", function () {\r",
+                      "    pm.expect(response).have.to.property(\"title\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что поле \"title\" содержит корректное значение\r",
+                      "pm.test(\"Response body contains correct title\", function () {\r",
+                      "    pm.expect(response.title).include(\"Unsupported\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "GET requests",
+          "item": [
+            {
+              "name": "Returns 401 and error \"Not authorize\" without access token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело запроса имеет \"title\" и \"detail\" поля\r",
+                      "pm.test(\"Response body contains the \\\"title\\\" and \\\"detail\\' properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что поля \"title\" и \"detail\" содержат корректные значения\r",
+                      "pm.test(\"Response body contains the correct \\\"title\\\" and \\\"detail\\\" values\", function () {\r",
+                      "    pm.expect(response.title).to.include(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).to.include(\"A valid access token is required to access this resource.\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableCookies": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/habits",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 200 and habits list",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json()\r",
+                      "\r",
+                      "// Проверка, что статус-код 200\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/habits",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 401 and error \"Not authorize\"  with invaild access token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело запроса имеет \"title\" и \"detail\" поля\r",
+                      "pm.test(\"Response body contains the \\\"title\\\" and \\\"detail\\' properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что поля \"title\" и \"detail\" содержат корректные значения\r",
+                      "pm.test(\"Response body contains the correct \\\"title\\\" and \\\"detail\\\" values\", function () {\r",
+                      "    pm.expect(response.title).to.include(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).to.include(\"A valid access token is required to access this resource.\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableCookies": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJmMzA0OWQ5Yi0xNTQxLTRkY2YtODk0MC05MWI3ODJmYWEwOGEiLCJlbWFpbCI6InRlc3RlckBleGFtcGxlLmNvbSIsIm5iZiI6MTc3NzQ3NzExNywiZXhwIjoxNzc3NDgwNzE3LCJpYXQiOjE3Nzc0NzcxMTcsImlzcyI6IkhhYml0QXBpIiwiYXVkIjoiSGFiaXRBcGlDbGllbnQifQ.zQSf96jfx1f9pUw11OO7nXxaQJLpFvvJuNc8IaE5izg",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/habits",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 200 and habit description by habitId",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 200\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что ответ не имеет массив json\r",
+                      "pm.test(\"Response body hasn't array of json\", function () {\r",
+                      "    pm.expect(Array.isArray(response)).to.be.false;\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что json имеет необходимые поля \r",
+                      "pm.test(\"JSON has the required fields\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"id\");\r",
+                      "    pm.expect(response).to.have.property(\"name\");\r",
+                      "    pm.expect(response).to.have.property(\"isPositive\");\r",
+                      "    pm.expect(response).to.have.property(\"hasPenalty\");\r",
+                      "    pm.expect(response).to.have.property(\"triggerType\");\r",
+                      "    pm.expect(response).to.have.property(\"triggerValue\");\r",
+                      "    pm.expect(response).to.have.property(\"targetDays\");\r",
+                      "    pm.expect(response).to.have.property(\"penaltyDaysPerMiss\");\r",
+                      "    pm.expect(response).to.have.property(\"reminders\");\r",
+                      "    pm.expect(response).to.have.property(\"isActive\");\r",
+                      "    pm.expect(response).to.have.property(\"createdAtUtc\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 401 and error \"Unauthorize\" (try get habit)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело запроса имеет \"title\" и \"detail\" поля\r",
+                      "pm.test(\"Response body contains the \\\"title\\\" and \\\"detail\\' properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что поля \"title\" и \"detail\" содержат корректные значения\r",
+                      "pm.test(\"Response body contains the correct \\\"title\\\" and \\\"detail\\\" values\", function () {\r",
+                      "    pm.expect(response.title).to.include(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).to.include(\"A valid access token is required to access this resource.\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true,
+                "disableCookies": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 404 and error \"Not found\" (try to get habit by invalid habitId)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Проверка, что статус-код 404\r",
+                      "pm.test(\"Status code is 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "packages": {},
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "0"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "PUT requests",
+          "item": [
+            {
+              "name": "Returns 200 and updated habit's description",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код ответа равен 200\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что json имеет необходимые поля \r",
+                      "pm.test(\"JSON has the required fields\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"id\");\r",
+                      "    pm.expect(response).to.have.property(\"name\");\r",
+                      "    pm.expect(response).to.have.property(\"isPositive\");\r",
+                      "    pm.expect(response).to.have.property(\"hasPenalty\");\r",
+                      "    pm.expect(response).to.have.property(\"triggerType\");\r",
+                      "    pm.expect(response).to.have.property(\"triggerValue\");\r",
+                      "    pm.expect(response).to.have.property(\"targetDays\");\r",
+                      "    pm.expect(response).to.have.property(\"penaltyDaysPerMiss\");\r",
+                      "    pm.expect(response).to.have.property(\"reminders\");\r",
+                      "    pm.expect(response).to.have.property(\"isActive\");\r",
+                      "    pm.expect(response).to.have.property(\"createdAtUtc\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"ne name\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 400 and error \"validation errors occured\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 400\r",
+                      "pm.test(\"Status code is 400\", function () {\r",
+                      "    pm.expect(response.status).to.eql(400);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что есть поля \"errors\" (\"request\") и \"title\"\r",
+                      "pm.test(\"Response contains \\\"errors\\\" and \\\"title\\\" properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"errors\");\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response.errors).to.have.property(\"request\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что поля \"errors\" и \"title\" имеют корректные значения\r",
+                      "pm.test(\"\\\"errors\\\" and \\\"title\\\" have correct values\", function () {\r",
+                      "    pm.expect(response.title).include(\"validation errors\");\r",
+                      "    pm.expect(response.errors.request).include(\"The request field is required.\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": 1234\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 401 and error \"Not authorize\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что есть поля \"title\" и \"detail\" в ответе\r",
+                      "pm.test(\"Response contains \\\"title\\\" and \\\"detail\\\"\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что \"title\" и \"detail\" имеют корректные значения\r",
+                      "pm.test(\"\\\"title\\\" and \\\"detail\\\" properties have correct values\", function () {\r",
+                      "    pm.expect(response.title).to.eql(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).include(\"access token is required to access\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableCookies": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"ne name\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 404 and error \"Not found\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Проверка, что статус-код 404\r",
+                      "pm.test(\"Status code is 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"ne name\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "0"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "DELETE requests",
+          "item": [
+            {
+              "name": "Returns 204 and did success delete habit",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Проверка, что статус-код 204\r",
+                      "pm.test(\"Status code is 204\", function () {\r",
+                      "    pm.response.to.have.status(204);\r",
+                      "});\r",
+                      "\r",
+                      "pm.execution.setNextRequest(null);"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 401 and error \"Not authtorize\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что в в теле ответа есть поля \"title\" и \"detail\"\r",
+                      "pm.test(\"Response body contains \\\"title\\\" and \\\"detail\\\"\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что в полях \"title\" и \"detail\" содержатся конкретные значения\r",
+                      "pm.test(\"\\\"title\\\" and \\\"details\\\" have correct error messages\", function () {\r",
+                      "    pm.expect(response.title).to.include(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).to.include(\"access token is required\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.execution.setNextRequest(null);"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableCookies": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 404 and error \"Not found\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Проверка, что статус-код 404\r",
+                      "pm.test(\"Status code is 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.execution.setNextRequest(null);"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "0"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "// Глобальная проверка для всех запросов коллекции\r",
+          "// Проверяем, что если статус не 204 (No Content) и не 304 и т.п., то тело должно быть валидным JSON\r",
+          "const statusWithNoBody = [204, 304, 404];\r",
+          "if (!statusWithNoBody.includes(pm.response.code)) {\r",
+          "    pm.test(\"Response is valid JSON\", function () {\r",
+          "        pm.expect(() => pm.response.json()).to.not.throw();\r",
+          "    });\r",
+          "}"
+        ]
+      }
+    }
+  ]
+}

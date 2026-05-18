@@ -1,0 +1,68 @@
+// ================================================
+// Перменные стилей Ui Kit
+// ================================================
+
+
+// ------------------- 1. ЦВЕТА (colors) ------------------
+
+// Светлая тема
+$light-background: #CCE6D9;
+$light-background-buttons: #45B1C0;
+$light-text: #2F3E46;
+$light-substrate: linear-gradient(303.07deg, #FFFFFF 1.17%, #8FDAE9 59.86%);
+$light-decorate: linear-gradient(180deg, #FFFFFF 0%, #91CAD6 100%);
+$light-input: #91CAD6;
+
+// Темная тема
+$dark-background: #133348;
+$dark-placeholder: #769DB7;
+$dark-main-text: #F0F6FA;
+$dark-buttons: #A0522D;
+$dark-basic-text: #DDEFF2;
+$dark-input: #2A3E4C;
+$dark-decorate: linear-gradient(180deg, #D69A85 0%, #3A5A6E 100%);
+$dark-substrate: linear-gradient(302.46deg, #D69A85 0.26%, #3A5A6E 50%);
+$dark-decorate2: linear-gradient(180deg, rgba(76, 106, 112, 0.7) -101.83%, rgba(255, 255, 255, 0.7) 113.3%);
+
+
+// ---------- 2. ТИПОГРАФИКА (typography) -------
+$font-family: 'Inter', sans-serif;
+$h1-font-size: 32px;
+$h1-line-height: 39px;
+$h2-font-size: 24px;
+$h2-line-height: 29px;
+$h3-font-size: 20px;
+$h3-line-height: 24px;
+$buttons-font-size: 20px;
+$buttons-line-height: 24px;
+$body1-font-size: 16px;
+$body1-line-height: 19px;
+$body2-font-size: 14px;
+$body2-line-height: 17px;
+$caption-font-size: 13px;
+$caption-line-height: 16px;
+$font-weight-700: 700;
+$font-weight-600: 600;
+$font-weight-500: 500;
+
+// ---------- 3. Обводка --------------------------
+$light-border: 1.5px solid #45B1C0;
+$dark-border: 1.5px solid #A0522D;
+
+// ---------- 4. Тени -----------------------------
+$box-shadow: 0px 0px 16px 1px rgba(0, 0, 0, 0.2);
+
+// ---------- 5. Отступы --------------------------
+$base-spacing: 5px;
+$spacing-1: $base-spacing * 2;
+$spacing-2: $base-spacing * 3;
+$spacing-3: $base-spacing * 4;
+
+// ---------- 6. Скругления -----------------------
+$base-radius: 16px;
+$secondary-radius: 28px;
+$form-radius: 30px;
+$min-radius: 2px;
+$circle: 100%
+
+// ---------- 7. Адаптив --------------------------

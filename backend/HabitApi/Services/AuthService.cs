@@ -1,0 +1,157 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using HabitApi.Exceptions;
+using HabitApi.Models.Domain;
+using HabitApi.Models.DTO;
+using HabitApi.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+
+namespace HabitApi.Services;
+
+/// <summary>
+/// Сервис аутентификации и управления пользователями.
+/// Регистрация, подтверждение email, вход с выдачей JWT.
+/// </summary>
+public sealed class AuthService : IAuthService
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IEmailService _emailService;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthService> _logger;
+    private readonly string _jwtSecret;
+    private readonly string _jwtIssuer;
+    private readonly string _jwtAudience;
+
+    /// <summary>
+    /// Инициализирует сервис аутентификации с зависимостями Identity, почты и конфигурации.
+    /// </summary>
+    public AuthService(
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
+        IEmailService emailService,
+        IConfiguration configuration,
+        ILogger<AuthService> logger)
+    {
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _emailService = emailService;
+        _configuration = configuration;
+        _logger = logger;
+        _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
+                     ?? configuration["Jwt:Secret"]
+                     ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
+        _jwtIssuer = configuration["Jwt:Issuer"] ?? "HabitApi";
+        _jwtAudience = configuration["Jwt:Audience"] ?? "HabitApiClient";
+    }
+
+    /// <inheritdoc/>
+    public async Task<RegistrationResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken)
+    {
+        // Дополнительная проверка длины email
+        if (request.Email.Length > 256)
+            throw new ArgumentException("Email is too long (max 256 characters).");
+
+        var user = new ApplicationUser
+        {
+            UserName = request.Email,
+            Email = request.Email,
+            City = request.City.Trim(),
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        var result = await _userManager.CreateAsync(user, request.Password);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new ConflictException($"Registration failed: {errors}");
+        }
+
+        // Генерируем токен подтверждения email (JWT не выдаётся до подтверждения)
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var baseUrl = _configuration["AppBaseUrl"] ?? "http://localhost:5093";
+        var confirmationLink = $"{baseUrl}/api/auth/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(token)}";
+
+        // Отправляем письмо; ошибка SMTP не прерывает регистрацию
+        try
+        {
+            await _emailService.SendConfirmationEmailAsync(user.Email!, confirmationLink);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send confirmation email to {Email}", user.Email);
+        }
+
+        return new RegistrationResponseDto
+        {
+            UserId = user.Id,
+            Email = user.Email!,
+            Message = "Registration successful. Please check your email to confirm your account."
+        };
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApplicationUser?> ConfirmEmailAsync(Guid userId, string token)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return null;
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+        return result.Succeeded ? user : null;
+    }
+
+    /// <inheritdoc/>
+    public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user is null)
+            return null;
+
+        // JWT-токен выдаётся только после подтверждения email
+        if (!await _userManager.IsEmailConfirmedAsync(user))
+            throw new UnauthorizedAccessException("Email not confirmed. Please check your inbox.");
+
+        var signInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: false);
+        if (!signInResult.Succeeded)
+            return null;
+
+        var jwt = GenerateJwtToken(user);
+        return new AuthResponseDto
+        {
+            UserId = user.Id,
+            Email = user.Email!,
+            AccessToken = jwt
+        };
+    }
+
+    /// <summary>
+    /// Генерирует JWT-токен для указанного пользователя.
+    /// </summary>
+    private string GenerateJwtToken(ApplicationUser user)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email!)
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecret));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddHours(1),
+            Issuer = _jwtIssuer,
+            Audience = _jwtAudience,
+            SigningCredentials = creds
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
+}

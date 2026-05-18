@@ -1,0 +1,36 @@
+@use './variables' as *;
+
+@mixin typography($size, $weight: 600, $line-height: normal){
+    font-family: $font-family;
+    font-weight: $weight;
+    font-size: $size;
+    line-height: $line-height;
+}
+
+@mixin headline1 {
+    @include typography($h1-font-size, $font-weight-700, $h1-line-height)
+}
+
+@mixin headline2 {
+    @include typography($h2-font-size, $font-weight-700, $h2-line-height)
+}
+
+@mixin headline3 {
+    @include typography($h3-font-size, $font-weight-600, $h3-line-height)
+}
+
+@mixin buttons {
+    @include typography($buttons-font-size, $font-weight-600, $buttons-line-height)
+}
+
+@mixin body1 {
+    @include typography($body1-font-size, $font-weight-600, $body1-line-height)
+}
+
+@mixin body2 {
+    @include typography($body2-font-size, $font-weight-600, $body2-line-height)
+}
+
+@mixin caption {
+    @include typography($caption-font-size, $font-weight-500, $caption-line-height)
+}
