@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="HabitApi.csproj" />
-  <Project Path="HabitApi.Tests/HabitApi.Tests.csproj" />
-</Solution>
