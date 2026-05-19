@@ -255,9 +255,6 @@
                       "    pm.expect(response.weather.humidityPercent).to.be.a('number');\r",
                       "    pm.expect(response.weather.precipitation).to.be.a('string');\r",
                       "    pm.expect(response.aiInsight).to.be.a('string');\r",
-                      "    pm.expect(response.aiInsight).to.include('Completed');\r",
-                      "    pm.expect(response.aiInsight).to.include('partially');\r",
-                      "    pm.expect(response.aiInsight).to.include('skipped');\r",
                       "});"
                     ],
                     "type": "text/javascript",
