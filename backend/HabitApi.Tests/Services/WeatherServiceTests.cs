@@ -178,12 +178,14 @@ public class WeatherServiceTests
     }
 
     [Fact]
-    public async Task GetWeatherAsync_HistoricalDate_ThrowsArgumentException()
+    public async Task GetWeatherAsync_HistoricalDate_ReturnsFallback()
     {
         var service = CreateService(new MockHttpMessageHandler().ToHttpClient());
         var historicalDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
 
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => service.GetWeatherAsync("Moscow", historicalDate, CancellationToken.None));
+        var result = await service.GetWeatherAsync("Moscow", historicalDate, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal("Service unavailable", result.Condition);
     }
 }

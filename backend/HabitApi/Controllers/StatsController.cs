@@ -42,7 +42,7 @@ public sealed class StatsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var targetDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
+        var targetDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow);
         
         if (targetDate > DateOnly.FromDateTime(DateTime.UtcNow))
             return BadRequest(new { error = "Cannot get summary for future date." });

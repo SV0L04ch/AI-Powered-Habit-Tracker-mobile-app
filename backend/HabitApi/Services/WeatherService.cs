@@ -45,10 +45,12 @@ public sealed class WeatherService : IWeatherService
     /// </summary>
     public async Task<WeatherSnapshotDto> GetWeatherAsync(string city, DateOnly date, CancellationToken cancellationToken)
     {
-        // 1. Запрещаем исторические даты
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         if (date != today)
-            throw new ArgumentException("Historical weather data is not supported.");
+        {
+            _logger.LogWarning("Requested weather for {Date} which is not today, returning fallback", date);
+            return CreateFallback(city, date);
+        }
 
         var cacheKey = $"{CacheKeyPrefix}{city}_{date:yyyyMMdd}";
 
