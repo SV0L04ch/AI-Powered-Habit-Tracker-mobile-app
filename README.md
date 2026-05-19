@@ -12,15 +12,15 @@
 
 | Файл | Описание |
 |------|----------|
-| [test-plan.md](./test-plan.md) | Тест-план (scope, виды, приоритеты, severity) |
-| [test-cases.md](./test-cases.md) | 20 тест-кейсов с результатами Passed |
-| [smoke-checklist.md](./smoke-checklist.md) | Smoke-чек-лист (10 проверок) |
-| [regression-checklist.md](./regression-checklist.md) | Регрессионный чек-лист (24 проверки) |
-| [api-endpoints.md](./api-endpoints.md) | Список API-эндпоинтов (18 эндпоинтов) |
-| [bug-report-template.md](./bug-report-template.md) | Шаблон баг-репорта |
-| [regression-api-report.md](./regression-api-report.md) | Результаты регрессии API (таблицы) |
-| [retest-report.md](./retest-report.md) | Отчёт по ретесту дефектов (все исправлены) |
-| [test-report.md](./test-report.md) | Итоговый отчёт о тестировании |
+| [test-plan.md](./qa-docs/test-plan.md) | Тест-план (scope, виды, приоритеты, severity) |
+| [test-cases.md](./qa-docs/test-cases.md) | 20 тест-кейсов с результатами Passed |
+| [smoke-checklist.md](./qa-docs/smoke-checklist.md) | Smoke-чек-лист (10 проверок) |
+| [regression-checklist.md](./qa-docs/regression-checklist.md) | Регрессионный чек-лист (24 проверки) |
+| [api-endpoints.md](./qa-docs/api-endpoints.md) | Список API-эндпоинтов (18 эндпоинтов) |
+| [bug-report-template.md](./qa-docs/bug-report-template.md) | Шаблон баг-репорта |
+| [regression-api-report.md](./qa-docs/regression-api-report.md) | Результаты регрессии API (таблицы) |
+| [retest-report.md](./qa-docs/retest-report.md) | Отчёт по ретесту дефектов (все исправлены) |
+| [test-report.md](./qa-docs/test-report.md) | Итоговый отчёт о тестировании |
 
 ---
 
