@@ -41,7 +41,6 @@ services:
       - WEATHER_API_KEY=${WEATHER_API_KEY}
       - AI_MODEL=${AI_MODEL:-lakomoor/vikhr-llama-3.2-1b-instruct:q5_k_m}
       - AI_API_KEY=${AI_API_KEY}
-      - AI_MODEL=${AI_MODEL:-gemma4:4b}
       - EmailSettings__SmtpServer=mailhog
       - EmailSettings__SmtpPort=1025
       - EmailSettings__SenderEmail=noreply@habittracker.local
