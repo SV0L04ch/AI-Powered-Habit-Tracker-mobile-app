@@ -29,7 +29,7 @@ const CityInsightsPage = () => {
       
       stats: [
         { percent: 40, description: 'Посещали музеи в выходные' },
-        { percent: 35, description: 'Гуляли пяо набережным' },
+        { percent: 35, description: 'Гуляли по набережным' },
         { percent: 25, description: 'Пили кофе в уютных кофейнях' },
       ],
     },
