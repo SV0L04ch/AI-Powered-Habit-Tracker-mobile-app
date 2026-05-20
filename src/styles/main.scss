@@ -1,27 +1,50 @@
-@use './abstracts/_variables.scss' as var;
+@use './abstracts/variables' as var;
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-:root,
-[data-theme="dark"] {
-    --app-background: #{var.$dark-background};
+// CSS-переменные для тёмной темы (по умолчанию)
+// Тёмная тема (по умолчанию)
+body.dark-theme {
+  --bg-primary: #{var.$dark-background};
+  --bg-card: #{var.$dark-substrate};
+  --text-primary: #{var.$dark-main-text};
+  --text-secondary: #{var.$dark-basic-text};
+  --button-bg: #{var.$dark-buttons};
+  --input-bg: #{var.$dark-input};
+  --border-color: #{var.$dark-border};
+  --box-shadow: #{var.$box-shadow};
+  --decorate: #{var.$dark-decorate};
+  --placeholder: #{var.$dark-placeholder};
+  --accent-color: #A0522D;          
 }
 
-[data-theme="light"]{
-    --app-background: #{var.$light-background};
-    --app-text: #{var.$light-text};
+// Светлая тема
+body.light-theme {
+  --bg-primary: #{var.$light-background};
+  --bg-card: #{var.$light-substrate};
+  --text-primary: #{var.$light-text};
+  --text-secondary: #{var.$light-text};
+  --button-bg: #{var.$light-background-buttons}; 
+  --input-bg: #{var.$light-input};
+  --border-color: #{var.$light-border};
+  --box-shadow: #{var.$box-shadow};
+  --decorate: #{var.$light-decorate};
+  --placeholder: #769DB7;
+  --accent-color: #45B1C0;          
 }
 
-body{
-    background-color: var(--app-background);
-    color: var(--app-text);
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var.$font-family;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.container{
-    width: 338px;
-    margin: 0 auto;
+.container {
+  width: 338px;
+  margin: 0 auto;
 }

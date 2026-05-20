@@ -1,32 +1,49 @@
 @use '../../styles/abstracts/variables' as var;
 
 .page {
-  background: var.$dark-background;
-  border-radius: var.$base-radius;
+  background: var(--bg-primary);
   font-family: var.$font-family;
+  padding: 20px;
 }
 
-
 .title {
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$h1-font-size;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
+  text-align: left;
 }
 
 .searchContainer {
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .searchInput {
-  background: var.$dark-input;
-  border: var.$dark-border;
-  color: var.$dark-main-text;
+  padding: 0;
 }
 
+input {
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  outline: none;
+  color: var(--text-primary);
+  font-size: var.$body1-font-size;
+}
 
+input::placeholder {
+  font-size: var.$body1-font-size;
+  color: var(--placeholder);
+  font-family: var.$font-family;
+}
+
+.popularSection {
+  margin-bottom: 16px;
+  width: 100%;
+}
 
 .popularTitle {
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$h3-font-size;
   margin-bottom: 12px;
 }
@@ -35,64 +52,80 @@
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .cityList {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   padding-bottom: 4px;
 }
 
 .cityButton {
-  
-  background: var.$dark-input;
-  border: var.$dark-border;
-  border-radius: var.$base-radius;
+  background: var(--input-bg);
+  border: var(--border-color);
+  border-radius: 30px;
   padding: 8px 20px;
-  color: var.$dark-main-text;
-  font-size: var.$body1-font-size;
-  font-family: inherit;
+  color: var(--text-primary);
+  font-size: 16px;
+  white-space: nowrap;
   cursor: pointer;
   transition: 0.2s;
-  white-space: nowrap;
-}
-
-.cityButton:hover {
-  background: var.$dark-decorate;
-  border-color: var.$dark-border;
+  &:hover {
+    background: var(--decorate);
+  }
 }
 
 .activeCity {
-  background: var.$dark-decorate;
-}
-
-.statCard {
-  width: 100%;
-  background: var.$dark-substrate;
-  border-radius: var.$base-radius;
-  padding: 16px 20px;
-  box-shadow: var.$box-shadow;
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  background: var(--decorate);
+  border-color: var(--button-bg);
 }
 
 .statsList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
-  margin-top: 8px;
+}
+
+.statItemCard {
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: var.$base-radius;
+  padding: 16px 20px;
+  box-shadow: var(--box-shadow);
+  box-sizing: border-box;
+}
+
+.statItemContent {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.statIcon {
+  width: 32px;
+  height: 32px;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.statItemTexts {
+  flex: 1;
 }
 
 .statItemPercent {
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$h2-font-size;
 }
 
 .statItemDescription {
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$body2-font-size;
+  line-height: 1.4;
 }
-

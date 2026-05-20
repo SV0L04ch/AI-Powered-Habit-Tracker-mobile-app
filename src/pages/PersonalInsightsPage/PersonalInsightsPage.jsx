@@ -12,7 +12,7 @@ function HabitsPage() {
   const transparency = `${styles.basicText} ${styles.transparancy}`
   return (
     <PageLayout>
-      <Typography variant='headline1' className={styles.mainText}>Аналитика</Typography>
+      <Typography variant='headline1' className={styles.mainTitle}>Аналитика</Typography>
 
         <div className={styles.cards}>
 
@@ -39,7 +39,7 @@ function HabitsPage() {
         </div>
         <div className={styles.cards}>
           <div className={styles.blockHistory}>
-            <icons.History />
+            <icons.History/>
             <Typography variant='headline1' className={styles.mainText}>История</Typography>
           </div>
           <HistoryCard image="Rain"date="Вчера, 11 апр." precentage="95%" comment="Идеальные условия для активности. Вы закрыли все утренние привычки до 10:00"></HistoryCard>

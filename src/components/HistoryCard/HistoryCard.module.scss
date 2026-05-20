@@ -1,23 +1,45 @@
 @use '../../styles/abstracts/variables' as var;
 
-.basicText{
-    color: var.$dark-basic-text;
+.historyCard {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
 }
 
-.historyCard{
-    display: flex;
-    flex-direction: column;
-    gap: var.$spacing-1;
+.content {
+  flex: 1;
 }
 
-.cardTop{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
-.cardTop .icon{
-    display: flex;
-    align-items: center;
-    gap: var.$spacing-1;
+.iconText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+}
+
+.dateText {
+  color: var(--text-secondary);
+}
+
+.percentText {
+  color: var(--text-primary);
+}
+
+.commentText {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-primary);
 }

@@ -1,46 +1,55 @@
 @use '../../styles/abstracts/variables' as var;
 
-.cards{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.card{
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
+.card {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 
-.card .cardLeft{
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+.card .cardLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.card .cardRight{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    text-align: right;
-    gap: 5px
+.card .cardRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 5px;
 }
 
-.blockHistory{
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.blockHistory {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.basicText{
-    color: var.$dark-basic-text;
+.basicText {
+  color: var(--text-secondary);   
 
-        &.transparancy{
-        opacity: 0.6;
-    }
+  &.transparancy {
+    opacity: 0.6;
+  }
 }
 
-.mainText{
-    color: var.$dark-main-text;
+.mainText {
+  color: var(--text-primary);     
+  
+}
 
+.mainTitle {
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.historyIcon {
+  color: var(--text-primary);
 }

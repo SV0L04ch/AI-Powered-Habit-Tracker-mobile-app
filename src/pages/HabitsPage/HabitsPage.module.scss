@@ -1,25 +1,77 @@
-@use "../../styles/abstracts/variables" as var;
+@use '../../styles/abstracts/variables' as var;
 
-.desc{
-    display: flex;
-    flex-direction: column;
-    gap: var.$base-spacing;
+.blockHabits {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 24px;
 }
 
-.captions{
-    display: flex;
-    gap: var.$spacing-2;
+.habitCard {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  margin-bottom: 12px;
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
-
-
-.checkDesc{
-    display: flex;
-    gap: var.$spacing-2;
+.completedCard {
+  opacity: 0.6;
 }
 
-.blockHabits{
-    display: flex;
-    gap: var.$spacing-1;
-    flex-direction: column;
+.checkDesc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.desc {
+  flex: 1;
+}
+
+.captions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  color: #a0a0a0;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0 8px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.pageTitle {
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.progressText {
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  color: var(--text-primary);
+}
+
+.sectionCompleted {
+  color: var(--accent-color);
+}
+
+.sectionCompleted {
+  color: var(--accent-color);   
 }
