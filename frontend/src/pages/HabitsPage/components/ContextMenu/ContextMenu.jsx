@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+import styles from "./ContextMenu.module.scss";
+
+const ContextMenu = ({...rest}) => {
+  return (
+    <div className={styles.background} {...rest}>
+      <div className={styles.circle} />
+      <div className={styles.circle} />
+      <div className={styles.circle} />
+=======
 import { useEffect, useRef } from 'react';
 import styles from './ContextMenu.module.scss';
 
@@ -27,8 +37,13 @@ const ContextMenu = ({ items, onClose, position }) => {
           {item.label}
         </div>
       ))}
+>>>>>>> feature/frontend-city-insights-page
     </div>
   );
 };
 
+<<<<<<< HEAD
 export default ContextMenu;
+=======
+export default ContextMenu;
+>>>>>>> feature/frontend-city-insights-page

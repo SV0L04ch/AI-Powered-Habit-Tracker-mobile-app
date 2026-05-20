@@ -1,26 +1,33 @@
-import React from 'react';
-import styles from './Checkbox.module.scss';
-import icons from '../../../../lib/icons';
+import styles from "./Checkbox.module.scss";
+import icons from "../../../../lib/icons";
 
-const Checkbox = ({ checked, onChange, disabled = false, ...rest }) => {
+<<<<<<< HEAD
+const Checkbox = ({ checked, onChange, label }) => {
   return (
-    <label className={styles.label} {...rest}>
+    <label className={styles.label}>
       <input
         type="checkbox"
         className={styles.input}
         checked={checked}
-        onChange={(e) => {
-          if (!disabled && onChange) {
-            onChange(e.target.checked); // Передаём новое значение наружу
-          }
-        }}
-        disabled={disabled}
+        onChange={onChange}
       />
       <span className={styles.checkmark}>
-        {checked && <icons.Check className={styles.icon} />}
+        <icons.Check className={styles.icon} />
       </span>
+      {label && <span>{label}</span>}
+=======
+const Checkbox = ({ checked, onChange }) => {
+  return (
+    <label>
+      <input type="checkbox" checked={checked} onChange={onChange} />
+      {checked && <span> ✓</span>}
+>>>>>>> feature/frontend-city-insights-page
     </label>
   );
 };
 
+<<<<<<< HEAD
 export default Checkbox;
+=======
+export default Checkbox;
+>>>>>>> feature/frontend-city-insights-page

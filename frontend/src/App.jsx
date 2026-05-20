@@ -2,15 +2,24 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import LoginPage from './pages/LoginPage/LoginPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
+<<<<<<< HEAD
 import HabitsPage from './pages/HabitsPage/HabitsPage';
+=======
+import HabitsPage from './pages/HabitsPage/HabitsPage';  
+>>>>>>> feature/frontend-city-insights-page
 import HabitDetailPage from './pages/HabitDetailPage';
 import CreateHabitPage from './pages/CreateHabitPage/CreateHabitPage';
 import PersonalInsightsPage from './pages/PersonalInsightsPage/PersonalInsightsPage';
 import CityInsightsPage from './pages/CityInsightsPage/CityInsightsPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import BottomNav from './components/BottomNav/BottomNav';
+<<<<<<< HEAD
 import GuestRoute from './components/Guards/GuestRoute';
 import ProtectedAuth from './components/Guards/ProtectedAuth';
+=======
+
+
+>>>>>>> feature/frontend-city-insights-page
 import './styles/main.scss'
 
 
@@ -42,7 +51,7 @@ function App() {
         <Route path="/profile" element={<ProtectedAuth><ProfilePage /></ProtectedAuth>} />
         <Route path="/" element={<Navigate to="/habits" replace />} />
       </Routes>
-      {location.pathname !== '/login' && location.pathname !== '/register' && (<BottomNav activeTab={activeTab} onTabChange={handleTabChange}/>)}
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange}/>
     </div>
   );
 }
