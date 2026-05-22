@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend/HabitApi && dotnet run",
+    "dev:backend": "cd backend && dotnet run",
     "test:e2e": "cd QA/e2e && npm run test",
     "dev:debug": "cd frontend && npm run dev:debug"
   }
