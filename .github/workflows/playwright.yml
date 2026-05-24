@@ -104,6 +104,25 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Start frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run dev -- --host 0.0.0.0 &
+          
+      - name: Wait for frontend
+        run: |
+          for i in {1..60}; do
+            if curl -f http://localhost:5173; then
+              echo "Frontend ready"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "Frontend failed to start"
+          exit 1
+
       - name: Verify Playwright package
         run: npm ls @playwright/test
 
@@ -115,6 +134,7 @@ jobs:
           CI: true
         run: |
           npx playwright test \
+            --config=frontend/playwright.config.cjs \
             --project=${{ matrix.project }} \
             --workers=1
 
