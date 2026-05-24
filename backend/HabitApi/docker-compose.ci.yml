@@ -1,4 +1,5 @@
 services:
+  # API
   api:
     build: .
     container_name: habit_api
@@ -15,6 +16,8 @@ services:
         condition: service_started
       redis:
         condition: service_started
+      weather_mock:
+        condition: service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - DB_HOST=db
@@ -23,7 +26,7 @@ services:
       - DB_USER=habit_user
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
-      - WEATHER_BASE_URL=${WEATHER_BASE_URL:-https://api.openweathermap.org/data/2.5/}
+      - WeatherApi__BaseUrl=http://weather_mock:8080
       - WEATHER_API_KEY=${WEATHER_API_KEY}
       - AI_MODEL=${AI_MODEL:-lakomoor/vikhr-llama-3.2-1b-instruct:q5_k_m}
       - AI_API_KEY=${AI_API_KEY}
@@ -69,6 +72,15 @@ services:
     container_name: habit_redis
     ports:
       - "6379:6379"
+    restart: unless-stopped
+
+  weather_mock:
+    build:
+      context: ./mocks/mock-weather
+      dockerfile: Dockerfile.mock
+    container_name: weather-mock
+    ports:
+      - "8080:8080"
     restart: unless-stopped
 
 volumes:
