@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import styles from './ContextMenu.module.scss';
 
-const ContextMenu = ({ items, onClose, position }) => {
+const ContextMenu = ({ items, onClose, position, dataTestId }) => {
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -21,9 +21,16 @@ const ContextMenu = ({ items, onClose, position }) => {
       ref={menuRef}
       className={styles.menu}
       style={{ top: position.y, left: position.x }}
+      data-testid={dataTestId}
     >
       {items.map((item, idx) => (
-        <div key={idx} className={styles.menuItem} onClick={item.onClick}>
+        <div
+          key={idx}
+          className={styles.menuItem}
+          onClick={item.onClick}
+          data-testid={item.testId}
+          role="menuitem"
+        >
           {item.label}
         </div>
       ))}
