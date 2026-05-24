@@ -100,10 +100,6 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Install Playwright browsers
-        working-directory: frontend
-        run: npx playwright install --with-deps chromium
-
       - name: Start frontend
         working-directory: frontend
         run: |
@@ -126,7 +122,6 @@ jobs:
           exit 1
 
       - name: Run ordered Playwright tests
-        working-directory: frontend
         env:
           CI: true
         run: npm run e2e-tests:ordered
