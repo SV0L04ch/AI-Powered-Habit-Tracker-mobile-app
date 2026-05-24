@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { registerUser, confirmEmail } from '../helpers.js';
-import { getTestUser } from '../config.js';
+import { getTestUser } from '../test-data.js';
 
 test.describe('Positive scenarious', () => {
     test('Register new user with correct data (only registration)', async ({ page }) => {

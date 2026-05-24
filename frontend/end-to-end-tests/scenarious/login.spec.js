@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { registerUser, loginUser } from '../helpers.js';
-import { getTestUser } from '../config.js';
+import { getTestUser } from '../test-data.js';
 
 async function clearState(page) {
   await page.context().clearCookies();

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { registerUser, loginUser, confirmEmail } from '../helpers.js';
-import { getTestUser } from '../config.js';
+import { getTestUser } from '../test-data.js';
 
 test.beforeEach(async ({ page }) => {
   const user = getTestUser();
