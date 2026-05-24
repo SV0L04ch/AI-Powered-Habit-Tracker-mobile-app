@@ -37,7 +37,7 @@ jobs:
           done
 
       - name: Build SDK image for migrations
-        run: docker build --target build -t habit-api-sdk .
+        run: docker build --target build -t habit-api-sdk -f backend/HabitApi/Dockerfile backend/HabitApi
 
       - name: Add and apply migrations
         run: |
