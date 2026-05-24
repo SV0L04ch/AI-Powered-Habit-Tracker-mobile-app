@@ -24,7 +24,7 @@ jobs:
           EOF
 
       - name: Start dependencies (DB, Redis, Mailhog)
-        run: docker-compose -f backend/HabitApi/docker-compose.ci.yml up -d db redis mailhog
+        run: docker compose -f backend/HabitApi/docker-compose.ci.yml up -d db redis mailhog
 
       - name: Wait for DB
         run: |
@@ -48,7 +48,7 @@ jobs:
             sh -c "dotnet ef migrations add InitialCreate --no-build 2>/dev/null || true && dotnet ef database update --no-build"
 
       - name: Start all services (API, mock)
-        run: docker-compose -f backend/HabitApi/docker-compose.ci.yml up -d
+        run: docker compose -f backend/HabitApi/docker-compose.ci.yml up -d
 
       - name: Wait for API
         run: |
@@ -81,4 +81,4 @@ jobs:
 
       - name: Stop services
         if: always()
-        run: docker-compose -f backend/HabitApi/docker-compose.ci.yml down
+        run: docker compose -f backend/HabitApi/docker-compose.ci.yml down
