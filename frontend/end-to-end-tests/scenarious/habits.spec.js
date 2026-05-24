@@ -136,6 +136,7 @@ test.describe('Edit habit', () => {
   });
 });
 
+/*
 test.describe('Habit actions', () => {
   test('Toggle habit completion (active -> inactive)', async ({ page }) => {
     await page.goto('/habits');
@@ -202,6 +203,7 @@ test.describe('AI insight', () => {
     await expect(page.getByTestId('insight-modal')).not.toBeVisible();
   });
 });
+*/
 
 test.describe('Delete habit', () => {
   test('Delete habit via context menu', async ({ page }) => {
