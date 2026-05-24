@@ -5,6 +5,7 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend/HabitApi && dotnet run",
     "test:e2e": "cd QA/e2e && npm run test",
-    "dev:debug": "cd frontend && npm run dev:debug"
+    "dev:debug": "cd frontend && npm run dev:debug",
+    "e2e-tests:ordered": "cd frontend && node e2e-tests-run.js"
   }
 }
