@@ -45,7 +45,7 @@ jobs:
             --network container:habit_tracker_db \
             -e ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=habit_tracker;Username=habit_user;Password=${{ secrets.DB_PASSWORD }}" \
             habit-api-sdk \
-            sh -c "dotnet ef migrations add InitialCreate --configuration Release --no-build 2>/dev/null || true && dotnet ef database update --configuration Release --no-build"
+            sh -c "dotnet ef migrations add InitialCreate --assembly /app/build/HabitApi.dll --startup-assembly /app/build/HabitApi.dll --context AppDbContext --no-build 2>/dev/null || true && dotnet ef database update --assembly /app/build/HabitApi.dll --startup-assembly /app/build/HabitApi.dll --context AppDbContext --no-build"
 
 
       - name: Start all services (API, mock)
