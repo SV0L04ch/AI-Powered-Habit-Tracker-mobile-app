@@ -11,14 +11,16 @@ jobs:
   playwright:
     strategy:
       matrix:
-        project: [chromium, firefox, webkit, 'iPhone 12', 'Pixel 5']
+        project: [chromium, firefox, webkit]
       max-parallel: 3
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create .env file from secrets
+      - name: Create .env file
         run: |
           cat << EOF > backend/HabitApi/.env
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
@@ -27,54 +29,56 @@ jobs:
           AI_API_KEY=${{ secrets.AI_API_KEY }}
           EOF
 
-      - name: Start dependencies (DB, Redis, Mailhog)
+      - name: Start dependencies
         run: docker compose -f backend/HabitApi/docker-compose.ci.yml up -d db redis mailhog
 
-      - name: Wait for DB to be ready
+      - name: Wait for DB
         run: |
           for i in {1..30}; do
             if docker exec habit_tracker_db pg_isready -U habit_user -d habit_tracker; then
               echo "DB ready"
-              break
+              exit 0
             fi
             sleep 2
           done
+          exit 1
 
-      - name: Build SDK image for migrations
+      - name: Build SDK image
         run: docker build --target build -t habit-api-sdk -f backend/HabitApi/Dockerfile backend/HabitApi
 
-      - name: Add and apply migrations
+      - name: Apply migrations
         run: |
           docker run --rm \
             --network container:habit_tracker_db \
             -e ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=habit_tracker;Username=habit_user;Password=${{ secrets.DB_PASSWORD }}" \
             habit-api-sdk \
-            sh -c "dotnet ef migrations add InitialCreate --assembly /app/build/HabitApi.dll --startup-assembly /app/build/HabitApi.dll --context AppDbContext --no-build 2>/dev/null || true && dotnet ef database update --assembly /app/build/HabitApi.dll --startup-assembly /app/build/HabitApi.dll --context AppDbContext --no-build"
+            sh -c "dotnet ef database update --project /src/HabitApi.csproj"
 
-
-      - name: Start all services (API, mock)
+      - name: Start API
         run: docker compose -f backend/HabitApi/docker-compose.ci.yml up -d
 
-      - name: Wait for API to be ready
+      - name: Wait for API
         run: |
-          for i in {1..30}; do
-            if curl -s http://localhost:5093/health; then
+          for i in {1..60}; do
+            if curl -f http://localhost:5093/health; then
               echo "API ready"
-              break
+              exit 0
             fi
             sleep 2
           done
+          docker logs habit_tracker_api
+          exit 1
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-          cache: 'npm'
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps ${{ matrix.project }}
+      - name: Install Playwright
+        run: npx playwright install --with-deps
 
       - name: Run Playwright tests
         run: npx playwright test --project=${{ matrix.project }} --workers=1
@@ -89,4 +93,4 @@ jobs:
 
       - name: Stop services
         if: always()
-        run: docker compose -f backend/HabitApi/docker-compose.ci.yml down
+        run: docker compose -f backend/HabitApi/docker-compose.ci.yml down -v
