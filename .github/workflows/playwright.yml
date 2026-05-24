@@ -10,11 +10,13 @@ on:
 jobs:
   playwright:
     strategy:
+      fail-fast: false
       matrix:
         project: [chromium, firefox, webkit]
-      max-parallel: 3
 
     runs-on: ubuntu-latest
+
+    timeout-minutes: 40
 
     steps:
       - name: Checkout code
@@ -30,21 +32,31 @@ jobs:
           EOF
 
       - name: Start dependencies
-        run: docker compose -f backend/HabitApi/docker-compose.ci.yml up -d db redis mailhog
-
-      - name: Wait for DB
         run: |
-          for i in {1..30}; do
+          docker compose \
+            -f backend/HabitApi/docker-compose.ci.yml \
+            up -d db redis mailhog
+
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..60}; do
             if docker exec habit_tracker_db pg_isready -U habit_user -d habit_tracker; then
-              echo "DB ready"
+              echo "Postgres ready"
               exit 0
             fi
             sleep 2
           done
+
+          docker logs habit_tracker_db
           exit 1
 
-      - name: Build SDK image
-        run: docker build --target build -t habit-api-sdk -f backend/HabitApi/Dockerfile backend/HabitApi
+      - name: Build API SDK image
+        run: |
+          docker build \
+            --target build \
+            -t habit-api-sdk \
+            -f backend/HabitApi/Dockerfile \
+            backend/HabitApi
 
       - name: Apply migrations
         run: |
@@ -52,45 +64,73 @@ jobs:
             --network container:habit_tracker_db \
             -e ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=habit_tracker;Username=habit_user;Password=${{ secrets.DB_PASSWORD }}" \
             habit-api-sdk \
-            sh -c "dotnet ef database update --project /src/HabitApi.csproj"
+            sh -c "
+              dotnet ef database update \
+              --project /src/HabitApi.csproj
+            "
 
-      - name: Start API
-        run: docker compose -f backend/HabitApi/docker-compose.ci.yml up -d
-
-      - name: Wait for API
+      - name: Start all services
         run: |
-          for i in {1..60}; do
-            if curl -f http://localhost:5093/health; then
+          docker compose \
+            -f backend/HabitApi/docker-compose.ci.yml \
+            up -d
+
+      - name: Wait for API healthcheck
+        run: |
+          for i in {1..90}; do
+            if curl -fs http://localhost:5093/health; then
               echo "API ready"
               exit 0
             fi
+
             sleep 2
           done
+
+          echo "========= API LOGS ========="
           docker logs habit_tracker_api
+
+          echo "========= COMPOSE ========="
+          docker compose -f backend/HabitApi/docker-compose.ci.yml ps
+
           exit 1
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: package-lock.json
 
-      - name: Install dependencies
+      - name: Install npm dependencies
         run: npm ci
 
-      - name: Install Playwright
+      - name: Verify Playwright package
+        run: npm ls @playwright/test
+
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
-        run: npx playwright test --project=${{ matrix.project }} --workers=1
+        env:
+          CI: true
+        run: |
+          npx playwright test \
+            --project=${{ matrix.project }} \
+            --workers=1
 
-      - name: Upload report
+      - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ matrix.project }}
-          path: playwright-report/
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 30
 
-      - name: Stop services
+      - name: Stop containers
         if: always()
-        run: docker compose -f backend/HabitApi/docker-compose.ci.yml down -v
+        run: |
+          docker compose \
+            -f backend/HabitApi/docker-compose.ci.yml \
+            down -v
