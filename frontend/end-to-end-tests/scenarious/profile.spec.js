@@ -25,8 +25,4 @@ test.describe('Positive scenarios', () => {
     // Проверяем, что произошёл редирект на страницу логина
     await expect(page).toHaveURL(/\/login/);
   });
-
-  test('Change user\'s city', async () => {
-    const 
-  });
 });
