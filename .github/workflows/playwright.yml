@@ -47,9 +47,10 @@ jobs:
         run: |
           docker run --rm \
             --network container:habit_tracker_db \
-            -e ConnectionStrings__DefaultConnection="Host=db;Port=5432;Database=habit_tracker;Username=habit_user;Password=${{ secrets.DB_PASSWORD }}" \
+            -e ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=habit_tracker;Username=habit_user;Password=${{ secrets.DB_PASSWORD }}" \
             habit-api-sdk \
-            sh -c "dotnet ef migrations add InitialCreate --no-build 2>/dev/null || true && dotnet ef database update --no-build"
+            sh -c "dotnet ef migrations add InitialCreate --configuration Release --no-build 2>/dev/null || true && dotnet ef database update --configuration Release --no-build"
+
 
       - name: Start all services (API, mock)
         run: docker compose -f backend/HabitApi/docker-compose.ci.yml up -d
