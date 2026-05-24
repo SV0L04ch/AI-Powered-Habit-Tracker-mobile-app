@@ -76,12 +76,12 @@ jobs:
         run: |
           newman run postman/AI-Powered-Habit-Tracker-setup-tests.json \
             -e postman/AI-Powered-Habit-Tracker-Environment.json \
-            --export-environment postman/AI-Powered-Habit-Tracker-Environment.json
+            --export-environment postman/AI-Powered-Habit-Tracker-Environment-output.json
 
       - name: Run main tests
         run: |
           newman run postman/AI-Powered-Habit-Tracker-main-tests.json \
-            -e postman/AI-Powered-Habit-Tracker-Environment.json
+            -e postman/AI-Powered-Habit-Tracker-Environment-output.json
 
       - name: Stop services
         if: always()
