@@ -128,13 +128,14 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-
+      
       - name: Run Playwright tests
+        working-directory: frontend
         env:
           CI: true
         run: |
           npx playwright test \
-            --config=frontend/playwright.config.cjs \
+            --config=playwright.config.cjs \
             --project=${{ matrix.project }} \
             --workers=1
 
