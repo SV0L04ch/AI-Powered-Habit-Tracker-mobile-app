@@ -5,18 +5,26 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   postman:
-    timeout-minutes: 15
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Start all services (API, PostgreSQL, Redis) with Docker Compose
-        run: docker compose up -d
+      - name: Create .env file from secrets
+        run: |
+          cat << EOF > backend/HabitApi/.env
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+          AI_API_KEY=${{ secrets.AI_API_KEY }}
+          EOF
+
+      - name: Start all services (CI version)
+        run: docker-compose -f backend/HabitApi/docker-compose.ci.yml up -d
 
       - name: Wait for API to be ready
         run: |
@@ -31,19 +39,9 @@ jobs:
 
       - name: Reset database
         run: |
-          # Ждём готовности PostgreSQL
-          for i in {1..10}; do
-            if docker exec habit_tracker_db pg_isready -U habit_user -d habit_tracker; then
-              break
-            fi
-            echo "Waiting for DB..."
-            sleep 2
-          done
-          # Очищаем таблицы
           docker exec habit_tracker_db psql -U habit_user -d habit_tracker -c 'TRUNCATE TABLE "Users", "Habits", "HabitEntries" CASCADE;'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -61,3 +59,7 @@ jobs:
         run: |
           newman run postman/AI-Powered-Habit-Tracker-main-tests.json \
             -e postman/AI-Powered-Habit-Tracker-Environment.json
+
+      - name: Stop services
+        if: always()
+        run: docker-compose -f backend/HabitApi/docker-compose.ci.yml down
