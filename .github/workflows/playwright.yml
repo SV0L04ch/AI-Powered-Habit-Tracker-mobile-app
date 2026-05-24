@@ -27,23 +27,42 @@ jobs:
           AI_API_KEY=${{ secrets.AI_API_KEY }}
           EOF
 
-      - name: Start all services with Docker Compose (CI version)
+      - name: Start dependencies (DB, Redis, Mailhog)
+        run: docker-compose -f backend/HabitApi/docker-compose.ci.yml up -d db redis mailhog
+
+      - name: Wait for DB to be ready
+        run: |
+          for i in {1..30}; do
+            if docker exec habit_tracker_db pg_isready -U habit_user -d habit_tracker; then
+              echo "DB ready"
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Build SDK image for migrations
+        run: docker build --target build -t habit-api-sdk .
+
+      - name: Add and apply migrations
+        run: |
+          docker run --rm \
+            --network container:habit_tracker_db \
+            -e ConnectionStrings__DefaultConnection="Host=db;Port=5432;Database=habit_tracker;Username=habit_user;Password=${{ secrets.DB_PASSWORD }}" \
+            habit-api-sdk \
+            sh -c "dotnet ef migrations add InitialCreate --no-build 2>/dev/null || true && dotnet ef database update --no-build"
+
+      - name: Start all services (API, mock)
         run: docker-compose -f backend/HabitApi/docker-compose.ci.yml up -d
 
       - name: Wait for API to be ready
         run: |
           for i in {1..30}; do
             if curl -s http://localhost:5093/health; then
-              echo "API is ready"
+              echo "API ready"
               break
             fi
-            echo "Waiting for API... ($i/30)"
             sleep 2
           done
-
-      - name: Reset database
-        run: |
-          docker exec habit_tracker_db psql -U habit_user -d habit_tracker -c 'TRUNCATE TABLE "Users", "Habits", "HabitEntries" CASCADE;'
 
       - uses: actions/setup-node@v4
         with:
@@ -56,7 +75,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.project }}
 
-      - name: Run Playwright tests on ${{ matrix.project }}
+      - name: Run Playwright tests
         run: npx playwright test --project=${{ matrix.project }} --workers=1
 
       - name: Upload report
