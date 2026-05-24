@@ -6,7 +6,8 @@
     "dev:backend": "cd backend && dotnet run",
     "test:e2e": "cd QA/e2e && npm run test",
     "dev:debug": "cd frontend && npm run dev:debug",
-    "e2e-tests:ordered": "cd frontend && npx playwright install chromium && node e2e-tests-run.js"
+    "e2e-tests:ordered": "cd frontend && npx playwright install chromium firefox webkit && node e2e-tests-run.js"
+
 
   },
   "devDependencies": {
