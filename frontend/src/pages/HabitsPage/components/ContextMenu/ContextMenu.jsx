@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 import styles from './ContextMenu.module.scss';
 
-const ContextMenu = ({ items, onClose, position, dataTestId }) => {
+const ContextMenu = ({ items, onClose, position, dataTestId, ...rest }) => {
   const menuRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
         onClose();
       }
     };
@@ -20,19 +20,21 @@ const ContextMenu = ({ items, onClose, position, dataTestId }) => {
     <div
       ref={menuRef}
       className={styles.menu}
-      style={{ top: position.y, left: position.x }}
-      data-testid={dataTestId}
+      style={position ? { top: position.y, left: position.x } : undefined}
+      data-testid={dataTestId || rest['data-testid']}
+      role="menu"
     >
-      {items.map((item, idx) => (
-        <div
-          key={idx}
+      {items.map((item) => (
+        <button
+          key={item.testId || item.label}
           className={styles.menuItem}
           onClick={item.onClick}
           data-testid={item.testId}
+          type="button"
           role="menuitem"
         >
           {item.label}
-        </div>
+        </button>
       ))}
     </div>
   );

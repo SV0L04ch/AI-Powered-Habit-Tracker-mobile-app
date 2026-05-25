@@ -1,52 +1,83 @@
-@use '../../styles/abstracts/variables' as var;
-@use '../../styles/abstracts/mixins' as mix;
-
-.btn{
-    @include mix.buttons;
-
-    box-sizing: border-box;
-    color: var.$dark-main-text;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    border-radius: var.$base-radius;
-    border: var.$dark-border;
-    box-shadow: var.$box-shadow;
-    background-color: rgba(160, 82, 45, 0.6);
-    cursor: pointer;
-
-    &.form{
-        min-width: 55.08%;
-        padding: var.$spacing-1;
-        width: 100%;
-    }
-
-    &:active{
-        background-color: var.$dark-buttons;
-    }
-
-    &:disabled{
-        opacity: 0.4;
-    }
-
-    &.primary{
-        padding: var.$spacing-1 0;
-        width: 100%
-    }
-
-    &.secondary{
-        display: flex;
-        border: none;
-        background: var.$dark-decorate2;
-        max-width: 160px;
-        min-width: 140px;
-        padding: var.$spacing-1 var.$spacing-3;
-        flex-direction:column; 
-        gap: 5px;
-        color: var.$dark-basic-text
-    }
-
+.btn {
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: 12px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--app-primary-contrast);
+  background: var(--app-primary);
+  box-shadow: var(--app-shadow-soft);
+  cursor: pointer;
+  transition:
+    transform var(--app-transition),
+    box-shadow var(--app-transition),
+    background var(--app-transition),
+    border-color var(--app-transition);
+  user-select: none;
 }
 
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:hover {
+  box-shadow: var(--app-shadow);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primary,
+.form {
+  width: 100%;
+  background: linear-gradient(135deg, var(--app-primary), #2563eb 58%, var(--app-accent));
+}
+
+.secondary {
+  color: var(--app-text);
+  background: var(--app-bg-elevated);
+  border-color: var(--app-border);
+}
+
+.ghost {
+  color: var(--app-text);
+  background: transparent;
+  border-color: var(--app-border);
+  box-shadow: none;
+}
+
+.danger {
+  color: #fff;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+}
+
+.loading {
+  pointer-events: none;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

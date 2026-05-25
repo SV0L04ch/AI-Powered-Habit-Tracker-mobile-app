@@ -1,11 +1,38 @@
 import React from 'react';
 import styles from './Button.module.scss';
 
-const Button = ({ children, variant, disabled = false, type = "button", onClick, ...rest}) => {
-    const className = `${styles.btn} ${styles[`${variant}`|| '']}`
+const Button = ({
+  children,
+  variant = 'primary',
+  disabled = false,
+  type = 'button',
+  onClick,
+  loading = false,
+  className = '',
+  ...rest
+}) => {
+  const classes = [
+    styles.btn,
+    styles[variant] || '',
+    loading ? styles.loading : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <button type={type} className={className} disabled = {disabled} onClick={onClick} {...rest}>{children}</button>
-  )
-}
+    <button
+      type={type}
+      className={classes}
+      disabled={disabled || loading}
+      onClick={onClick}
+      aria-busy={loading}
+      {...rest}
+    >
+      {loading && <span className={styles.spinner} aria-hidden="true" />}
+      <span className={styles.content}>{children}</span>
+    </button>
+  );
+};
 
 export default Button;

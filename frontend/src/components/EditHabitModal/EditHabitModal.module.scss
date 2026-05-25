@@ -1,41 +1,47 @@
-@use '../../styles/abstracts/variables' as var;
-
 .container {
-  display: flex;
-  flex-direction: column;
-  gap: var.$spacing-3;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
 }
 
 .section {
-  display: flex;
-  flex-direction: column;
-  gap: var.$spacing-1;
+  display: grid;
+  gap: 10px;
 }
 
 .label {
-  color: var.$dark-main-text;
+  color: var(--app-text-muted);
 }
 
 .buttons {
-  display: flex;
-  gap: var.$spacing-2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .optionContent {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
-.stars {
-  display: flex;
-  gap: 4px;
+.optionContent svg {
+  width: 18px;
+  height: 18px;
 }
 
 .actions {
-  display: flex;
-  gap: var.$spacing-2;
-  justify-content: flex-end;
-  margin-top: var.$spacing-2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.errorText {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.12);
+  font-size: 13px;
+  font-weight: 700;
 }

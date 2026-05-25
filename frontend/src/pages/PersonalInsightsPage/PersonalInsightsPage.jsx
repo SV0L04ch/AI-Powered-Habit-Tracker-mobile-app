@@ -1,73 +1,118 @@
-import React, { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Typography from '../../components/Typography/Typography';
-import Substrate from '../../components/Substrate/Substrate';
 import PageLayout from '../../components/PageLayout/PageLayout';
-import icons from '../../lib/icons';
 import images from '../../lib/images';
-import styles from './PersonalInsights.module.scss';
-import HistoryCard from '../../components/HistoryCard/HistoryCard';
 import useDailySummaryStore from '../../store/useDailySummaryStore';
+import styles from './PersonalInsights.module.scss';
+
+const getWeatherImage = (condition) => {
+  const normalized = String(condition || '').toLowerCase();
+  if (normalized.includes('rain')) return images.Rain;
+  if (normalized.includes('cloud')) return images.Clouds;
+  return images.Sun;
+};
 
 function PersonalInsightsPage() {
-  const {summary, isLoading, error, fetchStats} = useDailySummaryStore()
+  const { summary, isLoading, error, fetchStats } = useDailySummaryStore();
 
   useEffect(() => {
-    fetchStats()
-  }, [fetchStats])
+    fetchStats();
+  }, [fetchStats]);
 
-  const productivityPercent = summary && summary.habitsCompleted + summary.habitsPartiallyCompleted + summary.habitsSkipped > 0 ? 
-  Math.round((summary.habitsCompleted / (summary.habitsCompleted + summary.habitsPartiallyCompleted + summary.habitsSkipped)) * 100) : null
+  const totals = useMemo(() => {
+    const completed = summary?.habitsCompleted || 0;
+    const partial = summary?.habitsPartiallyCompleted || 0;
+    const skipped = summary?.habitsSkipped || 0;
+    const total = completed + partial + skipped;
+    return {
+      completed,
+      partial,
+      skipped,
+      total,
+      percent: total ? Math.round((completed / total) * 100) : 0,
+    };
+  }, [summary]);
 
-  const transparency = `${styles.basicText} ${styles.transparancy}`
   return (
-    <PageLayout>
-      <Typography variant='headline1' className={styles.mainText}>Аналитика</Typography>
+    <PageLayout data-testid="personal-insights-page">
+      <header className={styles.header} data-testid="insights-header">
+        <Typography variant="headline1" data-testid="insights-title">
+          Аналитика
+        </Typography>
+        <Typography variant="body1" className={styles.muted} data-testid="insights-subtitle">
+          Daily summary строится по реальным отметкам, погоде и AI-комментарию.
+        </Typography>
+      </header>
 
-      {isLoading && <Typography variant='body1'>Загрузка...</Typography>}
-      {error && (<Typography variant='body1'>{error}</Typography>)}
-
-      {summary &&
-        (
-          <div className={styles.cards}>
-
-            <Substrate>
-              <div className={styles.card}>
-                <div className={styles.cardLeft}>
-                  <Typography variant='body1' className={transparency}>Сегодня</Typography>
-                  <Typography variant='headline3' className={styles.mainText}> 
-                    {productivityPercent !== null ? `${productivityPercent}%` : '—'}
-                  </Typography>
-                  <Typography variant='body1' className={transparency}>Продуктивность</Typography>
-                </div>
-
-                <div className={styles.cardRight}>
-                  <Typography variant='body1' className={transparency}>
-                    {summary.weather?.condition || 'Нет данных'} <br />{' '}
-                    {summary.weather?.temperatureCelsius != null
-                      ? `${summary.weather.temperatureCelsius}°C`
-                      : ''}
-                  </Typography>
-                  <img src={images.Sun} alt="" width={29} height={29}/>
-                </div>
-              </div>
-            </Substrate>
-
-            <Substrate>
-              <Typography variant='body1' className={styles.mainText}>{summary.aiInsight || 'Отличный день! Сегодня всё получится.'}</Typography>
-            </Substrate>
-
-          </div>
-        )
-      }
-        <div className={styles.cards}>
-          <div className={styles.blockHistory}>
-            <icons.History />
-            <Typography variant='headline1' className={styles.mainText}>История</Typography>
-          </div>
-          <HistoryCard image="Rain"date="Вчера, 11 апр." precentage="95%" comment="Идеальные условия для активности. Вы закрыли все утренние привычки до 10:00"></HistoryCard>
+      {isLoading && (
+        <div className={styles.skeletonGrid} data-testid="insights-loader">
+          <div />
+          <div />
+          <div />
         </div>
+      )}
+
+      {error && (
+        <p className={styles.error} data-testid="server-error">
+          {error}
+        </p>
+      )}
+
+      {summary && (
+        <section className={styles.cards} data-testid="daily-summary-section">
+          <article className={styles.heroCard} data-testid="daily-summary-card">
+            <div>
+              <span className={styles.label}>Сегодня</span>
+              <Typography variant="headline1" data-testid="productivity-percent">
+                {totals.percent}%
+              </Typography>
+              <Typography variant="body2" className={styles.muted}>
+                продуктивность
+              </Typography>
+            </div>
+            <img src={getWeatherImage(summary.weather?.condition)} alt="" data-testid="weather-image" />
+          </article>
+
+          <div className={styles.metrics} data-testid="summary-metrics">
+            <article data-testid="completed-metric">
+              <span>Выполнено</span>
+              <strong>{totals.completed}</strong>
+            </article>
+            <article data-testid="partial-metric">
+              <span>Частично</span>
+              <strong>{totals.partial}</strong>
+            </article>
+            <article data-testid="skipped-metric">
+              <span>Пропущено</span>
+              <strong>{totals.skipped}</strong>
+            </article>
+          </div>
+
+          <article className={styles.aiCard} data-testid="ai-summary-card">
+            <span className={styles.label}>AI-комментарий</span>
+            <Typography variant="body1" data-testid="ai-summary-text">
+              {summary.aiInsight}
+            </Typography>
+          </article>
+
+          <article className={styles.weatherCard} data-testid="weather-details-card">
+            <div>
+              <span className={styles.label}>Погода</span>
+              <Typography variant="headline3" data-testid="weather-city">
+                {summary.weather?.city || 'Город не указан'}
+              </Typography>
+              <Typography variant="body2" className={styles.muted} data-testid="weather-condition">
+                {summary.weather?.condition || 'Нет данных'}
+              </Typography>
+            </div>
+            <div className={styles.temperature} data-testid="weather-temperature">
+              {summary.weather?.temperatureCelsius != null ? `${summary.weather.temperatureCelsius}°C` : '-'}
+            </div>
+          </article>
+        </section>
+      )}
     </PageLayout>
-  )
+  );
 }
 
-export default PersonalInsightsPage
+export default PersonalInsightsPage;

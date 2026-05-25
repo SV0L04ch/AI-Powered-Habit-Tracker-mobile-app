@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Modal from '../Modal/Modal';
 import Input from '../Input/Input';
 import Button from '../Button/Button';
@@ -8,120 +8,163 @@ import useHabitsStore from '../../store/useHabitsStore';
 import styles from './EditHabitModal.module.scss';
 
 const EditHabitModal = ({ isOpen, onClose, habit }) => {
-  const [name, setName] = useState('');
-  const [triggerValue, setTriggerValue] = useState('');
-  const [type, setType] = useState(false);       // false = Время, true = Повторы
-  const [category, setCategory] = useState(false); // false = Легко, true = Тяжело
-
+  const [form, setForm] = useState({
+    name: '',
+    triggerValue: '',
+    triggerType: 1,
+    isPositive: true,
+    hasPenalty: false,
+    targetDays: 30,
+    reminderTime: '',
+  });
+  const [validationError, setValidationError] = useState('');
   const updateHabit = useHabitsStore((state) => state.updateHabit);
+  const actionLoadingId = useHabitsStore((state) => state.actionLoadingId);
 
   useEffect(() => {
     if (habit) {
-      setName(habit.name || '');
-      setTriggerValue(habit.triggerValue || '');
-      setType(habit.type ?? false);
-      setCategory(habit.category ?? false);
+      setForm({
+        name: habit.name || '',
+        triggerValue: habit.triggerValue || '',
+        triggerType: Number(habit.triggerType) || 1,
+        isPositive: habit.isPositive !== false,
+        hasPenalty: Boolean(habit.hasPenalty),
+        targetDays: habit.targetDays || 30,
+        reminderTime: habit.reminders?.[0] || '',
+      });
+      setValidationError('');
     }
-  }, [habit, isOpen]);
+  }, [habit]);
+
+  const patchForm = (updates) => {
+    setForm((current) => ({ ...current, ...updates }));
+    setValidationError('');
+  };
 
   const handleSave = async () => {
-    const updates = {
-      name,
-      triggerValue,
-      type,
-      category,
-      triggerType: type ? 2 : 1,
-    };
-    await updateHabit(habit.id, updates);
-    onClose();
+    if (!form.name.trim()) {
+      setValidationError('Введите название привычки.');
+      return;
+    }
+    if (!form.triggerValue.trim()) {
+      setValidationError('Введите значение триггера.');
+      return;
+    }
+
+    const updated = await updateHabit(habit.id, {
+      name: form.name.trim(),
+      triggerValue: form.triggerValue.trim(),
+      triggerType: Number(form.triggerType),
+      isPositive: form.isPositive,
+      hasPenalty: form.hasPenalty,
+      targetDays: Number(form.targetDays),
+      penaltyDaysPerMiss: form.hasPenalty ? 1 : 0,
+      reminders: form.reminderTime ? [form.reminderTime] : [],
+    });
+
+    if (updated) onClose();
   };
 
   if (!habit) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className={styles.container} data-testid="edit-habit-modal">
-        <Typography variant="headline2">Редактирование привычки</Typography>
+    <Modal isOpen={isOpen} onClose={onClose} data-testid="edit-habit-modal">
+      <div className={styles.container}>
+        <Typography variant="headline2" data-testid="edit-habit-title">
+          Редактирование
+        </Typography>
 
         <Input
-          placeholder="Название"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          label="Название"
+          value={form.name}
+          onChange={(event) => patchForm({ name: event.target.value })}
           data-testid="habit-name"
         />
 
-        {/* Тип контроля */}
-        <div className={styles.section}>
-          <Typography variant="body2" className={styles.label}>Тип контроля</Typography>
+        <div className={styles.section} data-testid="edit-control-section">
+          <Typography variant="body2" className={styles.label}>
+            Тип контроля
+          </Typography>
           <div className={styles.buttons}>
             <Button
-              variant={!type ? 'primary' : 'secondary'}
-              onClick={() => setType(false)}
+              variant={Number(form.triggerType) === 1 ? 'primary' : 'secondary'}
+              onClick={() => patchForm({ triggerType: 1 })}
               data-testid="controlType-time-button"
             >
-              <div className={styles.optionContent}>
+              <span className={styles.optionContent}>
                 <icons.Wristwatch />
-                <Typography variant="body2">Время</Typography>
-              </div>
+                Время
+              </span>
             </Button>
             <Button
-              variant={type ? 'primary' : 'secondary'}
-              onClick={() => setType(true)}
+              variant={Number(form.triggerType) === 2 ? 'primary' : 'secondary'}
+              onClick={() => patchForm({ triggerType: 2 })}
               data-testid="controlType-counter-button"
             >
-              <div className={styles.optionContent}>
+              <span className={styles.optionContent}>
                 <icons.Count />
-                <Typography variant="body2">Повторы</Typography>
-              </div>
+                Счетчик
+              </span>
             </Button>
           </div>
         </div>
 
-        {/* Сложность */}
-        <div className={styles.section}>
-          <Typography variant="body2" className={styles.label}>Сложность</Typography>
+        <div className={styles.section} data-testid="edit-category-section">
+          <Typography variant="body2" className={styles.label}>
+            Сложность
+          </Typography>
           <div className={styles.buttons}>
             <Button
-              variant={category ? 'primary' : 'secondary'}
-              onClick={() => setCategory(true)}
+              variant={form.hasPenalty ? 'primary' : 'secondary'}
+              onClick={() => patchForm({ hasPenalty: true })}
               data-testid="categoryType-hard-button"
             >
-              <div className={styles.optionContent}>
-                <div className={styles.stars}>
-                  <icons.FillStar />
-                  <icons.FillStar />
-                  <icons.FillStar />
-                </div>
-                <Typography variant="body2">Тяжело</Typography>
-              </div>
+              Со штрафом
             </Button>
             <Button
-              variant={!category ? 'primary' : 'secondary'}
-              onClick={() => setCategory(false)}
+              variant={!form.hasPenalty ? 'primary' : 'secondary'}
+              onClick={() => patchForm({ hasPenalty: false })}
               data-testid="categoryType-easy-button"
             >
-              <div className={styles.optionContent}>
-                <div className={styles.stars}>
-                  <icons.EmptyStar />
-                  <icons.EmptyStar />
-                  <icons.EmptyStar />
-                </div>
-                <Typography variant="body2">Легко</Typography>
-              </div>
+              Без штрафа
             </Button>
           </div>
         </div>
 
         <Input
-          placeholder="Значение (время или количество)"
-          value={triggerValue}
-          onChange={(e) => setTriggerValue(e.target.value)}
+          type={Number(form.triggerType) === 1 ? 'time' : 'number'}
+          label={Number(form.triggerType) === 1 ? 'Время' : 'Количество'}
+          value={form.triggerValue}
+          onChange={(event) => patchForm({ triggerValue: event.target.value })}
           data-testid="trigger-type"
         />
 
+        <Input
+          type="time"
+          label="Напоминание"
+          value={form.reminderTime}
+          onChange={(event) => patchForm({ reminderTime: event.target.value })}
+          data-testid="edit-reminder-time"
+        />
+
+        {validationError && (
+          <p className={styles.errorText} data-testid="edit-validation-error">
+            {validationError}
+          </p>
+        )}
+
         <div className={styles.actions}>
-          <Button variant="secondary" onClick={onClose} data-testid="close-button">Отмена</Button>
-          <Button variant="primary" onClick={handleSave} data-testid="save-button">Сохранить</Button>
+          <Button variant="secondary" onClick={onClose} data-testid="close-button">
+            Отмена
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSave}
+            loading={actionLoadingId === habit.id}
+            data-testid="save-button"
+          >
+            Сохранить
+          </Button>
         </div>
       </div>
     </Modal>

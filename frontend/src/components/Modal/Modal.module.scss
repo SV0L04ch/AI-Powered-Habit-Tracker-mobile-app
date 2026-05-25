@@ -1,20 +1,42 @@
-@use '../../styles/abstracts/variables' as var;
-
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
+  z-index: 40;
+  display: grid;
+  place-items: end center;
+  padding: 18px;
+  background: rgba(6, 10, 18, 0.44);
+  backdrop-filter: blur(8px);
+  animation: fade 180ms ease both;
 }
 
 .content {
-  background: var.$dark-background;
-  border-radius: var.$secondary-radius;
-  padding: var.$spacing-3;
-  width: 90%;
-  max-width: 400px;
-  color: var.$dark-main-text;
+  width: min(100%, 520px);
+  max-height: min(86svh, 720px);
+  overflow: auto;
+  border: 1px solid var(--app-border);
+  border-radius: 28px;
+  background: var(--app-bg-elevated);
+  color: var(--app-text);
+  box-shadow: var(--app-shadow);
+  animation: sheet 240ms ease both;
+}
+
+@media (min-width: 768px) {
+  .overlay {
+    place-items: center;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
 }

@@ -1,33 +1,49 @@
-@use '../../styles/abstracts/variables' as var;
-
-.nav{
-    position: fixed;
-    bottom: 20px;
-    display: flex;
-    width: 100%;
-    max-width: 338px;
-    height: 60px;
-    justify-content: center;
-    border-radius: var.$secondary-radius;
-    gap: var.$spacing-3;
-    background: var.$dark-decorate2;
-    align-items: center;
+.nav {
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 20;
+  width: min(calc(100% - 28px), 520px);
+  min-height: 68px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 24px;
+  background: var(--app-bg-elevated);
+  box-shadow: var(--app-shadow);
+  backdrop-filter: blur(22px);
+  transform: translateX(-50%);
 }
 
-.tab{
-    box-sizing: border-box;
-    padding: var.$spacing-1;
-    display: flex;
-    background: none;
-    border: none;
-
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s;
-
-    &.active{
-        border-radius: var.$secondary-radius;
-        background: var.$light-decorate;
-    }
+.tab {
+  min-width: 0;
+  min-height: 52px;
+  border: 0;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--app-text-muted);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    transform var(--app-transition),
+    color var(--app-transition),
+    background var(--app-transition);
 }
 
+.tab:active {
+  transform: scale(0.94);
+}
+
+.active {
+  color: var(--app-primary-contrast);
+  background: linear-gradient(135deg, var(--app-primary), #2563eb 62%, var(--app-accent));
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}

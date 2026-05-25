@@ -1,116 +1,190 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './ProfilePage.module.scss';
-import Substrate from '../../components/Substrate/Substrate';
 import Button from '../../components/Button/Button';
 import Typography from '../../components/Typography/Typography';
 import Input from '../../components/Input/Input';
 import icons from '../../lib/icons';
 import useAuthUser from '../../store/useAuthStore';
-// import illustrations from '../../assets/images/illustrations/avatar.png';
-
-
-
+import useThemeStore from '../../store/useThemeStore';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const isLoading = useAuthUser((state) => state.isLoading)
-  const [user, setUser] = useState(null);
-  const [city, setCity] = useState('');
-  const [darkTheme, setDarkTheme] = useState(false);
-  const [reportTime, setReportTime] = useState('08:00');
-  const [citiesList] = useState(['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань']);
-  const logOut = useAuthUser((state) => state.logout)
+  const { profile, email, profileLoading, profileError, loadProfile, saveProfile, logout, isLoading } =
+    useAuthUser();
+  const theme = useThemeStore((state) => state.theme);
+  const setTheme = useThemeStore((state) => state.setTheme);
+  const [form, setForm] = useState({
+    city: '',
+    habitReminderEnabled: true,
+    habitReminderTime: '08:00',
+    themePreference: 'light',
+  });
+  const [savedMessage, setSavedMessage] = useState('');
 
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
+  useEffect(() => {
+    if (profile) {
+      setForm({
+        city: profile.city || '',
+        habitReminderEnabled: Boolean(profile.habitReminderEnabled),
+        habitReminderTime: profile.habitReminderTime || '08:00',
+        themePreference: profile.themePreference === 'dark' ? 'dark' : 'light',
+      });
+    } else {
+      setForm((current) => ({ ...current, themePreference: theme }));
+    }
+  }, [profile, theme]);
 
-  const handleCityChange = (e) => {
-    const newCity = e.target.value;
-    setCity(newCity);
-    // обновляем город в currentUser (если нужно)
-    const updatedUser = { ...user, city: newCity };
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-    // также обновляем в массиве users
-    const userIndex = users.findIndex(u => u.email === user.email);
-    if (userIndex !== -1) users[userIndex].city = newCity;
-    localStorage.setItem('users', JSON.stringify(users));
+  const patchForm = (updates) => {
+    setForm((current) => ({ ...current, ...updates }));
+    setSavedMessage('');
   };
 
-  const toggleDarkTheme = () => {
-    const newValue = !darkTheme;
-    setDarkTheme(newValue);
-    localStorage.setItem('darkTheme', newValue);
-    if (newValue) document.body.classList.add('dark-theme');
-    else document.body.classList.remove('dark-theme');
+  const handleThemeChange = (nextTheme) => {
+    setTheme(nextTheme);
+    patchForm({ themePreference: nextTheme });
   };
 
-  const handleReportTimeChange = (e) => {
-    const newTime = e.target.value;
-    setReportTime(newTime);
-    localStorage.setItem('reportTime', newTime);
-    
+  const requestGeoCity = () => {
+    if (!navigator.geolocation) {
+      setSavedMessage('Геолокация недоступна в этом браузере.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      () => setSavedMessage('Геолокация получена. Введите название города и сохраните профиль.'),
+      () => setSavedMessage('Не удалось получить геолокацию. Город можно ввести вручную.'),
+      { enableHighAccuracy: false, timeout: 6000 },
+    );
+  };
+
+  const handleSave = async () => {
+    const saved = await saveProfile(form);
+    if (saved) setSavedMessage('Профиль сохранен.');
   };
 
   const handleLogout = async () => {
-    await logOut()
+    await logout();
     navigate('/login');
   };
 
   return (
-    <div className={styles.page}>
-      <Typography variant="headline1" className={styles.title}>Профиль</Typography>
-      <Typography variant="headline2" className={styles.name} data-testid="profile-name">Алексей Волков</Typography>
-      <Typography variant="headline3" className={styles.sectionTitle}>Персонализация</Typography>
-     
-     <div className={styles.settingsContainer}>
-      
-      <Substrate className={styles.settingItem}>
-        <div className={styles.reportRow}>
-            <icons.Notification className={styles.icon} />
-            <div className={styles.reportInfo}>
-                <Typography variant="body1" className={styles.settingLabel}>Ежедневный отчёт</Typography>
-                <Typography variant="caption" className={styles.settingHint}>Напоминание о прогрессе</Typography>
+    <div className={styles.page} data-testid="profile-page">
+      <header className={styles.header} data-testid="profile-header">
+        <Typography variant="headline1" className={styles.title} data-testid="profile-title">
+          Профиль
+        </Typography>
+        <Typography variant="body1" className={styles.muted} data-testid="profile-email">
+          {email || profile?.email}
+        </Typography>
+      </header>
+
+      <section className={styles.settingsContainer} data-testid="profile-settings">
+        <article className={styles.settingItem} data-testid="profile-city-card">
+          <div className={styles.settingTitle}>
+            <icons.MapPoint className={styles.icon} />
+            <div>
+              <Typography variant="headline3">Город</Typography>
+              <Typography variant="body2" className={styles.muted}>
+                Используется для погоды и city-summary.
+              </Typography>
             </div>
+          </div>
+          <Input
+            label="Город"
+            value={form.city}
+            onChange={(event) => patchForm({ city: event.target.value })}
+            data-testid="profile-city-input"
+          />
+          <Button variant="ghost" onClick={requestGeoCity} data-testid="profile-geolocation-button">
+            Использовать геолокацию
+          </Button>
+        </article>
+
+        <article className={styles.settingItem} data-testid="profile-reminder-card">
+          <div className={styles.settingTitle}>
+            <icons.Notification className={styles.icon} />
+            <div>
+              <Typography variant="headline3">Уведомления</Typography>
+              <Typography variant="body2" className={styles.muted}>
+                Время сохраняется в профиле HabitApi.
+              </Typography>
+            </div>
+          </div>
+          <label className={styles.switchRow} data-testid="reminder-enabled-row">
+            <span>Ежедневное напоминание</span>
             <input
-                type="time"
-                value={reportTime}
-                onChange={handleReportTimeChange}
-                className={styles.timePicker}
-                
+              type="checkbox"
+              checked={form.habitReminderEnabled}
+              onChange={(event) => patchForm({ habitReminderEnabled: event.target.checked })}
+              data-testid="reminder-enabled-checkbox"
             />
-        </div>
-      </Substrate>
-
-      
-      <Substrate className={styles.settingItem}>
-        <div className={styles.settingRow}>
-        <icons.MapPoint className={styles.icon} />
-          <Typography variant="body1" className={styles.settingLabel}>Ваш город</Typography>
-          <select value={city} onChange={handleCityChange} className={styles.citySelect}>
-            {citiesList.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
-      </Substrate>
-
-      
-      <Substrate className={styles.settingItem}>
-        <div className={styles.settingRow}>
-        <icons.Moon className={styles.icon} />
-          <Typography variant="body1" className={styles.settingLabel}>Тёмная тема</Typography>
-          <label className={styles.switch}>
-            <input type="checkbox" checked={darkTheme} onChange={toggleDarkTheme} />
-            <span className={styles.slider}></span>
           </label>
-        </div>
-      </Substrate>
+          <Input
+            type="time"
+            label="Время уведомлений"
+            value={form.habitReminderTime}
+            onChange={(event) => patchForm({ habitReminderTime: event.target.value })}
+            disabled={!form.habitReminderEnabled}
+            data-testid="profile-reminder-time-input"
+          />
+        </article>
 
-        <Button variant="form" className={styles.logoutButton} onClick={handleLogout} disabled={isLoading}>
-          {isLoading ? "Выход..." : "Выход"}
+        <article className={styles.settingItem} data-testid="profile-theme-card">
+          <div className={styles.settingTitle}>
+            <icons.Moon className={styles.icon} />
+            <div>
+              <Typography variant="headline3">Тема</Typography>
+              <Typography variant="body2" className={styles.muted}>
+                Светлая тема включена по умолчанию.
+              </Typography>
+            </div>
+          </div>
+          <div className={styles.themeToggle} data-testid="theme-toggle">
+            <button
+              type="button"
+              className={form.themePreference === 'light' ? styles.activeTheme : ''}
+              onClick={() => handleThemeChange('light')}
+              data-testid="theme-light-button"
+            >
+              Светлая
+            </button>
+            <button
+              type="button"
+              className={form.themePreference === 'dark' ? styles.activeTheme : ''}
+              onClick={() => handleThemeChange('dark')}
+              data-testid="theme-dark-button"
+            >
+              Темная
+            </button>
+          </div>
+        </article>
+      </section>
+
+      {profileLoading && <div className={styles.loader} data-testid="profile-loader" />}
+      {profileError && (
+        <p className={styles.error} data-testid="profile-error">
+          {profileError}
+        </p>
+      )}
+      {savedMessage && (
+        <p className={styles.success} data-testid="profile-save-message">
+          {savedMessage}
+        </p>
+      )}
+
+      <div className={styles.actions} data-testid="profile-actions">
+        <Button variant="primary" onClick={handleSave} loading={profileLoading} data-testid="profile-save-button">
+          Сохранить
         </Button>
-           
-     </div>
+        <Button variant="danger" onClick={handleLogout} loading={isLoading} data-testid="logout-button">
+          Выйти
+        </Button>
+      </div>
     </div>
   );
 };

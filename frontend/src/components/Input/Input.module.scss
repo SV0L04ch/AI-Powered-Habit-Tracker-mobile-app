@@ -1,53 +1,86 @@
-@use '../../styles/abstracts/variables' as var;
-@use '../../styles/abstracts/mixins' as mix;
-
-
-
-.inputContainer{
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: var.$spacing-1;
-    background: var.$dark-input;
-    box-shadow: var.$box-shadow;
-    border: 1.5px solid transparent;
-    border-radius: var.$base-radius;
-    padding: var.$spacing-1 var.$spacing-3;
-
-    &:focus-within{
-        border: var.$dark-border; 
-    }
-
-    &.disabled{
-        opacity: 0.5;
-    }
-
+.inputContainer {
+  min-height: 56px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-bg-elevated);
+  box-shadow: var(--app-shadow-soft);
+  transition:
+    border-color var(--app-transition),
+    box-shadow var(--app-transition),
+    transform var(--app-transition);
 }
 
-.field{
-    outline: none;
-    @include mix.body1;
-    
-    border: none;
-    background: transparent;
-    padding: 0;
-    color: var.$dark-placeholder;
-
-    &::placeholder{
-        color: var.$dark-placeholder;
-    }
+.inputContainer:focus-within {
+  border-color: var(--app-border-strong);
+  box-shadow: var(--app-shadow);
+  transform: translateY(-1px);
 }
 
-.icon{
-    box-sizing: border-box;
-    padding: 1px;
-    width: 18px;
-    height: 18px;
-    display: flex;
-    color: var.$dark-placeholder;
+.disabled {
+  opacity: 0.6;
+}
+
+.inputWrap {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+}
+
+.field {
+  width: 100%;
+  min-height: 36px;
+  border: 0;
+  outline: 0;
+  padding: 16px 0 2px;
+  background: transparent;
+  color: var(--app-text);
+}
+
+.field::placeholder {
+  color: transparent;
+}
+
+.label {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  max-width: 100%;
+  color: var(--app-text-muted);
+  font-size: 15px;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition:
+    top var(--app-transition),
+    font-size var(--app-transition),
+    color var(--app-transition);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.field:focus + .label,
+.hasValue .label {
+  top: 8px;
+  font-size: 11px;
+  color: var(--app-accent-2);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--app-text-muted);
 }
 
 .icon svg {
-    width: 18px;
-    height: 18px;
+  width: 20px;
+  height: 20px;
 }

@@ -1,55 +1,87 @@
-@use '../../styles/abstracts/variables' as var;
-
-.blocktext{
-    display: flex;
-    flex-direction: column;
-    gap: var.$spacing-1;
+.header {
+  display: grid;
+  gap: 10px;
 }
 
-.buttons{
-    display: flex;
-    justify-content: space-between;
-    gap: var.$spacing-2; // небольшой зазор, чтобы кнопки не слипались
+.mainText {
+  max-width: 10ch;
 }
 
-.block{
-    display: flex;
-    flex-direction: column;
-    gap: var.$spacing-3;
-}
-
-.mainText{
-    color: var.$dark-main-text
-}
-
-.basicText{
-    color: var.$dark-basic-text;
-
-    &.desc{
-        opacity: 0.6;
-    }
-}
-
-.stars{
-    display: flex;
-    gap: 8px;
-}
-
-.errorText {
-    color: #ff4d4f;
-    margin-top: 4px;
-}
-
-// Новый класс для вертикального расположения контента внутри кнопки-опции
-.optionContent {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+.muted {
+  color: var(--app-text-muted);
 }
 
 .form {
-    display: flex;
-    flex-direction: column;
-    gap: var.$spacing-3;
+  display: grid;
+  gap: 14px;
+}
+
+.card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 24px;
+  background: var(--app-bg-elevated);
+  box-shadow: var(--app-shadow-soft);
+  animation: rise 340ms ease both;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.optionContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.optionContent svg {
+  width: 18px;
+  height: 18px;
+}
+
+.errorText {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.12);
+  font-size: 13px;
+  font-weight: 700;
+  animation: shake 260ms ease both;
+}
+
+@media (min-width: 860px) {
+  .form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form > :last-child,
+  .errorText {
+    grid-column: 1 / -1;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
 }

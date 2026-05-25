@@ -1,100 +1,113 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import styles from './LoginPage.module.scss'
-import Substrate from '../../components/Substrate/Substrate';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button/Button';
 import Input from '../../components/Input/Input';
 import Typography from '../../components/Typography/Typography';
-import useAuthUser from '../../store/useAuthStore';
 import PageLayout from '../../components/PageLayout/PageLayout';
-import { useEffect } from 'react';
-
+import useAuthUser from '../../store/useAuthStore';
+import styles from './LoginPage.module.scss';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const savedEmail = localStorage.getItem('remembered-email') || '';
+  const [form, setForm] = useState({ email: savedEmail, password: '' });
+  const [remember, setRemember] = useState(Boolean(savedEmail));
   const [error, setError] = useState('');
-  const login = useAuthUser((state) => state.login)
-  const isLoading = useAuthUser((state) => state.isLoading)
-  const aErorr = useAuthUser((state) => state.error)
+  const login = useAuthUser((state) => state.login);
+  const isLoading = useAuthUser((state) => state.isLoading);
+  const serverError = useAuthUser((state) => state.error);
+  const clearError = useAuthUser((state) => state.clearError);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
+
+  const handleChange = (event) => {
+    setForm({ ...form, [event.target.name]: event.target.value });
     setError('');
   };
 
-  const clearError = useAuthUser((state) => state.clearError)
-  useEffect(() => {
-    clearError()
-  }, [])
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { email, password } = form;
-
-    
-
-    if (!email || !password) {
-      setError('Заполните все поля');
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!form.email || !form.password) {
+      setError('Заполните email и пароль.');
       return;
     }
-    
-    await login(email, password)
-    
-    const isAuth = useAuthUser.getState().isAuthenticated
-    if (isAuth){
+
+    const data = await login(form.email, form.password);
+    if (data) {
+      if (remember) localStorage.setItem('remembered-email', form.email);
+      else localStorage.removeItem('remembered-email');
       navigate('/habits');
     }
-    
-    
   };
 
-  const errorButton = `${styles.button} ${styles.error}`
-
   return (
-    <PageLayout className={styles.centeredPage}>
-      <div className={styles.circle1} />
-      <div className={styles.circle2} />
-      <div className={styles.circle3} />
-      <div className={styles.circle4} />
-      <div className={styles.page}>
-      <Typography variant='headline1' className={styles.auth}>Авторизация</Typography>
-      <Substrate variant='form' data-testid="login-form">
-        <form onSubmit={handleSubmit}>
-          <div className={styles.form}>
-          
-      <Input
-      name="email"
-      type="email"
-      placeholder="Эл. почта"
-      value={form.email}
-      onChange={handleChange}
-      data-testid="email-input"
-      />
-      <Input
-      name="password"
-      type="password"
-      placeholder="Пароль"
-      value={form.password}
-      onChange={handleChange}
-      data-testid="password-input"
-      />
+    <PageLayout className={styles.centeredPage} data-testid="login-page">
+      <section className={styles.hero} data-testid="login-hero">
+        <span className={styles.kicker} data-testid="login-kicker">
+          AI-Powered Habit Tracker
+        </span>
+        <Typography variant="headline1" className={styles.title} data-testid="login-title">
+          Вход в ритм дня
+        </Typography>
+        <Typography variant="body1" className={styles.subtitle} data-testid="login-subtitle">
+          Привычки, погода и ежедневные AI-подсказки в одном мобильном дашборде.
+        </Typography>
+      </section>
 
-          {error && <p className={styles.error} data-testid="validate-error">{error}</p>}
-          {aErorr && <p className={styles.error} data-testid="server-error">{aErorr}</p>}
-          <div className={styles.Buttons}>
-            <Button type="submit" variant='form' disabled={isLoading} data-testid="login-button">Войти</Button>
-            <Link to="/register" className={styles.link} data-testid="register-link">Регистрация</Link>
-          </div>
-          </div>
+      <section className={styles.card} data-testid="login-form-card">
+        <form onSubmit={handleSubmit} className={styles.form} data-testid="login-form">
+          <Input
+            name="email"
+            type="email"
+            label="Email"
+            value={form.email}
+            onChange={handleChange}
+            autoComplete="email"
+            data-testid="email-input"
+          />
+          <Input
+            name="password"
+            type="password"
+            label="Пароль"
+            value={form.password}
+            onChange={handleChange}
+            autoComplete="current-password"
+            data-testid="password-input"
+          />
+
+          <label className={styles.remember} data-testid="remember-me-row">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(event) => setRemember(event.target.checked)}
+              data-testid="remember-me-checkbox"
+            />
+            <span data-testid="remember-me-label">Запомнить меня</span>
+          </label>
+
+          {error && (
+            <p className={styles.error} data-testid="validate-error">
+              {error}
+            </p>
+          )}
+          {serverError && (
+            <p className={styles.error} data-testid="server-error">
+              {serverError}
+            </p>
+          )}
+
+          <Button type="submit" variant="form" loading={isLoading} data-testid="login-button">
+            Войти
+          </Button>
+          <Link to="/register" className={styles.link} data-testid="register-link">
+            Создать аккаунт
+          </Link>
         </form>
-        </Substrate>
-        </div>
-          
-        
-      </PageLayout>
+      </section>
+    </PageLayout>
   );
 };
-
 
 export default LoginPage;

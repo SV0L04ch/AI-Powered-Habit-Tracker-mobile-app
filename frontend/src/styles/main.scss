@@ -1,27 +1,182 @@
-@use './abstracts/_variables.scss' as var;
+@use './base/fonts';
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  box-sizing: border-box;
 }
 
-:root,
-[data-theme="dark"] {
-    --app-background: #{var.$dark-background};
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --app-bg: #f8fafc;
+  --app-bg-elevated: rgba(255, 255, 255, 0.88);
+  --app-bg-soft: #eef4ff;
+  --app-text: #0b1020;
+  --app-text-muted: #667085;
+  --app-border: rgba(15, 23, 42, 0.1);
+  --app-border-strong: rgba(15, 23, 42, 0.18);
+  --app-primary: #0b1020;
+  --app-primary-contrast: #ffffff;
+  --app-accent: #42d392;
+  --app-accent-2: #00b7ff;
+  --app-danger: #ef4444;
+  --app-warning: #f59e0b;
+  --app-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  --app-shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --app-radius: 24px;
+  --app-radius-sm: 16px;
+  --app-radius-xs: 12px;
+  --app-transition: 180ms ease;
+  background: var(--app-bg);
+  color: var(--app-text);
 }
 
-[data-theme="light"]{
-    --app-background: #{var.$light-background};
-    --app-text: #{var.$light-text};
+:root[data-theme='dark'] {
+  --app-bg: #090b12;
+  --app-bg-elevated: rgba(20, 24, 36, 0.88);
+  --app-bg-soft: #141827;
+  --app-text: #f8fafc;
+  --app-text-muted: #a2a9b8;
+  --app-border: rgba(255, 255, 255, 0.1);
+  --app-border-strong: rgba(255, 255, 255, 0.18);
+  --app-primary: #ffffff;
+  --app-primary-contrast: #0b1020;
+  --app-shadow: 0 18px 45px rgba(0, 0, 0, 0.34);
+  --app-shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
-body{
-    background-color: var(--app-background);
-    color: var(--app-text);
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--app-bg);
+  scroll-behavior: smooth;
 }
 
-.container{
-    width: 338px;
-    margin: 0 auto;
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(66, 211, 146, 0.16), transparent 34vw),
+    radial-gradient(circle at 100% 10%, rgba(0, 183, 255, 0.14), transparent 38vw),
+    var(--app-bg);
+  color: var(--app-text);
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(0, 183, 255, 0.35);
+  outline-offset: 3px;
+}
+
+a {
+  color: inherit;
+}
+
+.container {
+  width: min(100%, 1160px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0 clamp(14px, 3vw, 32px);
+  position: relative;
+}
+
+.route-shell {
+  animation: page-enter 320ms ease both;
+}
+
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: var(--app-bg);
+  animation: splash-out 520ms ease 880ms forwards;
+}
+
+.splash-card {
+  width: 124px;
+  height: 124px;
+  border-radius: 32px;
+  display: grid;
+  place-items: center;
+  color: var(--app-primary-contrast);
+  background: linear-gradient(135deg, var(--app-primary), #1d4ed8 50%, var(--app-accent));
+  box-shadow: var(--app-shadow);
+  animation: splash-pulse 900ms ease-in-out infinite alternate;
+}
+
+.splash-mark {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  border: 3px solid currentColor;
+  position: relative;
+}
+
+.splash-mark::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 11px;
+  left: 13px;
+  top: 16px;
+  border-left: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
+  transform: rotate(-45deg);
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splash-pulse {
+  from {
+    transform: scale(0.96);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
 }

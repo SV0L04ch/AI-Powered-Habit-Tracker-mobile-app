@@ -1,43 +1,70 @@
-@use "../../../../styles/abstracts/variables" as var;
-
 .label {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
   cursor: pointer;
-  position: relative;
 }
 
 .input {
   position: absolute;
   opacity: 0;
-  width: 0;
-  height: 0;
   pointer-events: none;
 }
 
 .checkmark {
-  width: 15px;
-  height: 15px;
-  border-radius: 2px;
-  background-color: var.$dark-buttons;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-  color: white; 
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--app-border-strong);
+  color: var(--app-primary-contrast);
+  background: var(--app-bg-elevated);
+  box-shadow: inset 0 0 0 0 var(--app-primary);
+  transition:
+    transform var(--app-transition),
+    border-color var(--app-transition),
+    background var(--app-transition),
+    box-shadow var(--app-transition);
 }
 
 .input:checked + .checkmark {
-  background-color: var.$dark-buttons; 
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--app-primary), #2563eb, var(--app-accent));
+  box-shadow: var(--app-shadow-soft);
+}
+
+.label:active .checkmark {
+  transform: scale(0.9);
+}
+
+.input:disabled + .checkmark {
+  opacity: 0.6;
 }
 
 .icon {
-  display: none; 
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
 }
 
-.input:checked + .checkmark .icon {
-  display: block;
+.loading .checkmark {
+  cursor: wait;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

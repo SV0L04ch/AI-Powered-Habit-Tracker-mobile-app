@@ -1,13 +1,42 @@
-@use '../../styles/abstracts/mixins' as mix;
-
 .typography {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  letter-spacing: 0;
 }
 
-.headline1 {@include mix.headline1}
-.headline2 {@include mix.headline2}
-.headline3 {@include mix.headline3}
-.body1 {@include mix.body1}
-.body2 {@include mix.body2}
-.caption {@include mix.caption}
+.headline1 {
+  font-size: clamp(30px, 9vw, 48px);
+  line-height: 1.02;
+  font-weight: 800;
+}
+
+.headline2 {
+  font-size: clamp(21px, 6vw, 30px);
+  line-height: 1.12;
+  font-weight: 760;
+}
+
+.headline3 {
+  font-size: clamp(17px, 4.8vw, 22px);
+  line-height: 1.18;
+  font-weight: 720;
+}
+
+.body1 {
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 520;
+}
+
+.body2 {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 560;
+}
+
+.caption {
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 560;
+}

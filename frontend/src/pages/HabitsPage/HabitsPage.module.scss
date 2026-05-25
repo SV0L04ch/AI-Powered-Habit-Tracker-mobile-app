@@ -1,60 +1,268 @@
-@use "../../styles/abstracts/variables" as var;
-
-.desc{
-    display: flex;
-    flex-direction: column;
-    gap: var.$base-spacing;
-}
-
-.captions{
-    display: flex;
-    gap: var.$spacing-2;
-}
-
-.checkDesc{
-    display: flex;
-    gap: var.$spacing-2;
-    align-items: center;
-}
-
-.blockHabits{
-    display: flex;
-    gap: var.$spacing-1;
-    flex-direction: column;
-}
-
-.insightContainer {
+.header {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  text-align: center;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.modalActions {
+.muted {
+  color: var(--app-text-muted);
+}
+
+.rateBadge {
+  width: 66px;
+  height: 66px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  color: var(--app-primary-contrast);
+  background: linear-gradient(135deg, var(--app-primary), #2563eb, var(--app-accent));
+  box-shadow: var(--app-shadow);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 12px;
+}
+
+.summaryCard {
+  min-height: 124px;
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 24px;
+  display: grid;
+  align-content: space-between;
+  gap: 12px;
+  background: var(--app-bg-elevated);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.summaryCard strong {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.summaryCard img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.summaryLabel {
+  color: var(--app-text-muted);
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.progressTrack {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.16);
+}
+
+.progressTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--app-accent), var(--app-accent-2));
+  transition: width 420ms ease;
+}
+
+.listSection {
+  display: grid;
+  gap: 14px;
+}
+
+.sectionHeader {
   display: flex;
-  justify-content: center;
-  margin-top: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sectionHeader span {
+  min-width: 36px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--app-text-muted);
+  background: var(--app-bg-elevated);
+  border: 1px solid var(--app-border);
+  font-weight: 800;
+}
+
+.virtualList {
+  height: min(58svh, 640px);
+  overflow: auto;
+  padding: 2px 2px 12px;
+  display: block;
+  scroll-padding-bottom: 120px;
+}
+
+.habitCard {
+  min-height: 116px;
+  margin-bottom: 16px;
+  padding: 14px;
+  position: relative;
+  border: 1px solid var(--app-border);
+  border-radius: 24px;
+  background: var(--app-bg-elevated);
+  box-shadow: var(--app-shadow-soft);
+  animation: cardIn 360ms ease both;
+  touch-action: pan-y;
+}
+
+.habitCard::before {
+  content: 'Архив';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 0 24px 24px 0;
+  color: #fff;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  opacity: 0;
+  transform: translateX(12px);
+  transition:
+    opacity var(--app-transition),
+    transform var(--app-transition);
+  z-index: -1;
+}
+
+.habitCard:active {
+  transform: translateX(-8px);
+}
+
+.habitCard:active::before {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.habitMain {
+  display: flex;
+  gap: 12px;
+}
+
+.habitContent {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.habitTopline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.habitTopline h3 {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .menuButton {
-  background: none;
-  border: none;
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border: 0;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: var(--app-text-muted);
+  background: var(--app-bg-soft);
   cursor: pointer;
-  padding: 0 8px;
+  font-size: 22px;
   line-height: 1;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-  &:hover {
-    opacity: 1;
+}
+
+.menuButton:active {
+  transform: scale(0.92);
+}
+
+.habitMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--app-text-muted);
+  font-size: 12px;
+  font-weight: 680;
+}
+
+.habitMeta span {
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: var(--app-bg-soft);
+}
+
+.emptyState {
+  padding: 22px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: 24px;
+  display: grid;
+  gap: 12px;
+  background: var(--app-bg-elevated);
+}
+
+.error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.12);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.insightContainer {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.skeletonList {
+  display: grid;
+  gap: 14px;
+}
+
+.skeletonCard,
+.skeletonBlock {
+  min-height: 92px;
+  border-radius: 24px;
+  background: linear-gradient(90deg, var(--app-bg-soft), var(--app-bg-elevated), var(--app-bg-soft));
+  background-size: 220% 100%;
+  animation: shimmer 1.1s linear infinite;
+}
+
+.skeletonBlock {
+  min-height: 74px;
+}
+
+@media (min-width: 768px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .virtualList {
+    height: min(64svh, 720px);
   }
 }
 
-.habitWrap{
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -220% 0;
+  }
 }

@@ -1,105 +1,108 @@
-@use '../../styles/abstracts/_variables.scss' as var;
-
-.auth{
-  color: var.$dark-main-text;
-}
-
-.link {
-  font-size: var.$buttons-font-size;
-  color: var.$dark-main-text;
-  text-decoration: none;
-}
-
-.circle1 {
-  position: absolute;
-  width: 108px;
-  height: 108px;
-  left: 94px;
-  top: -36px;
-  border-radius: var.$circle;          
-  background: var.$dark-decorate;        
-  pointer-events: none;        
-  z-index: 0;                    
-  box-shadow: var.$box-shadow;
-  };
-  
-.circle2 {
-  position: absolute;
-  width: 217px;
-  height: 217px;
-  left: 281px;
-  top: -68px;
-  border-radius: var.$circle;
-  background: var.$dark-decorate;
-  pointer-events: none;        
-  z-index: 0;                    
-  box-shadow: var.$box-shadow;
-  };
-
-.circle3 {
-  position: absolute;
-  width: 217px;
-  height: 217px;
-  left: -85px;
-  top: 600px;
-  border-radius: var.$circle;
-  background: var.$dark-decorate;
-  pointer-events: none;        
-  z-index: 0;                    
-  box-shadow: var.$box-shadow;
-  };
-  
-.circle4 {
-  position: absolute;
-  width: 108px;
-  height: 108px;
-  left: 360px;
-  top: 840px;
-  border-radius: var.$circle;
-  background: var.$dark-decorate;
-  pointer-events: none;        
-  z-index: 0;                    
-  box-shadow: var.$box-shadow;     
-  };
-  
-.page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;    
+.centeredPage {
+  min-height: 100svh;
   justify-content: center;
+  gap: 22px;
+}
+
+.hero {
+  display: grid;
   gap: 10px;
+  animation: rise 420ms ease both;
+}
+
+.kicker {
+  width: fit-content;
+  padding: 7px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  color: var(--app-text-muted);
+  background: var(--app-bg-elevated);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.title {
+  max-width: 9ch;
+}
+
+.subtitle {
+  max-width: 34ch;
+  color: var(--app-text-muted);
+}
+
+.card {
+  border: 1px solid var(--app-border);
+  border-radius: 30px;
+  padding: 20px;
+  background: var(--app-bg-elevated);
+  box-shadow: var(--app-shadow);
+  animation: rise 500ms ease 80ms both;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.remember {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.remember input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--app-primary);
+}
+
+.error,
+.success {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 650;
+  animation: shake 260ms ease both;
 }
 
 .error {
-  font-size: '13px';
-  color: '#ff3b30';
-  margin-top: '-12px';
-  margin-bottom: '12px';
-  text-align: 'left';
-};
-
-.centeredPage{
-  min-height: 100vh;
-  justify-content: center;
-  overflow: hidden;
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.12);
 }
 
-form{
-  width: 100%;
+.success {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.14);
 }
 
-.form{
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  align-items: center;
+.link {
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--app-text-muted);
+  font-weight: 700;
+  text-decoration: none;
 }
 
-.Buttons{
-    width: 195px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
 }
 
+@keyframes shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}

@@ -2,22 +2,28 @@ import React from 'react';
 import styles from './Checkbox.module.scss';
 import icons from '../../../../lib/icons';
 
-const Checkbox = ({ checked, onChange, disabled = false, ...rest }) => {
+const Checkbox = ({ checked, onChange, disabled = false, loading = false, ...rest }) => {
+  const testId = rest['data-testid'];
+
   return (
-    <label className={styles.label} {...rest}>
+    <label
+      className={`${styles.label} ${loading ? styles.loading : ''}`.trim()}
+      data-testid={testId}
+    >
       <input
         type="checkbox"
         className={styles.input}
         checked={checked}
-        onChange={(e) => {
-          if (!disabled && onChange) {
-            onChange(e.target.checked); // Передаём новое значение наружу
+        onChange={(event) => {
+          if (!disabled && !loading && onChange) {
+            onChange(event.target.checked);
           }
         }}
-        disabled={disabled}
+        disabled={disabled || loading}
+        data-testid={testId ? `${testId}-native` : undefined}
       />
       <span className={styles.checkmark}>
-        {checked && <icons.Check className={styles.icon} />}
+        {loading ? <span className={styles.spinner} /> : checked && <icons.Check className={styles.icon} />}
       </span>
     </label>
   );

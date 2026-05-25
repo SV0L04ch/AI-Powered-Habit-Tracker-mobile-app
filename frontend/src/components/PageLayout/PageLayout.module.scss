@@ -1,8 +1,15 @@
-@use '../../styles/abstracts/variables' as var;
+.page {
+  min-height: 100svh;
+  padding: max(18px, env(safe-area-inset-top)) 0 104px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
 
-.page{
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    padding-top: var.$spacing-2;
+@media (min-width: 768px) {
+  .page {
+    padding-top: 32px;
+    padding-bottom: 118px;
+    gap: 28px;
+  }
 }

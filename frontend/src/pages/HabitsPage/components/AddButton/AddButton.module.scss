@@ -1,22 +1,31 @@
-@use "../../../../styles/abstracts/variables" as var;
-
-.icon {
-  width: 20px;
-  height: 20px;
-  color: var.$dark-main-text;
+.addButton {
+  position: fixed;
+  right: max(18px, calc((100vw - 520px) / 2 + 18px));
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 82px);
+  z-index: 21;
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  color: var(--app-primary-contrast);
+  background: linear-gradient(135deg, var(--app-primary), #2563eb 58%, var(--app-accent));
+  box-shadow: var(--app-shadow);
+  cursor: pointer;
+  transition:
+    transform var(--app-transition),
+    box-shadow var(--app-transition);
 }
 
-.addButton {
-  bottom: calc(20px + 60px + 20px);
-  right: 32px;
-  position: fixed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  background-color: var.$dark-buttons;
-  border-radius: var.$circle;
-  border: none;
-  cursor: pointer;
+.addButton:active {
+  transform: scale(0.92);
+}
+
+.icon {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  margin: 0;
 }
