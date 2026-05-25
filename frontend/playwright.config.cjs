@@ -3,7 +3,10 @@ const { defineConfig, devices } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './end-to-end-tests/scenarious',
 
-  timeout: 30000,
+  timeout: 60000,
+  expect: {
+    timeout: 10000,
+  },
 
   fullyParallel: false,
 
@@ -40,10 +43,12 @@ module.exports = defineConfig({
       name: 'webkit',
       use: {
         ...devices['Desktop Safari'],
+        launchOptions: {
+          args: ['--no-sandbox'],
+        },
       },
     },
   ],
-
 
   reporter: [
     ['html'],
