@@ -1,40 +1,59 @@
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
-module.exports = defineConfig({
-  testDir: './end-to-end-tests/scenarious',
+export default defineConfig({
+  testDir: './end-to-end-tests',
 
   timeout: 60000,
-  expect: {
-    timeout: 10000,
-  },
 
   fullyParallel: false,
 
-  forbidOnly: !!process.env.CI,
+  workers: 1,
 
   retries: process.env.CI ? 2 : 0,
 
-  workers: 1,
-
   use: {
     baseURL: 'http://localhost:5173',
-    headless: !!process.env.CI,
+    headless: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
 
   projects: [
+    // FULL E2E
     {
       name: 'chromium',
+      testMatch: /scenarious\/.*\.spec\.js/,
       use: {
         ...devices['Desktop Chrome'],
       },
     },
-  ],
 
-  reporter: [
-    ['html'],
-    ['list'],
-  ]
+    // FIREFOX SMOKE
+    {
+      name: 'firefox',
+      testMatch: /smoke\/.*\.spec\.js/,
+      use: {
+        ...devices['Desktop Firefox'],
+      },
+    },
+
+    // WEBKIT SMOKE
+    {
+      name: 'webkit',
+      testMatch: /smoke\/.*\.spec\.js/,
+      use: {
+        ...devices['Desktop Safari'],
+      },
+    },
+
+    // MOBILE
+    {
+      name: 'mobile-chrome',
+      testMatch: /smoke\/.*\.spec\.js/,
+      use: {
+        ...devices['Pixel 5'],
+      },
+    },
+  ],
 });
