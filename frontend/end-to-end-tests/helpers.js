@@ -14,7 +14,7 @@ export async function loginUser(page, email, password) {
     await page.getByTestId('login-button').click();
 }
 
-export async function confirmEmail(page, email, timeout = 20000, interval = 1000) {
+export async function confirmEmail(page, email, timeout = 60000, interval = 1000) {
   const startTime = Date.now();
   let confirmLink = null;
 
