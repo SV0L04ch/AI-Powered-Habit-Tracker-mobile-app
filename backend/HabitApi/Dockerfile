@@ -8,6 +8,10 @@ WORKDIR /src
 COPY ["HabitApi.csproj", "."]
 RUN dotnet restore "./HabitApi.csproj"
 COPY . .
+
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
 RUN dotnet build "./HabitApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish

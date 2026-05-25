@@ -52,20 +52,20 @@ function HabitsPage() {
   };
 
   const handleMenuClick = (e, habitId) => {
-  e.stopPropagation();
-  if (menuData?.habitId === habitId) {
-    setMenuData(null);
-  } else {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMenuData({
-      habitId,
-      x: rect.right - 150,  
-      y: rect.top + 20,
-    });
-  }
-};
+    e.stopPropagation();
+    if (menuData?.habitId === habitId) {
+      setMenuData(null);
+    } else {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setMenuData({
+        habitId,
+        x: rect.right - 150,  
+        y: rect.top + 20,
+      });
+    }
+  };
 
-const closeMenu = () => setMenuData(null);
+  const closeMenu = () => setMenuData(null);
 
   const handleDelete = async (id) => {
     if (window.confirm('Удалить привычку?')) {
@@ -87,15 +87,18 @@ const closeMenu = () => setMenuData(null);
   const completedHabits = habits.filter((h) => h.is_active === false);
 
   const renderHabitCard = (habit, isCompleted = false) => (
-    <Substrate key={habit.id} variant="secondary" data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}`}>
+    <Substrate 
+      key={habit.id} 
+      variant="secondary" 
+      data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}`}
+    >
       <div className={styles.habitWrap}>
         <div className={styles.checkDesc}>
           <Checkbox 
             checked={!!habit.is_active}
             onChange={() => !isCompleted && handleToggleActive(habit)}
             disabled={isCompleted}
-            data-testid={`${isCompleted ? 'inactive' : 'active'}-habit${habit.id}-checkbox`}
-            data-testid={`contextmenu-${habit.id}`}
+            data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}-checkbox`}
           />
           <div className={styles.desc}>
             <Typography variant="headline3" data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}-name`}>
@@ -115,18 +118,32 @@ const closeMenu = () => setMenuData(null);
           <button
             className={styles.menuButton}
             onClick={(e) => handleMenuClick(e, habit.id)}
+            data-testid={`options-menu-btn-${habit.id}`}   // уникальный для каждой привычки
           >
             ⋮
           </button>
           {menuData?.habitId === habit.id && (
             <ContextMenu
               items={[
-                { label: 'Редактировать', onClick: () => { setEditingHabit(habit); closeMenu(); } },
-                { label: 'Удалить', onClick: () => { handleDelete(habit.id); closeMenu(); } },
-                { label: 'Совет дня', onClick: () => { fetchSupport(habit.id, habit.name); closeMenu(); } },
+                { 
+                  label: 'Редактировать', 
+                  onClick: () => { setEditingHabit(habit); closeMenu(); },
+                  testId: 'edit-habit-btn'
+                },
+                { 
+                  label: 'Удалить', 
+                  onClick: () => { handleDelete(habit.id); closeMenu(); },
+                  testId: 'delete-habit-btn'
+                },
+                { 
+                  label: 'Совет дня', 
+                  onClick: () => { fetchSupport(habit.id, habit.name); closeMenu(); },
+                  testId: 'daily-tip-btn'
+                },
               ]}
               onClose={closeMenu}
               position={{ x: menuData.x, y: menuData.y }}
+              data-testid="context-menu"   // идентификатор для самого меню
             />
           )}
         </div>
@@ -145,7 +162,7 @@ const closeMenu = () => setMenuData(null);
         Твой прогресс сегодня: {habits.length > 0 ? `${habits.length}/5 привычек` : 'Нет данных'}
       </Typography>
 
-      <div className={styles.blockHabits}>
+      <div className={styles.blockHabits} data-testid="active-habits-section">
         <Typography variant="headline2">Активные привычки</Typography>
         {activeHabits.length === 0 && !isHabitsLoading && isAuthenticated && (
           <Typography variant="body2">Пока нет активных привычек</Typography>
@@ -153,7 +170,7 @@ const closeMenu = () => setMenuData(null);
         {activeHabits.map(habit => renderHabitCard(habit, false))}
       </div>
 
-      <div className={styles.blockHabits}>
+      <div className={styles.blockHabits} data-testid="completed-habits-section">
         <Typography variant="headline2">Завершены</Typography>
         {completedHabits.length === 0 && !isHabitsLoading && isAuthenticated && (
           <Typography variant="body2">Нет завершённых привычек</Typography>

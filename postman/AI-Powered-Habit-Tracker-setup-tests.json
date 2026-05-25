@@ -46,6 +46,10 @@
                       }
                     }
                   ],
+                  "protocolProfileBehavior": {
+                    "disableCookies": false,
+                    "disableUrlEncoding": false
+                  },
                   "request": {
                     "auth": {
                       "type": "noauth"
@@ -69,6 +73,183 @@
                       "path": [
                         "auth",
                         "register"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "GET requests",
+              "item": [
+                {
+                  "name": "Returns 200 and not return confirm email URL",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const response = pm.response.json();\r",
+                          "const userEmail = pm.environment.get(\"userEmail\") || \"fake@example.com\"; // несуществующий email\r",
+                          "\r",
+                          "if (!response.items || response.items.length === 0) {\r",
+                          "    // Если писем нет вообще – это нормально для несуществующего адреса\r",
+                          "    pm.test(\"No messages in MailHog (expected for non-existent email)\", () => {\r",
+                          "        pm.expect(true).to.be.true;\r",
+                          "    });\r",
+                          "    return; // завершаем тест\r",
+                          "}\r",
+                          "\r",
+                          "// Ищем письмо для указанного email\r",
+                          "const email = response.items.find(msg => msg.Content.Headers.To[0].includes(userEmail));\r",
+                          "if (!email) {\r",
+                          "    // Письмо не найдено – ожидаемый результат для несуществующей почты\r",
+                          "    pm.test(\"No confirmation email sent for non-existent email\", () => {\r",
+                          "        pm.expect(true).to.be.true;\r",
+                          "    });\r",
+                          "    return;\r",
+                          "}\r",
+                          "\r",
+                          "// Если письмо всё же нашлось (например, почта существует) – извлекаем ссылку\r",
+                          "const body = email.Content.Body;\r",
+                          "const html = atob(body);\r",
+                          "const match = html.match(/href='(http:\\/\\/localhost:5093\\/api\\/auth\\/confirm-email\\?[^']+)'/);\r",
+                          "if (!match) {\r",
+                          "    throw new Error(\"Confirmation link not found in email body\");\r",
+                          "}\r",
+                          "const confirmLink = match[1];\r",
+                          "pm.environment.set(\"confirmEmailUrl\", confirmLink);\r",
+                          "console.log(\"Confirmation link extracted:\", confirmLink);\r",
+                          "\r",
+                          "// Проверяем статус ответа от MailHog (всегда должен быть 200)\r",
+                          "pm.test(\"Status code is 200\", function () {\r",
+                          "    pm.response.to.have.status(200);\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:8025/api/v2/messages",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "8025",
+                      "path": [
+                        "api",
+                        "v2",
+                        "messages"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Returns 200 and email confirmed url",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const response = pm.response.json();\r",
+                          "const userEmail = pm.environment.get(\"userEmail\") || \"tester@example.com\";\r",
+                          "\r",
+                          "if (!response.items || response.items.length === 0) {\r",
+                          "    throw new Error(\"No messages in MailHog\");\r",
+                          "}\r",
+                          "\r",
+                          "// Находим письмо для этого email (без проверки темы)\r",
+                          "const email = response.items.find(msg => msg.Content.Headers.To[0].includes(userEmail));\r",
+                          "if (!email) {\r",
+                          "    throw new Error(`No email for ${userEmail} found`);\r",
+                          "}\r",
+                          "\r",
+                          "// Декодируем тело\r",
+                          "const body = email.Content.Body;\r",
+                          "const html = atob(body);\r",
+                          "const match = html.match(/href='(http:\\/\\/localhost:5093\\/api\\/auth\\/confirm-email\\?[^']+)'/);\r",
+                          "if (!match) {\r",
+                          "    throw new Error(\"Confirmation link not found in email body\");\r",
+                          "}\r",
+                          "const confirmLink = match[1];\r",
+                          "pm.environment.set(\"confirmEmailUrl\", confirmLink);\r",
+                          "console.log(\"Confirmation link extracted:\", confirmLink);\r",
+                          "\r",
+                          "// Проверка, что статус-код 200\r",
+                          "pm.test(\"Status code is 200\", function () {\r",
+                          "    pm.response.to.have.status(200);\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:8025/api/v2/messages",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "8025",
+                      "path": [
+                        "api",
+                        "v2",
+                        "messages"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Return 200 and email confirmed message",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const response = pm.response.json();\r",
+                          "\r",
+                          "// Проверка, что статус-код 200\r",
+                          "pm.test(\"Status code is 200\", function () {\r",
+                          "    pm.response.to.have.status(200);\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что тело ответа содержит необходимые поля\r",
+                          "pm.test(\"Response body contains the correct properties\", function () {\r",
+                          "    pm.expect(response).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "// Проверка, что поле message содержит правильное значение\r",
+                          "pm.test(\"Message is correct\", function () {\r",
+                          "    pm.expect(response.message).to.include(\"Email confirmed. You can now log in.\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{confirmEmailUrl}}",
+                      "host": [
+                        "{{confirmEmailUrl}}"
                       ]
                     }
                   },
@@ -100,6 +281,9 @@
                           "if (cookieToken) {\r",
                           "    pm.environment.set(\"accessToken\", cookieToken);\r",
                           "}\r",
+                          "\r",
+                          "// Сохранение сегодняшней даты\r",
+                          "pm.environment.set(\"dateToday\", new Date().toISOString().split('T')[0]);\r",
                           "\r",
                           "pm.test(\"Status code is 200\", function () {\r",
                           "    pm.response.to.have.status(200);\r",

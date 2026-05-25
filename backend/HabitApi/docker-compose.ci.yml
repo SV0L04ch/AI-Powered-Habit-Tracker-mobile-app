@@ -1,0 +1,87 @@
+services:
+  # API
+  api:
+    build: .
+    container_name: habit_api
+    ports:
+      - "5093:8080"
+    dns:
+      - 8.8.8.8
+    extra_hosts:
+      - "api.openweathermap.org:141.95.47.139"
+    depends_on:
+      db:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+      redis:
+        condition: service_started
+      weather_mock:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=habit_tracker
+      - DB_USER=habit_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - WeatherApi__BaseUrl=http://weather_mock:8080
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - AI_MODEL=${AI_MODEL:-lakomoor/vikhr-llama-3.2-1b-instruct:q5_k_m}
+      - AI_API_KEY=${AI_API_KEY}
+      - EmailSettings__SmtpServer=mailhog
+      - EmailSettings__SmtpPort=1025
+      - EmailSettings__SenderEmail=noreply@habittracker.local
+      - EmailSettings__SenderName=Habit Tracker
+      - EmailSettings__Login=
+      - EmailSettings__Password=
+      - EmailSettings__EnableSsl=false
+      - AppBaseUrl=http://localhost:5093
+      - REDIS_CONNECTION=redis:6379
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: habit_tracker_db
+    environment:
+      POSTGRES_USER: habit_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: habit_tracker
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U habit_user -d habit_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: habit_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: habit_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  weather_mock:
+    build:
+      context: ./mocks/mock-weather
+      dockerfile: Dockerfile.mock
+    container_name: weather-mock
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -10,7 +10,6 @@
 .idea/
 appsettings.Development.json
 appsettings.Production.json
-Migrations/
 *.db
 *.db-shm
 *.db-wal

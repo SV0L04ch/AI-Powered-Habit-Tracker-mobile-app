@@ -2,68 +2,143 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [ main, master, QA ]
+    branches: [ main, feature/github-actions-integration ]
   pull_request:
-    branches: [ main, master, QA ]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   playwright:
-    timeout-minutes: 15
     runs-on: ubuntu-latest
 
+    timeout-minutes: 60
+
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Start all services with Docker Compose
-        run: docker compose up -d
-
-      - name: Wait for API to be ready
+      - name: Create backend .env
         run: |
-          for i in {1..30}; do
-            if curl -s http://localhost:5093/health; then
-              echo "API is ready"
-              break
-            fi
-            echo "Waiting for API... ($i/30)"
-            sleep 2
-          done
+          cat << EOF > backend/HabitApi/.env
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+          AI_API_KEY=${{ secrets.AI_API_KEY }}
+          EOF
 
-      - name: Reset database
+      - name: Create frontend .env
         run: |
-          for i in {1..10}; do
+          cat << EOF > frontend/.env
+          VITE_API_BASE_URL=http://localhost:5093
+          EOF
+
+      - name: Start dependencies
+        run: |
+          docker compose \
+            -f backend/HabitApi/docker-compose.ci.yml \
+            up -d db redis mailhog
+
+      - name: Wait for DB
+        run: |
+          for i in {1..60}; do
             if docker exec habit_tracker_db pg_isready -U habit_user -d habit_tracker; then
-              break
+              echo "DB ready"
+              exit 0
             fi
-            echo "Waiting for DB..."
             sleep 2
           done
-          docker exec habit_tracker_db psql -U habit_user -d habit_tracker -c 'TRUNCATE TABLE "Users", "Habits", "HabitEntries" CASCADE;'
 
-      - uses: actions/setup-node@v4
+          docker logs habit_tracker_db
+          exit 1
+
+      - name: Build SDK image
+        run: |
+          docker build \
+            --target build \
+            -t habit-api-sdk \
+            -f backend/HabitApi/Dockerfile \
+            backend/HabitApi
+
+      - name: Apply migrations
+        run: |
+          docker run --rm \
+            --network container:habit_tracker_db \
+            -e ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=habit_tracker;Username=habit_user;Password=${{ secrets.DB_PASSWORD }}" \
+            habit-api-sdk \
+            sh -c "
+              dotnet ef database update \
+              --project /src/HabitApi.csproj
+            "
+
+      - name: Start API
+        run: |
+          docker compose \
+            -f backend/HabitApi/docker-compose.ci.yml \
+            up -d
+
+      - name: Wait for API
+        run: |
+          for i in {1..90}; do
+            if curl -fs http://localhost:5093/health; then
+              echo "API ready"
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          docker logs habit_tracker_api
+          exit 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-          cache: 'npm'
+          node-version: 20
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
+        working-directory: frontend
         run: npm ci
 
-      - name: Install Playwright browsers (Chromium only)
-        run: npx playwright install chromium --with-deps
-
-      - name: Install wait-on
-        run: npm install -g wait-on
-
-      - name: Start frontend dev server
+      - name: Start frontend
+        working-directory: frontend
         run: |
-          npx vite --port 5173 --host 0.0.0.0 > frontend.log 2>&1 &
-          echo $! > frontend.pid
-          echo "Frontend started with PID $(cat frontend.pid)"
-          sleep 5
-          cat frontend.log
+          npm run dev -- --host 0.0.0.0 > vite.log 2>&1 &
 
-      - name: Wait for frontend to be ready
-        run: npx wait-on --timeout 60000 http://localhost:5173
+      - name: Wait for frontend
+        run: |
+          for i in {1..60}; do
+            if curl -f http://localhost:5173; then
+              echo "Frontend ready"
+              exit 0
+            fi
 
-      - name: Run Playwright tests
-        run: npx playwright test --workers=1
+            sleep 2
+          done
+
+          echo "========= FRONTEND LOGS ========="
+          cat frontend/vite.log
+
+          exit 1
+
+      - name: Run ordered Playwright tests
+        env:
+          CI: true
+        run: npm run e2e-tests:ordered
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          retention-days: 30
+
+      - name: Stop services
+        if: always()
+        run: |
+          docker compose \
+            -f backend/HabitApi/docker-compose.ci.yml \
+            down -v
