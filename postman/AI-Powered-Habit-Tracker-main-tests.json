@@ -2725,6 +2725,314 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "GET requests",
+          "item": [
+            {
+              "name": "Returns 200 and user profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 200\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело ответа содержит необходимые поля \r",
+                      "pm.test(\"Response body contains required properties\", function () {\r",
+                      "    pm.expect(response).to.has.property('email');\r",
+                      "    pm.expect(response).to.has.property('name');\r",
+                      "    pm.expect(response).to.has.property('city');\r",
+                      "    pm.expect(response).to.has.property('habitReminderEnabled');\r",
+                      "    pm.expect(response).to.has.property('habitReminderTime');\r",
+                      "    pm.expect(response).to.has.property('themePreference');\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что значения свойств соответствуют ожиданиям\r",
+                      "pm.test(\"Properties has correct values\", function () {\r",
+                      "    pm.expect(response.email).to.equal('tester@example.com');\r",
+                      "    pm.expect(response.name).to.equal('tester');\r",
+                      "    pm.expect(response.city).to.equal('Екатеринбург');\r",
+                      "    pm.expect(response.habitReminderEnabled).to.equal(true);\r",
+                      "    pm.expect(response.habitReminderTime).to.equal('10:00');\r",
+                      "    pm.expect(response.themePreference).to.equal('dark');\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 401 and error \"Not Auth\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело ответа содержит корректные поля\r",
+                      "pm.test(\"Response body contains correct properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что поля содержат корректные значения\r",
+                      "pm.test(\"Properties contains correct values\", function () {\r",
+                      "    pm.expect(response.title).to.equal(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).to.include(\"A valid access token is required to access\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableCookies": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "PUT requests",
+          "item": [
+            {
+              "name": "Returns 200 and success updated profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 200\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело ответа содержит необходимые поля \r",
+                      "pm.test(\"Response body contains required properties\", function () {\r",
+                      "    pm.expect(response).to.has.property('email');\r",
+                      "    pm.expect(response).to.has.property('name');\r",
+                      "    pm.expect(response).to.has.property('city');\r",
+                      "    pm.expect(response).to.has.property('habitReminderEnabled');\r",
+                      "    pm.expect(response).to.has.property('habitReminderTime');\r",
+                      "    pm.expect(response).to.has.property('themePreference');\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что значения свойств соответствуют ожиданиям\r",
+                      "pm.test(\"Properties has correct values\", function () {\r",
+                      "    pm.expect(response.email).to.equal('tester@example.com');\r",
+                      "    pm.expect(response.name).to.equal('tester');\r",
+                      "    pm.expect(response.city).to.equal('Екатеринбург');\r",
+                      "    pm.expect(response.habitReminderEnabled).to.equal(true);\r",
+                      "    pm.expect(response.habitReminderTime).to.equal('10:00');\r",
+                      "    pm.expect(response.themePreference).to.equal('dark');\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"tester\",\r\n    \"city\": \"Екатеринбург\",\r\n    \"habitReminderEnabled\": true,\r\n    \"habitReminderTime\": \"10:00\",\r\n    \"themePreference\": \"dark\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 400 and error \"Bad request\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 400\r",
+                      "pm.test(\"Status code is 400\", function () {\r",
+                      "    pm.expect(response.status).to.eql(400);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело ответа имеет корректные свойства\r",
+                      "pm.test(\"Response body has correct properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"errors\");\r",
+                      "    pm.expect(response.errors).to.have.property(\"request\");\r",
+                      "    pm.expect(response.errors).to.have.property(\"$.name\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что свойства имеют корректные значения\r",
+                      "pm.test(\"Properties has correct values\", function () {\r",
+                      "    pm.expect(response.title).to.include(\"One or more validation errors occurred\");\r",
+                      "    pm.expect(response.errors[\"request\"][0]).to.include(\"The request field is required.\");\r",
+                      "    pm.expect(response.errors[\"$.name\"][0]).to.include(\"The JSON value could not be converted to\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": 123,\r\n    \"city\": \"Екатеринбург\",\r\n    \"habitReminderEnabled\": true,\r\n    \"habitReminderTime\": \"10:00\",\r\n    \"themePreference\": \"dark\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 401 and error 'Not auth\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус-код 401\r",
+                      "pm.test(\"Status code is 401\", function () {\r",
+                      "    pm.response.to.have.status(401);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело ответа содержит корректные поля\r",
+                      "pm.test(\"Response body contains correct properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"title\");\r",
+                      "    pm.expect(response).to.have.property(\"detail\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что поля содержат корректные значения\r",
+                      "pm.test(\"Properties contains correct values\", function () {\r",
+                      "    pm.expect(response.title).to.equal(\"Unauthorized\");\r",
+                      "    pm.expect(response.detail).to.include(\"A valid access token is required to access\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableCookies": false
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"tester\",\r\n    \"city\": \"Екатеринбург\",\r\n    \"habitReminderEnabled\": true,\r\n    \"habitReminderTime\": \"10:00\",\r\n    \"themePreference\": \"dark\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
     }
   ],
   "auth": {
