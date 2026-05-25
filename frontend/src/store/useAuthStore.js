@@ -103,9 +103,12 @@ const useAuthUser = create(
             ),
           };
           const profile = await updateProfile(payload);
-          useThemeStore.getState().setTheme(normalizeTheme(profile.themePreference));
+          const savedTheme = normalizeTheme(
+            profile.themePreference || payload.themePreference || useThemeStore.getState().theme,
+          );
+          useThemeStore.getState().setTheme(savedTheme);
           set({
-            profile,
+            profile: { ...profile, themePreference: savedTheme },
             email: profile.email,
             city: profile.city || '',
             profileLoading: false,

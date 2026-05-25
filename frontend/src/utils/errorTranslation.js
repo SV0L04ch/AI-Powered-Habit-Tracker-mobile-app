@@ -18,6 +18,7 @@ const errorTranslations = {
   'Cannot get summary for future date.': 'Нельзя получить сводку за будущую дату.',
   'City parameter is required.': 'Укажите город.',
   'Weather data': 'Погода для этого города не найдена.',
+  'Historical weather data is not supported.': 'Погодные данные за эту дату недоступны, но аналитика привычек сохранена.',
 };
 
 export default errorTranslations;

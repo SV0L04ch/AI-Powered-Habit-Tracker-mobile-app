@@ -6,19 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HabitApi.Services;
 
-/// <summary>
-/// Сервис для формирования статистики и сводок (персональных и городских).
-/// Использует данные о привычках, погоду и AI для генерации отчётов.
-/// </summary>
 public sealed class StatsService : IStatsService
 {
     private readonly AppDbContext _dbContext;
     private readonly IWeatherService _weatherService;
     private readonly IAiInsightsService _aiInsightsService;
 
-    /// <summary>
-    /// Инициализирует сервис статистики с зависимостями базы данных, погоды и AI.
-    /// </summary>
     public StatsService(
         AppDbContext dbContext,
         IWeatherService weatherService,
@@ -29,11 +22,12 @@ public sealed class StatsService : IStatsService
         _aiInsightsService = aiInsightsService;
     }
 
-    /// <inheritdoc />
-    public async Task<DailySummaryDto> GetDailySummaryAsync(Guid userId, DateOnly date, CancellationToken cancellationToken)
+    public async Task<DailySummaryDto> GetDailySummaryAsync(
+        Guid userId,
+        DateOnly date,
+        CancellationToken cancellationToken)
     {
-        var user = await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
         if (user is null)
             throw new KeyNotFoundException("User not found.");
 
@@ -50,8 +44,7 @@ public sealed class StatsService : IStatsService
         var partiallyCompleted = entries.Count(e => e.Status == HabitEntryStatus.Partial);
         var skipped = entries.Count(e => e.Status == HabitEntryStatus.Skipped);
 
-        // Получаем погоду для города пользователя на указанную дату
-        var weather = await _weatherService.GetWeatherAsync(user.City, date, cancellationToken);
+        var weather = await TryGetWeatherAsync(user.City, date, cancellationToken);
 
         var summary = new DailySummaryDto
         {
@@ -63,17 +56,15 @@ public sealed class StatsService : IStatsService
             AiInsight = string.Empty
         };
 
-        // Генерируем AI-комментарий на основе сводки и погоды
         summary.AiInsight = await _aiInsightsService.BuildDailyInsightAsync(summary, cancellationToken);
         return summary;
     }
 
-    /// <inheritdoc />
     public async Task<CitySummaryDto> GetWeeklyCitySummaryAsync(string city, CancellationToken cancellationToken)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var weekStart = today.AddDays(-(int)today.DayOfWeek + 1 - 7); // начало прошлой недели (пн)
-        var weekEnd = weekStart.AddDays(6); // конец прошлой недели (вс)
+        var weekStart = today.AddDays(-(int)today.DayOfWeek + 1 - 7);
+        var weekEnd = weekStart.AddDays(6);
 
         var userIds = await _dbContext.Users
             .Where(u => u.City == city)
@@ -81,6 +72,7 @@ public sealed class StatsService : IStatsService
             .ToListAsync(cancellationToken);
 
         if (!userIds.Any())
+        {
             return new CitySummaryDto
             {
                 City = city,
@@ -88,6 +80,7 @@ public sealed class StatsService : IStatsService
                 WeekEndDate = weekEnd,
                 PopularHabits = new List<CityHabitStatDto>()
             };
+        }
 
         var habits = await _dbContext.Habits
             .Where(h => userIds.Contains(h.UserId) && h.IsActive)
@@ -101,7 +94,6 @@ public sealed class StatsService : IStatsService
 
         var completedHabitIds = entries.Select(e => e.HabitId).ToHashSet();
 
-        // Группируем по названию привычки и считаем уникальных пользователей
         var habitStats = habits
             .GroupBy(h => h.Name)
             .Select(group => new
@@ -130,5 +122,31 @@ public sealed class StatsService : IStatsService
             WeekEndDate = weekEnd,
             PopularHabits = habitStats
         };
+    }
+
+    private async Task<WeatherSnapshotDto?> TryGetWeatherAsync(
+        string city,
+        DateOnly date,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(city))
+            return null;
+
+        try
+        {
+            return await _weatherService.GetWeatherAsync(city, date, cancellationToken);
+        }
+        catch (Exception ex) when (ex is KeyNotFoundException or ArgumentException or HttpRequestException or TaskCanceledException)
+        {
+            return new WeatherSnapshotDto
+            {
+                City = city,
+                Date = date,
+                Condition = "Weather unavailable",
+                TemperatureCelsius = 0,
+                HumidityPercent = null,
+                Precipitation = "unknown"
+            };
+        }
     }
 }

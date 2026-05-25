@@ -12,10 +12,12 @@ namespace HabitApi.Controllers;
 public sealed class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IConfiguration _configuration;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IConfiguration configuration)
     {
         _authService = authService;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -51,10 +53,27 @@ public sealed class AuthController : ControllerBase
     public async Task<IActionResult> ConfirmEmail(Guid userId, string token)
     {
         var user = await _authService.ConfirmEmailAsync(userId, token);
-        if (user is null)
-            return BadRequest(new { error = "Invalid or expired confirmation link." });
+        var frontendBaseUrl = _configuration["FrontendBaseUrl"] ?? "http://localhost:5173";
+        var loginUrl = $"{frontendBaseUrl.TrimEnd('/')}/login";
 
-        return Ok(new { message = "Email confirmed. You can now log in." });
+        if (user is null)
+        {
+            return Content(
+                BuildConfirmationPage(
+                    "Ссылка недействительна",
+                    "Ссылка подтверждения устарела или уже была использована.",
+                    loginUrl,
+                    false),
+                "text/html; charset=utf-8");
+        }
+
+        return Content(
+            BuildConfirmationPage(
+                "Email подтвержден",
+                "Аккаунт готов. Сейчас перенаправим вас на страницу входа.",
+                loginUrl,
+                true),
+            "text/html; charset=utf-8");
     }
 
     /// <summary>
@@ -107,5 +126,39 @@ public sealed class AuthController : ControllerBase
         };
 
         Response.Cookies.Append("access_token", token, cookieOptions);
+    }
+
+    private static string BuildConfirmationPage(string title, string message, string loginUrl, bool success)
+    {
+        var accent = success ? "#16a34a" : "#ef4444";
+        return $$"""
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="3; url={{loginUrl}}">
+  <title>{{title}}</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: radial-gradient(circle at 20% 0%, rgba(66, 211, 146, .18), transparent 34vw), #f8fafc; color: #0b1020; }
+    main { width: min( calc(100% - 32px), 460px ); padding: 28px; border: 1px solid rgba(15, 23, 42, .1); border-radius: 28px; background: rgba(255,255,255,.88); box-shadow: 0 18px 45px rgba(15, 23, 42, .08); }
+    .mark { width: 58px; height: 58px; border-radius: 20px; display: grid; place-items: center; color: white; background: {{accent}}; font-weight: 900; font-size: 28px; }
+    h1 { margin: 20px 0 8px; font-size: 32px; line-height: 1.05; }
+    p { margin: 0 0 22px; color: #667085; font-weight: 600; line-height: 1.45; }
+    a { min-height: 48px; padding: 0 18px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; color: white; background: linear-gradient(135deg, #0b1020, #2563eb 58%, #42d392); text-decoration: none; font-weight: 800; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark">{{(success ? "✓" : "!")}}</div>
+    <h1>{{title}}</h1>
+    <p>{{message}}</p>
+    <a href="{{loginUrl}}">Перейти ко входу</a>
+  </main>
+  <script>setTimeout(() => { window.location.href = "{{loginUrl}}"; }, 3000);</script>
+</body>
+</html>
+""";
     }
 }

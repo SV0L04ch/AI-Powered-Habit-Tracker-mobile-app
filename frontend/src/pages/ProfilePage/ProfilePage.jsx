@@ -27,17 +27,15 @@ const ProfilePage = () => {
   }, [loadProfile]);
 
   useEffect(() => {
-    if (profile) {
-      setForm({
-        city: profile.city || '',
-        habitReminderEnabled: Boolean(profile.habitReminderEnabled),
-        habitReminderTime: profile.habitReminderTime || '08:00',
-        themePreference: profile.themePreference === 'dark' ? 'dark' : 'light',
-      });
-    } else {
-      setForm((current) => ({ ...current, themePreference: theme }));
-    }
-  }, [profile, theme]);
+    if (!profile) return;
+
+    setForm({
+      city: profile.city || '',
+      habitReminderEnabled: Boolean(profile.habitReminderEnabled),
+      habitReminderTime: profile.habitReminderTime || '08:00',
+      themePreference: profile.themePreference === 'dark' ? 'dark' : 'light',
+    });
+  }, [profile]);
 
   const patchForm = (updates) => {
     setForm((current) => ({ ...current, ...updates }));

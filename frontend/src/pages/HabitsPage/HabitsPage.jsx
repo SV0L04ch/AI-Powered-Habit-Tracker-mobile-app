@@ -191,7 +191,7 @@ function HabitsPage() {
               {
                 label: 'AI-совет',
                 onClick: () => {
-                  fetchSupport(habit.id, isCompleted ? 'completed' : 'lazy');
+                  fetchSupport(habit.id, habit.isPositive ? (isCompleted ? 'skip' : 'lazy') : 'relapse');
                   closeMenu();
                 },
                 testId: 'daily-tip-btn',

@@ -39,6 +39,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - WEATHER_BASE_URL=${WEATHER_BASE_URL:-https://api.openweathermap.org/data/2.5/}
       - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - AI_BASE_URL=${AI_BASE_URL:-http://ollama:11434}
       - AI_MODEL=${AI_MODEL:-lakomoor/vikhr-llama-3.2-1b-instruct:q5_k_m}
       - AI_API_KEY=${AI_API_KEY}
       - EmailSettings__SmtpServer=mailhog
@@ -49,6 +50,7 @@ services:
       - EmailSettings__Password=
       - EmailSettings__EnableSsl=false
       - AppBaseUrl=http://localhost:5093
+      - FrontendBaseUrl=http://localhost:5173
       - REDIS_CONNECTION=redis:6379
     restart: unless-stopped
 
