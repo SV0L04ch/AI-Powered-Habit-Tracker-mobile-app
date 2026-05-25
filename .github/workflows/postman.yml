@@ -2,7 +2,7 @@ name: Postman API Tests
 
 on:
   push:
-    branches: [ main, feature/github-actions-integration ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
