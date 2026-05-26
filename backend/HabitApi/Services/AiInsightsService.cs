@@ -161,11 +161,16 @@ public sealed class AiInsightsService : IAiInsightsService
 
         try
         {
+            // Если в базовом URL есть "ollama" – используем нативный API
+            if (_baseUrl.Contains("ollama", StringComparison.OrdinalIgnoreCase))
+            {
+                return await SendOllamaRequestAsync(messages, cancellationToken);
+            }
+            // Иначе – стандартное определение
             if (IsOpenAiCompatibleBaseUrl(_baseUrl))
             {
                 return await SendOpenAiCompatibleRequestAsync(messages, cancellationToken);
             }
-
             return await SendOllamaRequestAsync(messages, cancellationToken);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound && IsOpenAiCompatibleBaseUrl(_baseUrl))
