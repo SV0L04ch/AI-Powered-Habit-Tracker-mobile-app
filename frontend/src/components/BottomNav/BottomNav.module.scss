@@ -48,6 +48,18 @@
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 62%, #42d392 100%);
 }
 
+:global([data-theme='dark']) .tab {
+  color: #fff;
+}
+
+:global([data-theme='dark']) .tab svg [fill]:not([fill='none']) {
+  fill: currentColor;
+}
+
+:global([data-theme='dark']) .tab svg [stroke]:not([stroke='none']) {
+  stroke: currentColor;
+}
+
 .icon {
   width: 24px;
   height: 24px;
