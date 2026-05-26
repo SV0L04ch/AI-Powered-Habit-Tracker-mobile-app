@@ -88,7 +88,7 @@ const ProfilePage = () => {
             <div>
               <Typography variant="headline3">Город</Typography>
               <Typography variant="body2" className={styles.muted}>
-                Используется для погоды и city-summary.
+                Используется для погоды и городской сводки.
               </Typography>
             </div>
           </div>
@@ -109,7 +109,7 @@ const ProfilePage = () => {
             <div>
               <Typography variant="headline3">Уведомления</Typography>
               <Typography variant="body2" className={styles.muted}>
-                Время сохраняется в профиле HabitApi.
+                Время будет применяться для ежедневных напоминаний.
               </Typography>
             </div>
           </div>

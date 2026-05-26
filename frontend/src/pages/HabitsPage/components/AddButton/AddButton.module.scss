@@ -22,6 +22,11 @@
   transform: scale(0.92);
 }
 
+:global([data-theme='dark']) .addButton {
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 58%, #42d392 100%);
+}
+
 .icon {
   width: 22px;
   height: 22px;

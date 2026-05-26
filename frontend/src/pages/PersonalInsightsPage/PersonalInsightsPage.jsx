@@ -40,7 +40,7 @@ function PersonalInsightsPage() {
           Аналитика
         </Typography>
         <Typography variant="body1" className={styles.muted} data-testid="insights-subtitle">
-          Daily summary строится по реальным отметкам, погоде и AI-комментарию.
+          Сводка строится по реальным отметкам, погоде и комментарию дня.
         </Typography>
       </header>
 
@@ -89,7 +89,7 @@ function PersonalInsightsPage() {
           </div>
 
           <article className={styles.aiCard} data-testid="ai-summary-card">
-            <span className={styles.label}>AI-комментарий</span>
+            <span className={styles.label}>Комментарий дня</span>
             <Typography variant="body1" data-testid="ai-summary-text">
               {summary.aiInsight}
             </Typography>

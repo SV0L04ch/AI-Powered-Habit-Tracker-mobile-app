@@ -35,7 +35,7 @@ export const getErrorMessage = (error) => {
   }
 
   if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-    return 'Не удалось подключиться к HabitApi. Проверьте, что бэкенд запущен.';
+    return 'Не удалось подключиться к серверу. Проверьте, что бэкенд запущен.';
   }
 
   if (error.message) return translateError(error.message);

@@ -57,13 +57,13 @@ const RegisterPage = () => {
     <PageLayout className={styles.centeredPage} data-testid="register-page">
       <section className={styles.hero} data-testid="register-hero">
         <span className={styles.kicker} data-testid="register-kicker">
-          HabitApi подключен
+          Начните с малого
         </span>
         <Typography variant="headline1" className={styles.title} data-testid="register-title">
           Новый аккаунт
         </Typography>
         <Typography variant="body1" className={styles.subtitle} data-testid="register-subtitle">
-          Город понадобится для погоды, daily summary и городской сводки привычек.
+          Город понадобится для погоды и городской сводки привычек.
         </Typography>
       </section>
 

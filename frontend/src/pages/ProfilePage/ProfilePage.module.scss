@@ -88,6 +88,15 @@
   box-shadow: var(--app-shadow-soft);
 }
 
+:global([data-theme='dark']) .themeToggle button {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+:global([data-theme='dark']) .themeToggle .activeTheme {
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8, #42d392);
+}
+
 .actions {
   display: grid;
   gap: 10px;

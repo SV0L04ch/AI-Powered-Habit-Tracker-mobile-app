@@ -77,7 +77,7 @@ function CreateHabitPage() {
           Новая привычка
         </Typography>
         <Typography variant="body1" className={styles.muted} data-testid="create-subtitle">
-          Настройте контроль, напоминание и сложность. Данные сохранятся в HabitApi.
+          Настройте контроль, напоминание и сложность.
         </Typography>
       </header>
 
