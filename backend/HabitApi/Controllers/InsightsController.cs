@@ -52,7 +52,7 @@ public sealed class InsightsController : ControllerBase
 
         try
         {
-            var message = await _aiInsightsService.BuildHabitSupportMessageAsync(
+            var insight = await _aiInsightsService.BuildHabitSupportMessageAsync(
                 habit.Name,
                 request.Scenario,
                 cancellationToken);
@@ -61,7 +61,9 @@ public sealed class InsightsController : ControllerBase
             {
                 HabitId = habitId,
                 Scenario = request.Scenario,
-                Message = message
+                Message = insight.Message,
+                IsFallback = insight.IsFallback,
+                FallbackReason = insight.FallbackReason
             });
         }
         catch (ArgumentException ex)

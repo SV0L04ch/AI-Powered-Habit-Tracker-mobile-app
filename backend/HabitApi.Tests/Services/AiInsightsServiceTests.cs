@@ -61,7 +61,8 @@ public class AiInsightsServiceTests
         var result = await service.BuildHabitSupportMessageAsync("Спорт", "lazy", CancellationToken.None);
 
         // Assert
-        Assert.Equal(expectedReply, result);
+        Assert.Equal(expectedReply, result.Message);
+        Assert.False(result.IsFallback);
     }
 
     /// <summary>
@@ -81,7 +82,9 @@ public class AiInsightsServiceTests
         var result = await service.BuildHabitSupportMessageAsync("Чтение", "relapse", CancellationToken.None);
 
         // Assert
-        Assert.Equal("Продолжай в том же духе! Каждый шаг важен.", result); // текущий fallback
+        Assert.True(result.IsFallback);
+        Assert.NotEmpty(result.Message);
+        Assert.Equal("AI service is temporarily unavailable.", result.FallbackReason);
     }
 
     /// <summary>
@@ -108,7 +111,9 @@ public class AiInsightsServiceTests
         var result = await service.BuildHabitSupportMessageAsync("Сон", "skip", CancellationToken.None);
 
         // Assert
-        Assert.Equal("Продолжай в том же духе! Каждый шаг важен.", result);
+        Assert.True(result.IsFallback);
+        Assert.NotEmpty(result.Message);
+        Assert.Equal("AI service is temporarily unavailable.", result.FallbackReason);
     }
 
     /// <summary>
@@ -145,7 +150,8 @@ public class AiInsightsServiceTests
         var result = await service.BuildDailyInsightAsync(summary, CancellationToken.None);
 
         // Assert
-        Assert.Equal("Отличный день! Так держать.", result);
+        Assert.Equal("Отличный день! Так держать.", result.Message);
+        Assert.False(result.IsFallback);
     }
 
     /// <summary>
@@ -180,6 +186,7 @@ public class AiInsightsServiceTests
         var result = await service.BuildCitySummaryAsync(city, stats, CancellationToken.None);
 
         // Assert
-        Assert.Equal("В Москве самые популярные привычки: бег и чтение!", result);
+        Assert.Equal("В Москве самые популярные привычки: бег и чтение!", result.Message);
+        Assert.False(result.IsFallback);
     }
 }

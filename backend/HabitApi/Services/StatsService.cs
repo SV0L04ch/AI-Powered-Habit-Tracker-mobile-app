@@ -3,6 +3,7 @@ using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HabitApi.Services;
 
@@ -11,15 +12,18 @@ public sealed class StatsService : IStatsService
     private readonly AppDbContext _dbContext;
     private readonly IWeatherService _weatherService;
     private readonly IAiInsightsService _aiInsightsService;
+    private readonly ILogger<StatsService> _logger;
 
     public StatsService(
         AppDbContext dbContext,
         IWeatherService weatherService,
-        IAiInsightsService aiInsightsService)
+        IAiInsightsService aiInsightsService,
+        ILogger<StatsService> logger)
     {
         _dbContext = dbContext;
         _weatherService = weatherService;
         _aiInsightsService = aiInsightsService;
+        _logger = logger;
     }
 
     public async Task<DailySummaryDto> GetDailySummaryAsync(
@@ -56,7 +60,11 @@ public sealed class StatsService : IStatsService
             AiInsight = string.Empty
         };
 
-        summary.AiInsight = await _aiInsightsService.BuildDailyInsightAsync(summary, cancellationToken);
+        var aiInsight = await TryBuildDailyInsightAsync(summary, cancellationToken);
+        summary.AiInsight = aiInsight.Message;
+        summary.IsAiInsightFallback = aiInsight.IsFallback;
+        summary.AiInsightFallbackReason = aiInsight.FallbackReason;
+
         return summary;
     }
 
@@ -138,6 +146,7 @@ public sealed class StatsService : IStatsService
         }
         catch (Exception ex) when (ex is KeyNotFoundException or ArgumentException or HttpRequestException or TaskCanceledException)
         {
+            _logger.LogWarning(ex, "Weather unavailable for {City} on {Date}, using daily summary fallback", city, date);
             return new WeatherSnapshotDto
             {
                 City = city,
@@ -145,8 +154,44 @@ public sealed class StatsService : IStatsService
                 Condition = "Weather unavailable",
                 TemperatureCelsius = 0,
                 HumidityPercent = null,
-                Precipitation = "unknown"
+                Precipitation = "unknown",
+                IsFallback = true,
+                FallbackReason = "Weather service is temporarily unavailable."
             };
         }
+    }
+
+    private async Task<AiInsightResultDto> TryBuildDailyInsightAsync(
+        DailySummaryDto summary,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _aiInsightsService.BuildDailyInsightAsync(summary, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "AI insight unavailable for daily summary on {Date}, using fallback", summary.Date);
+            return CreateDailyInsightFallback(summary);
+        }
+    }
+
+    private static AiInsightResultDto CreateDailyInsightFallback(DailySummaryDto summary)
+    {
+        var total = summary.HabitsCompleted + summary.HabitsPartiallyCompleted + summary.HabitsSkipped;
+        var message = total == 0
+            ? "Daily summary is ready, but AI advice is temporarily unavailable. Add one habit entry to start today's progress."
+            : "Daily summary is ready, but AI advice is temporarily unavailable. Use the habit counts above to choose one small next step.";
+
+        return new AiInsightResultDto
+        {
+            Message = message,
+            IsFallback = true,
+            FallbackReason = "AI service is temporarily unavailable."
+        };
     }
 }

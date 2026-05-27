@@ -49,7 +49,7 @@ public sealed class WeatherService : IWeatherService
         if (date != today)
         {
             _logger.LogWarning("Requested weather for {Date} which is not today, returning fallback", date);
-            return CreateFallback(city, date);
+            return CreateFallback(city, date, "Historical weather is not available.");
         }
 
         var cacheKey = $"{CacheKeyPrefix}{city}_{date:yyyyMMdd}";
@@ -107,7 +107,7 @@ public sealed class WeatherService : IWeatherService
                                    ex is HttpRequestException { StatusCode: not HttpStatusCode.TooManyRequests })
         {
             _logger.LogWarning(ex, "Weather API unavailable for {City}, returning fallback", city);
-            snapshot = CreateFallback(city, date);
+            snapshot = CreateFallback(city, date, "Weather service is temporarily unavailable.");
         }
 
         // 4. Сохраняем в кэш
@@ -133,7 +133,7 @@ public sealed class WeatherService : IWeatherService
     /// <summary>
     /// Создаёт fallback-объект погоды, когда API недоступен.
     /// </summary>
-    private static WeatherSnapshotDto CreateFallback(string city, DateOnly date)
+    private static WeatherSnapshotDto CreateFallback(string city, DateOnly date, string reason)
     {
         return new WeatherSnapshotDto
         {
@@ -142,7 +142,9 @@ public sealed class WeatherService : IWeatherService
             Condition = "Service unavailable",
             TemperatureCelsius = 0,
             HumidityPercent = null,
-            Precipitation = "unknown"
+            Precipitation = "unknown",
+            IsFallback = true,
+            FallbackReason = reason
         };
     }
 

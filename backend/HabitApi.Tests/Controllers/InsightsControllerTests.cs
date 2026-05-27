@@ -56,7 +56,7 @@ public class InsightsControllerTests
 
         var mockAi = new Mock<IAiInsightsService>();
         mockAi.Setup(s => s.BuildHabitSupportMessageAsync(habitDto.Name, request.Scenario, It.IsAny<CancellationToken>()))
-              .ReturnsAsync(expectedMessage);
+              .ReturnsAsync(new AiInsightResultDto { Message = expectedMessage });
 
         var controller = CreateController(mockHabit, mockAi, userId);
         var result = await controller.BuildSupportMessage(habitId, request, CancellationToken.None);
@@ -65,6 +65,7 @@ public class InsightsControllerTests
         var response = Assert.IsType<HabitSupportResponseDto>(okResult.Value);
         Assert.Equal(habitId, response.HabitId);
         Assert.Equal(expectedMessage, response.Message);
+        Assert.False(response.IsFallback);
     }
 
     /// <summary>

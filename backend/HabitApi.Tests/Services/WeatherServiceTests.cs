@@ -123,6 +123,8 @@ public class WeatherServiceTests
 
         Assert.NotNull(result);
         Assert.Equal("Service unavailable", result.Condition);
+        Assert.True(result.IsFallback);
+        Assert.Equal("Weather service is temporarily unavailable.", result.FallbackReason);
     }
 
     [Fact]
@@ -187,5 +189,7 @@ public class WeatherServiceTests
 
         Assert.NotNull(result);
         Assert.Equal("Service unavailable", result.Condition);
+        Assert.True(result.IsFallback);
+        Assert.Equal("Historical weather is not available.", result.FallbackReason);
     }
 }

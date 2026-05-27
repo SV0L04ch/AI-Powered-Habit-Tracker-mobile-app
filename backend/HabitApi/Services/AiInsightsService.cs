@@ -15,6 +15,8 @@ namespace HabitApi.Services;
 /// </summary>
 public sealed class AiInsightsService : IAiInsightsService
 {
+    private const string AiFallbackReason = "AI service is temporarily unavailable.";
+
     private readonly HttpClient _httpClient;
     private readonly string _model;
     private readonly string _baseUrl;
@@ -92,7 +94,7 @@ public sealed class AiInsightsService : IAiInsightsService
                   ?? configuration["AiApi:ApiKey"];
     }
 
-    public async Task<string> BuildHabitSupportMessageAsync(
+    public async Task<AiInsightResultDto> BuildHabitSupportMessageAsync(
         string habitName,
         string scenario,
         CancellationToken cancellationToken)
@@ -115,7 +117,7 @@ public sealed class AiInsightsService : IAiInsightsService
         return await SendChatRequestAsync(systemPrompt, userPrompt, () => BuildHabitFallback(habitName, normalizedScenario), cancellationToken);
     }
 
-    public async Task<string> BuildDailyInsightAsync(DailySummaryDto summary, CancellationToken cancellationToken)
+    public async Task<AiInsightResultDto> BuildDailyInsightAsync(DailySummaryDto summary, CancellationToken cancellationToken)
     {
         var total = summary.HabitsCompleted + summary.HabitsPartiallyCompleted + summary.HabitsSkipped;
         var percent = total > 0 ? Math.Round((double)summary.HabitsCompleted / total * 100) : 0;
@@ -137,7 +139,7 @@ public sealed class AiInsightsService : IAiInsightsService
         return await SendChatRequestAsync(systemPrompt, userPrompt, () => BuildDailyFallback(summary), cancellationToken);
     }
 
-    public async Task<string> BuildCitySummaryAsync(string city, List<CityHabitStatDto> stats, CancellationToken cancellationToken)
+    public async Task<AiInsightResultDto> BuildCitySummaryAsync(string city, List<CityHabitStatDto> stats, CancellationToken cancellationToken)
     {
         var top = stats.Take(3).Select(s => $"{s.HabitName} ({s.Percentage:F0}%)");
         var systemPrompt =
@@ -147,7 +149,7 @@ public sealed class AiInsightsService : IAiInsightsService
         return await SendChatRequestAsync(systemPrompt, userPrompt, () => BuildCityFallback(city, stats), cancellationToken);
     }
 
-    private async Task<string> SendChatRequestAsync(
+    private async Task<AiInsightResultDto> SendChatRequestAsync(
         string systemPrompt,
         string userPrompt,
         Func<string> fallbackFactory,
@@ -164,21 +166,21 @@ public sealed class AiInsightsService : IAiInsightsService
             // Если в базовом URL есть "ollama" – используем нативный API
             if (_baseUrl.Contains("ollama", StringComparison.OrdinalIgnoreCase))
             {
-                return await SendOllamaRequestAsync(messages, cancellationToken);
+                return CreateSuccess(await SendOllamaRequestAsync(messages, cancellationToken));
             }
             // Иначе – стандартное определение
             if (IsOpenAiCompatibleBaseUrl(_baseUrl))
             {
-                return await SendOpenAiCompatibleRequestAsync(messages, cancellationToken);
+                return CreateSuccess(await SendOpenAiCompatibleRequestAsync(messages, cancellationToken));
             }
-            return await SendOllamaRequestAsync(messages, cancellationToken);
+            return CreateSuccess(await SendOllamaRequestAsync(messages, cancellationToken));
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound && IsOpenAiCompatibleBaseUrl(_baseUrl))
         {
             _logger.LogWarning(ex, "OpenAI-compatible AI endpoint returned 404, retrying native Ollama endpoint");
             try
             {
-                return await SendOllamaRequestAsync(messages, cancellationToken);
+                return CreateSuccess(await SendOllamaRequestAsync(messages, cancellationToken));
             }
             catch (Exception ollamaEx) when (ollamaEx is HttpRequestException or TaskCanceledException or JsonException)
             {
@@ -190,7 +192,26 @@ public sealed class AiInsightsService : IAiInsightsService
             _logger.LogWarning(ex, "Failed to get AI response");
         }
 
-        return fallbackFactory();
+        return CreateFallback(fallbackFactory());
+    }
+
+    private static AiInsightResultDto CreateSuccess(string message)
+    {
+        return new AiInsightResultDto
+        {
+            Message = message,
+            IsFallback = false
+        };
+    }
+
+    private static AiInsightResultDto CreateFallback(string message)
+    {
+        return new AiInsightResultDto
+        {
+            Message = message,
+            IsFallback = true,
+            FallbackReason = AiFallbackReason
+        };
     }
 
     private async Task<string> SendOpenAiCompatibleRequestAsync(

@@ -34,6 +34,10 @@ public sealed class DailySummaryDto
     /// Персональный комментарий от ИИ, основанный на статистике и погоде.
     /// </summary>
     public string AiInsight { get; set; } = string.Empty;
+
+    public bool IsAiInsightFallback { get; set; }
+
+    public string? AiInsightFallbackReason { get; set; }
 }
 
 /// <summary>
@@ -122,4 +126,8 @@ public sealed class WeatherSnapshotDto
     /// Тип осадков (например, "light rain", "snow"), если есть.
     /// </summary>
     public string? Precipitation { get; set; }
+
+    public bool IsFallback { get; set; }
+
+    public string? FallbackReason { get; set; }
 }

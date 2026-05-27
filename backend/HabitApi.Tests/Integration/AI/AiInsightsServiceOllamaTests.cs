@@ -38,7 +38,7 @@ public sealed class AiInsightsServiceOllamaTests
         var service = CreateService(httpClient);
 
         var stopwatch = Stopwatch.StartNew();
-        var message = await service.BuildHabitSupportMessageAsync(
+        var insight = await service.BuildHabitSupportMessageAsync(
             "morning exercise",
             "lazy",
             CancellationToken.None);
@@ -47,9 +47,10 @@ public sealed class AiInsightsServiceOllamaTests
         _output.WriteLine($"Ollama model: {_ollama.Model}");
         _output.WriteLine($"Endpoint: {_ollama.ChatCompletionsEndpoint}");
         _output.WriteLine($"Elapsed: {stopwatch.Elapsed}");
-        _output.WriteLine($"Message: {message}");
+        _output.WriteLine($"Message: {insight.Message}");
 
-        Assert.False(string.IsNullOrWhiteSpace(message));
+        Assert.False(string.IsNullOrWhiteSpace(insight.Message));
+        Assert.False(insight.IsFallback);
         Assert.True(
             stopwatch.Elapsed <= IntegrationTestSettings.ResponseTimeout,
             $"LLM response took {stopwatch.Elapsed}, expected <= {IntegrationTestSettings.ResponseTimeout}.");
@@ -81,12 +82,13 @@ public sealed class AiInsightsServiceOllamaTests
             }
         };
 
-        var message = await service.BuildDailyInsightAsync(summary, CancellationToken.None);
+        var insight = await service.BuildDailyInsightAsync(summary, CancellationToken.None);
 
         _output.WriteLine($"Ollama model: {_ollama.Model}");
-        _output.WriteLine($"Message: {message}");
+        _output.WriteLine($"Message: {insight.Message}");
 
-        Assert.False(string.IsNullOrWhiteSpace(message));
+        Assert.False(string.IsNullOrWhiteSpace(insight.Message));
+        Assert.False(insight.IsFallback);
     }
 
     private static AiInsightsService CreateService(HttpClient httpClient)

@@ -6,6 +6,7 @@ using HabitApi.Models.Domain;
 using HabitApi.Models.DTO;
 using HabitApi.Services;
 using HabitApi.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace HabitApi.Tests.Services;
 
@@ -57,9 +58,9 @@ public class StatsServiceTests
 
         var aiServiceMock = new Mock<IAiInsightsService>();
         aiServiceMock.Setup(a => a.BuildDailyInsightAsync(It.IsAny<DailySummaryDto>(), It.IsAny<CancellationToken>()))
-                     .ReturnsAsync("Хороший день!");
+                     .ReturnsAsync(new AiInsightResultDto { Message = "Хороший день!" });
 
-        var service = new StatsService(context, weatherServiceMock.Object, aiServiceMock.Object);
+        var service = new StatsService(context, weatherServiceMock.Object, aiServiceMock.Object, Mock.Of<ILogger<StatsService>>());
 
         // Act
         var summary = await service.GetDailySummaryAsync(userId, date, CancellationToken.None);
@@ -72,6 +73,61 @@ public class StatsServiceTests
         Assert.Equal(0, summary.HabitsSkipped);
         Assert.Equal("Clear", summary.Weather?.Condition);
         Assert.Equal("Хороший день!", summary.AiInsight);
+        Assert.False(summary.IsAiInsightFallback);
+    }
+
+    [Fact]
+    public async Task GetDailySummaryAsync_AiServiceThrows_ReturnsFallbackInsight()
+    {
+        var context = CreateContext();
+        var userId = Guid.NewGuid();
+        var date = new DateOnly(2025, 1, 1);
+        var user = new ApplicationUser { Id = userId, Email = "test@test.com", City = "Moscow" };
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var weatherServiceMock = new Mock<IWeatherService>();
+        weatherServiceMock.Setup(w => w.GetWeatherAsync(user.City, date, It.IsAny<CancellationToken>()))
+                          .ReturnsAsync(new WeatherSnapshotDto { City = user.City, Date = date, Condition = "Clear" });
+
+        var aiServiceMock = new Mock<IAiInsightsService>();
+        aiServiceMock.Setup(a => a.BuildDailyInsightAsync(It.IsAny<DailySummaryDto>(), It.IsAny<CancellationToken>()))
+                     .ThrowsAsync(new HttpRequestException("AI unavailable"));
+
+        var service = new StatsService(context, weatherServiceMock.Object, aiServiceMock.Object, Mock.Of<ILogger<StatsService>>());
+
+        var summary = await service.GetDailySummaryAsync(userId, date, CancellationToken.None);
+
+        Assert.True(summary.IsAiInsightFallback);
+        Assert.Equal("AI service is temporarily unavailable.", summary.AiInsightFallbackReason);
+        Assert.NotEmpty(summary.AiInsight);
+    }
+
+    [Fact]
+    public async Task GetDailySummaryAsync_WeatherServiceThrows_ReturnsFallbackWeather()
+    {
+        var context = CreateContext();
+        var userId = Guid.NewGuid();
+        var date = new DateOnly(2025, 1, 1);
+        var user = new ApplicationUser { Id = userId, Email = "test@test.com", City = "Moscow" };
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        var weatherServiceMock = new Mock<IWeatherService>();
+        weatherServiceMock.Setup(w => w.GetWeatherAsync(user.City, date, It.IsAny<CancellationToken>()))
+                          .ThrowsAsync(new HttpRequestException("Weather unavailable"));
+
+        var aiServiceMock = new Mock<IAiInsightsService>();
+        aiServiceMock.Setup(a => a.BuildDailyInsightAsync(It.IsAny<DailySummaryDto>(), It.IsAny<CancellationToken>()))
+                     .ReturnsAsync(new AiInsightResultDto { Message = "Insight" });
+
+        var service = new StatsService(context, weatherServiceMock.Object, aiServiceMock.Object, Mock.Of<ILogger<StatsService>>());
+
+        var summary = await service.GetDailySummaryAsync(userId, date, CancellationToken.None);
+
+        Assert.NotNull(summary.Weather);
+        Assert.True(summary.Weather.IsFallback);
+        Assert.Equal("Weather service is temporarily unavailable.", summary.Weather.FallbackReason);
     }
 
     /// <summary>
@@ -82,7 +138,7 @@ public class StatsServiceTests
     {
         // Arrange
         var context = CreateContext();
-        var service = new StatsService(context, Mock.Of<IWeatherService>(), Mock.Of<IAiInsightsService>());
+        var service = new StatsService(context, Mock.Of<IWeatherService>(), Mock.Of<IAiInsightsService>(), Mock.Of<ILogger<StatsService>>());
 
         // Act & Assert
         await Assert.ThrowsAsync<KeyNotFoundException>(
@@ -114,7 +170,7 @@ public class StatsServiceTests
         );
         await context.SaveChangesAsync();
 
-        var service = new StatsService(context, Mock.Of<IWeatherService>(), Mock.Of<IAiInsightsService>());
+        var service = new StatsService(context, Mock.Of<IWeatherService>(), Mock.Of<IAiInsightsService>(), Mock.Of<ILogger<StatsService>>());
 
         // Act
         var result = await service.GetWeeklyCitySummaryAsync(city, CancellationToken.None);
