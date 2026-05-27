@@ -1,254 +1,233 @@
-# AI-Powered Habit Tracker
+# AI-Powered Habit Tracker Backend
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![.NET Version](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis)](https://redis.io/)
 
-Backend для мобильного трекера привычек с поддержкой искусственного интеллекта. Пользователи могут формировать полезные привычки, отслеживать их выполнение и получать персонализированные советы от ИИ. Проект включает интеграцию с погодным API для анализа связей между привычками и погодой, а также анонимную городскую статистику.
+Backend для AI-Powered Habit Tracker. API отвечает за регистрацию и подтверждение email, вход через JWT-cookie, управление привычками, отметки выполнения, профиль пользователя, погоду, статистику и AI-подсказки. README описывает только backend-часть проекта.
 
 ## Возможности
 
-*   Управление привычками: добавление положительных и отрицательных привычек с категориями (со штрафами / развлекательные).
-*   Гибкая настройка: поддержка триггеров (время дня / количество раз) и напоминаний.
-*   Система тегов: категоризация привычек для удобной фильтрации.
-*   Отслеживание прогресса: отметки выполнения с поддержкой частичного выполнения и количества срывов.
-*   Система штрафов: автоматическое начисление штрафных дней за пропуски для привычек категории "со штрафом".
-*   ИИ-поддержка: генерация мотивирующих сообщений и советов при лени, срывах или пропусках.
-*   Аналитика: ежедневная персональная сводка с анализом связи привычек с погодой через ИИ.
-*   Городская статистика: анонимная сводка популярных привычек в вашем городе.
-*   Аутентификация: JWT-токены с хешированием паролей.
-*   Контейнеризация: Docker и Docker Compose для простого развертывания.
+* Регистрация, подтверждение email, вход и выход пользователя.
+* JWT-аутентификация через `HttpOnly` cookie `access_token`.
+* Управление профилем: имя, город, настройки напоминаний и тема.
+* Управление привычками: положительные и отрицательные привычки, триггеры по времени или количеству раз, цель по дням, штрафные дни и напоминания.
+* Отслеживание прогресса: `Completed`, `Partial`, `Skipped` для положительных привычек и `RelapseCount` для отрицательных.
+* Защита от дублирующей отметки привычки на одну дату.
+* Погодные данные по городу через OpenWeatherMap-compatible API.
+* Redis-кэш погоды.
+* Ежедневная персональная сводка по привычкам, погоде и AI-комментарию.
+* Анонимная городская статистика популярных привычек.
+* AI-подсказки для сценариев `lazy`, `skip`, `relapse`.
+* Graceful degradation: если Redis, weather API или AI endpoint недоступны, API возвращает fallback-данные и продолжает отвечать.
+* Глобальная обработка ошибок через `ProblemDetails`.
+* Swagger UI в Development-режиме.
+* Unit и integration тесты.
 
-##  Технологический стек
+## Технологический стек
 
-- Платформа и Язык программирования: .NET 10 / C# 12
-
-- Фреймворк:    NET Core Web API
-  
-- База данных:  PostgreSQL 15 с Entity Framework Core
-  
-- Аутентификация:  NET Core Identity + JWT
-  
-- Документация: API  Swagger
-  
-- Контейнеризация: Docker, Docker Compose
-  
-- Кэширование:  Redis
-  
-- Тестирование:  xUnit, Moq
-
-- Интеграционное тестирование: Testcontainers
-
-- Миграция: EF Core Migrations
-
-- Валидация: FluentValidation / Data Annotations
+- Платформа и язык: `.NET 10`, `C# 12`
+- Фреймворк: `ASP.NET Core Web API`
+- База данных: `PostgreSQL 15`
+- ORM: `Entity Framework Core`
+- Аутентификация: `ASP.NET Core Identity`, `JWT Bearer`, `HttpOnly` cookie
+- Валидация: `FluentValidation`
+- Кэширование: `Redis`
+- Email для локальной разработки: `MailHog`
+- Weather integration: `OpenWeatherMap-compatible API`
+- AI integration: `Ollama`
+- Документация API: `Swagger`
+- Resilience: `HttpClientFactory`, `Polly`
+- Тестирование: `xUnit`, `Moq`, `MockHttp`
+- Контейнеризация: `Docker`, `Docker Compose`
 
 ## Быстрый старт
 
-Эти инструкции помогут вам запустить локальную копию проекта для разработки и тестирования.
+Эти инструкции помогут запустить backend локально для разработки и тестирования.
 
 ### Предварительные требования
 
-*   [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-*   [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-*   [Git](https://git-scm.com/)
-*   [PostgreSQL](https://www.postgresql.org/)
+* [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+* [Git](https://git-scm.com/)
 
 ## Установка и запуск
 
 1. Клонируйте репозиторий:
-   
+
         git clone https://github.com/SV0L04ch/AI-Powered-Habit-Tracker-mobile-app.git
         cd AI-Powered-Habit-Tracker-mobile-app
 
-2. Запустите базу данных PostgreSQL в Docker:
+2. Создайте локальный `.env` по примеру:
 
-        docker-compose up -d db
+        Copy-Item backend/HabitApi/.env.example .env
 
-3. Настройте переменные окружения:
+   Заполните значения в `.env`. Список нужных переменных уже есть в `backend/HabitApi/.env.example`.
 
-   - используйте User Secrets для локальной разработки:
-      ```
-      dotnet user-secrets init <br>
-      dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=habit_tracker;Username=your_user;Password=your_password"<br>
-      dotnet user-secrets set "Jwt:Secret" "your_super_secret_key_32_chars_min"<br>
-      dotnet user-secrets set "WeatherApi:ApiKey" "your_openweathermap_api_key"<br>
-      dotnet user-secrets set "AiApi:ApiKey" "your_llm_api_key"<br>```
+3. Запустите backend и инфраструктуру через Docker Compose:
 
+        docker compose --env-file .env -f backend/HabitApi/docker-compose.yml up -d --build
 
-4. Примените миграции базы данных:<br>
+4. Проверьте API:
 
+        Invoke-RestMethod http://localhost:5093/health
+
+5. Откройте Swagger:
+
+        http://localhost:5093/swagger
+
+После запуска также доступны:
+
+- API: `http://localhost:5093`
+- MailHog UI: `http://localhost:8025`
+- PostgreSQL: `localhost:5431`
+- Redis: `localhost:6379`
+- Ollama: `http://localhost:11434`
+
+### Локальный запуск API без контейнера
+
+Если инфраструктура уже поднята в Docker, API можно запустить напрямую:
+
+        docker compose --env-file .env -f backend/HabitApi/docker-compose.yml up -d db redis mailhog ollama
         dotnet ef database update
+        dotnet run --project backend/HabitApi/HabitApi.csproj
 
-6. Запустите приложение:<br>
+API будет доступно по адресу `http://localhost:5093`.
 
-        dotnet run
+### Структура проекта
 
-    API будет доступно по адресу: https://localhost:5093.
+    backend/
+    |-- HabitApi/
+    |   |-- Controllers/          # HTTP endpoints
+    |   |-- Data/                 # DbContext и EF Core mapping
+    |   |-- Exceptions/           # Доменные исключения
+    |   |-- Migrations/           # EF Core migrations
+    |   |-- Models/
+    |   |   |-- Domain/           # EF/Identity domain models
+    |   |   `-- DTO/              # Request/response DTO
+    |   |-- Services/             # Бизнес-логика и внешние интеграции
+    |   |   `-- Interfaces/       # Контракты сервисов
+    |   |-- Validators/           # FluentValidation validators
+    |   |-- Program.cs            # DI, middleware, auth, CORS, Swagger
+    |   |-- Dockerfile
+    |   |-- docker-compose.yml
+    |   `-- docker-compose.ci.yml
+    |-- HabitApi.Tests/
+    |   |-- Controllers/
+    |   |-- Services/
+    |   |-- Validators/
+    |   `-- Integration/
+    `-- HabitTracker.slnx
 
-8. Просмотр документации API:
+## Использование API
 
-    Swagger UI: https://localhost:5093/swagger
+### Аутентификация
 
-## Запуск с помощью Docker Compose:
-### Для запуска и API, и базы данных в контейнерах:
+1. Зарегистрируйте пользователя:
 
-    docker-compose up -d
+        POST /api/auth/register
 
-После этого API будет доступно по адресу http://localhost:5093.
+2. Подтвердите email по ссылке из письма в MailHog:
 
-### Структура проекта:
+        GET /api/auth/confirm-email
 
-    HabitApi/
-    ├──  Controllers/        # Обработка HTTP-запросов
-    ├── Data/               # DbContext и конфигурация базы данных
-    ├── Models/<br>
-    │   ├── Domain/         # Сущности базы данных
-    │   └── DTO/            # Объекты передачи данных
-    ├── Services/           # Бизнес-логика и внешние интеграции
-    │   └── Interfaces/     # Контракты для DI
-    ├── Middleware/         # Кастомные middleware
-    ├── Helpers/            # Вспомогательные классы
-    ├── Extensions/         # Методы расширения для ServiceCollection
-    ├── Program.cs          # Точка входа и конфигурация приложения
-    ├── appsettings.json    # Базовая конфигурация
-    ├── Dockerfile          # Инструкция для сборки Docker-образа
-    └── docker-compose.yml  # Оркестрация контейнеров
+3. Выполните вход:
 
+        POST /api/auth/login
 
-## Использование API:
+После успешного входа API устанавливает JWT в `HttpOnly` cookie `access_token`. Защищенные эндпоинты читают токен из этой cookie.
 
-### Аутентификация:
+### Основные эндпоинты
 
-1. Зарегистрируйте нового пользователя:<br>
+- `GET /api/profile` - получить профиль пользователя
+- `PUT /api/profile` - обновить профиль пользователя
+- `GET /api/habits` - получить привычки пользователя
+- `POST /api/habits` - создать привычку
+- `GET /api/habits/{habitId}` - получить привычку
+- `PUT /api/habits/{habitId}` - обновить привычку
+- `DELETE /api/habits/{habitId}` - мягко удалить привычку
+- `GET /api/habits/{habitId}/entries` - получить отметки за период
+- `POST /api/habits/{habitId}/entries` - добавить отметку выполнения
+- `PUT /api/habits/{habitId}/entries/{entryId}` - обновить отметку
+- `DELETE /api/habits/{habitId}/entries/{entryId}` - удалить отметку
+- `GET /api/weather?city=Samara&date=2026-05-28` - получить погоду
+- `GET /api/stats/daily-summary?date=2026-05-28` - получить ежедневную сводку
+- `GET /api/stats/city-summary?city=Samara` - получить городскую статистику
+- `POST /api/habits/{habitId}/insights/support` - получить AI-подсказку
+- `GET /health` - health check API
 
-   POST /api/auth/register
+Полный список эндпоинтов и DTO доступен в Swagger после запуска приложения.
 
-3. Получите JWT-токен:<br>
+### Enum-значения в JSON
 
-   POST /api/auth/login
+- `triggerType`: `1` = `TimeOfDay`, `2` = `CountPerDay`
+- `status`: `1` = `Completed`, `2` = `Partial`, `3` = `Skipped`
 
-4. Вставьте полученный токен в Swagger UI (кнопка "Authorize") или используйте заголовок:<br>
+## Контейнеризация
 
-   Authorization: Bearer <your_jwt_token>
+Backend готов к запуску через Docker Compose.
 
+Конфигурация включает:
 
-### Основные эндпоинты:
+- `api` - ASP.NET Core backend
+- `db` - PostgreSQL 15
+- `redis` - Redis 7
+- `mailhog` - SMTP и web UI для писем подтверждения
+- `ollama` - локальный AI runtime
 
+Запуск:
 
-- GET  /api/habits  (Получить все привычки пользователя)<br>
+        docker compose --env-file .env -f backend/HabitApi/docker-compose.yml up -d --build
 
-- POST  /api/habits  (Создать новую привычку)<br>
- 
-- POST  /api/habits/{habitId}/entries  (Добавить отметку выполнения)<br>
+Остановка:
 
-- GET  /api/stats/daily-summary  (Получить ежедневную сводку)<br>
+        docker compose --env-file .env -f backend/HabitApi/docker-compose.yml down
 
-- GET  /api/stats/city-summary?city=Moscow  (Получить сводку по городу)<br>
+Для CI есть отдельный compose-файл:
 
-- POST  /api/habits/{habitId}/insights/support  (Получить ИИ-совет)<br>
+        backend/HabitApi/docker-compose.ci.yml
 
-Полный список эндпоинтов и примеры тел запросов доступны в документации Swagger после запуска приложения. <br>
+## Тестирование
 
+Запуск backend-тестов:
 
+        dotnet test backend/HabitApi.Tests/HabitApi.Tests.csproj --no-restore
 
-## Контейнеризация:
+Если зависимости еще не восстановлены:
 
-Проект полностью готов к запуску в Docker-контейнерах. <br>
+        dotnet test backend/HabitApi.Tests/HabitApi.Tests.csproj
 
-Конфигурация включает:<br>
+Что покрыто тестами:
 
+- контроллеры: Auth, Habits, HabitEntries, Profile, Stats, Weather, Insights
+- сервисы: auth, habits, entries, profile, stats, weather, email, AI insights
+- validators DTO
+- integration workflow для backend и PostgreSQL
 
-  - PostgreSQL 15: база данных с постоянным хранилищем.
+## Roadmap backend
 
+- Вынести production secrets из tracked config в безопасное хранилище.
+- Применить rate limiting к auth-эндпоинтам.
+- Усилить password policy и lockout.
+- Вынести HTML confirmation page из `AuthController`.
+- Разделить AI provider logic через Strategy/Adapter.
+- Уточнить production Docker profile без публикации внутренних сервисов наружу.
+- Добавить security headers для production.
 
-  - Habit API: приложение, собранное на основе многоступенчатого Dockerfile.
+## Как внести вклад
 
+1. Форкните репозиторий.
+2. Создайте ветку для изменения backend.
+3. Внесите изменения и добавьте тесты.
+4. Убедитесь, что backend-тесты проходят.
+5. Откройте Pull Request в ветку `develop`.
 
-  - Healthcheck: проверка готовности базы данных перед запуском API.
+## Лицензия
 
+Проект распространяется под лицензией MIT. Подробности смотрите в файле [LICENSE](LICENSE).
 
-  - Переменные окружения: безопасная передача конфиденциальных данных. <br> <br>
+## Авторы
 
-
-### docker-compose.yml:
-
-    yaml
-    services:
-      db:
-        image: postgres:15-alpine
-        container_name: habit_tracker_db
-        environment:
-          POSTGRES_USER: habit_user
-          POSTGRES_PASSWORD: your_password
-          POSTGRES_DB: habit_tracker
-        ports:
-          - "5432:5432"
-        volumes:
-          - postgres_data:/var/lib/postgresql/data
-        healthcheck:
-          test: ["CMD-SHELL", "pg_isready -U habit_user -d habit_tracker"]
-          interval: 5s
-          timeout: 5s
-          retries: 5
-    
-      api:
-        build: .
-        container_name: habit_api
-        ports:
-          - "5093:8080"
-        depends_on:
-          db:
-            condition: service_healthy
-        environment:
-          - ASPNETCORE_ENVIRONMENT=Development
-          - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=habit_tracker;Username=habit_user;Password=your_password
-
-
-## Тестирование:
-
-### Для запуска юнит-тестов:
-
-    dotnet test
-
-### Что покрыто тестами:
-
-- Контроллеры (Auth, Habits, HabitEntries)
-
-- Сервисы (Business logic, репозитории)
-
-- Валидация DTO
-
-- Middleware (глобальная обработка ошибок)
-
-
-## Roadmap:
-
-- Интеграция с реальным AI API (GroqCloud)
-
-- Push-уведомления для напоминаний
-
-## Как внести вклад:
-
-Мы приветствуем вклад в проект! Пожалуйста, следуйте этим шагам:
-
-  - Форкните репозиторий.
-
-  - Создайте ветку для вашей функции: git checkout -b feature/amazing-feature.
-
-  - Внесите изменения и добавьте тесты.
-
-  - Убедитесь, что все тесты проходят: dotnet test.
-
-  - Запушьте ветку: git push origin feature/amazing-feature.
-
-  - Откройте Pull Request в ветку develop.
-
-## Лицензия:
-
-  Проект распространяется под лицензией MIT. Подробности смотрите в файле LICENSE.
-
-## Авторы:
-
-@SV0L04ch, @jakepz23 - Backend разработка и архитектура.
+`@SV0L04ch`, `@jakepz23` - backend разработка и архитектура.
