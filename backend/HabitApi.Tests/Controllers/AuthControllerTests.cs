@@ -6,6 +6,7 @@ using HabitApi.Controllers;
 using HabitApi.Models.DTO;
 using HabitApi.Services.Interfaces;
 using HabitApi.Exceptions;
+using Microsoft.Extensions.Configuration;
 
 namespace HabitApi.Tests.Controllers;
 
@@ -15,6 +16,24 @@ namespace HabitApi.Tests.Controllers;
 /// </summary>
 public class AuthControllerTests
 {
+    private static AuthController CreateController(IAuthService authService)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["FrontendBaseUrl"] = "http://localhost:5173"
+            })
+            .Build();
+
+        return new AuthController(authService, configuration)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+    }
+
     // LOGIN
     [Fact]
     public async Task Login_ValidCredentials_ReturnsOkWithToken()
@@ -32,12 +51,7 @@ public class AuthControllerTests
         mockAuth.Setup(s => s.LoginAsync(request, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedResponse);
 
-        var controller = new AuthController(mockAuth.Object);
-        // Настраиваем HttpContext, чтобы SetAccessTokenCookie не падал с NullReferenceException
-        controller.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext()
-        };
+        var controller = CreateController(mockAuth.Object);
 
         // Act
         var result = await controller.Login(request, CancellationToken.None);
@@ -57,7 +71,7 @@ public class AuthControllerTests
         mockAuth.Setup(s => s.LoginAsync(request, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((AuthResponseDto?)null);
 
-        var controller = new AuthController(mockAuth.Object);
+        var controller = CreateController(mockAuth.Object);
 
         var result = await controller.Login(request, CancellationToken.None);
 
@@ -73,7 +87,7 @@ public class AuthControllerTests
         mockAuth.Setup(s => s.LoginAsync(request, It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new UnauthorizedAccessException("Email not confirmed."));
 
-        var controller = new AuthController(mockAuth.Object);
+        var controller = CreateController(mockAuth.Object);
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(
             () => controller.Login(request, CancellationToken.None));
@@ -95,7 +109,7 @@ public class AuthControllerTests
         mockAuth.Setup(s => s.RegisterAsync(request, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedResponse);
 
-        var controller = new AuthController(mockAuth.Object);
+        var controller = CreateController(mockAuth.Object);
 
         var result = await controller.Register(request, CancellationToken.None);
 
@@ -113,7 +127,7 @@ public class AuthControllerTests
         mockAuth.Setup(s => s.RegisterAsync(request, It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new ConflictException("User with this email already exists."));
 
-        var controller = new AuthController(mockAuth.Object);
+        var controller = CreateController(mockAuth.Object);
 
         await Assert.ThrowsAsync<ConflictException>(
             () => controller.Register(request, CancellationToken.None));
@@ -134,12 +148,13 @@ public class AuthControllerTests
         mockAuth.Setup(s => s.ConfirmEmailAsync(userId, token))
                 .ReturnsAsync(confirmedUser);
 
-        var controller = new AuthController(mockAuth.Object);
+        var controller = CreateController(mockAuth.Object);
 
         var result = await controller.ConfirmEmail(userId, token);
 
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.NotNull(okResult.Value);
+        var contentResult = Assert.IsType<ContentResult>(result);
+        Assert.Equal("text/html; charset=utf-8", contentResult.ContentType);
+        Assert.Contains("http://localhost:5173/login", contentResult.Content);
     }
 
     [Fact]
@@ -152,22 +167,20 @@ public class AuthControllerTests
         mockAuth.Setup(s => s.ConfirmEmailAsync(userId, token))
                 .ReturnsAsync((HabitApi.Models.Domain.ApplicationUser?)null);
 
-        var controller = new AuthController(mockAuth.Object);
+        var controller = CreateController(mockAuth.Object);
 
         var result = await controller.ConfirmEmail(userId, token);
 
-        Assert.IsType<BadRequestObjectResult>(result);
+        var contentResult = Assert.IsType<ContentResult>(result);
+        Assert.Equal("text/html; charset=utf-8", contentResult.ContentType);
+        Assert.Contains("http://localhost:5173/login", contentResult.Content);
     }
 
     // LOGOUT
     [Fact]
     public void Logout_ReturnsNoContent()
     {
-        var controller = new AuthController(new Mock<IAuthService>().Object);
-        controller.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext()
-        };
+        var controller = CreateController(new Mock<IAuthService>().Object);
 
         var result = controller.Logout();
 
