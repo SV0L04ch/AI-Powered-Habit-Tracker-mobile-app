@@ -36,8 +36,8 @@
 
 **Локальный запуск:**
 ```bash
-newman run postman/AI-Powered-Habit-Tracker-setup-tests.json -e postman/AI-Powered-Habit-Tracker-Environment.json --export-environment postman/AI-Powered-Habit-Tracker-Environment.json
-newman run postman/AI-Powered-Habit-Tracker-main-tests.json -e postman/AI-Powered-Habit-Tracker-Environment.json
+newman run postman/AI-Powered-Habit-Tracker-setup-tests.json -e postman/AI-Powered-Habit-Tracker-Environment.json --export-environment postman/AI-Powered-Habit-Tracker-Environment-output.json
+newman run postman/AI-Powered-Habit-Tracker-main-tests.json -e postman/AI-Powered-Habit-Tracker-Environment-output.json
 ```
 
 ### 2. E2E-тесты (Playwright)
@@ -50,14 +50,12 @@ newman run postman/AI-Powered-Habit-Tracker-main-tests.json -e postman/AI-Powere
 
 **Локальный запуск**
 ```bash
-npm ci
-npx playwright install chromium --with-deps
-npx playwright tset
+npm run e2e-tests:ordred
 ```
 
 ### 3. Нагрузочные тесты
 
-Сценарии находятся в папке `load-tests/'.
+Сценарии находятся в папке `load-tests/`.
 
 - [`scenarious/register.js`](../load-tests/scenarious/register.js) - регистрация + подтверждение email через MailHog.
 - [`scenarious/login.js`](../load-tests/scenarious/login.js) - логин (с предварительно созданными пользователями).
@@ -73,7 +71,7 @@ k6 run load-tests/scenarios/login.js
 
 ## 🐞 Баг-репорты
 
-На данный момент заведено 7 баг-репортов.
+На данный момент заведено 8 баг-репортов.
 
 Примеры критических багов:
 1. **Регистрация нового пользователя возвращает 500, хотя запись в БД создаётся** (клиент не может распознать успех, сценарий регистрации блокируется)
@@ -88,7 +86,7 @@ k6 run load-tests/scenarios/login.js
 | Workflow | Событие | Что делает |
 | :---: | :---: | :---: |
 | `playwright.yml` | push / PR в `main` | Запускает E2E-тесты Playwright (с поднятием API через Docker Compose) |
-| `postman-tests.yml` | push / PR в `main` | Запускает API-тесты Postman через Newman
+| `postman.yml` | push / PR в `main` | Запускает API-тесты Postman через Newman
 
 ## 📊 Итоговый отчёт
 
@@ -103,4 +101,4 @@ k6 run load-tests/scenarios/login.js
 - Риски и рекомендации к релизу
 
 ---
-_Документация поддерживается в актуальном состоянии в рамках проектного практикума (последнее обновление: 16-05-2026)_
+_Документация поддерживается в актуальном состоянии в рамках проектного практикума (последнее обновление: 27-05-2026)_
