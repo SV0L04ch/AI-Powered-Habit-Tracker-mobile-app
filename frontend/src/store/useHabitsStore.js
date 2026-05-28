@@ -61,13 +61,13 @@ const useHabits = create(
 
                 getHabits: async () => {
                   if (get().isLoaded) return
-                    set({ isLoading: true, error: null})
-                    try {
-                        const data = await fetchHabits()
-                        set({habits: data, isLoading: false, isLoaded: true})
-                    } catch (err) {
-                        set({error: getErrorMessage(err), isLoading: false})
-                    }
+                set({ isLoading: true, error: null})
+                try {
+                    const data = await fetchHabits()
+                    set({habits: data, isLoading: false, isLoaded: true})
+                } catch (err) {
+                    set({error: getErrorMessage(err), isLoading: false})
+                }
                 }
             }),
             { 
