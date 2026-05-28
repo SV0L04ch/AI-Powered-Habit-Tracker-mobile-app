@@ -774,7 +774,114 @@
     },
     {
       "name": "Insights",
-      "item": []
+      "item": [
+        {
+          "name": "POST requests",
+          "item": [
+            {
+              "name": "Returns 200 and support message",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "// Проверка, что статус код 200\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что тело ответа имеет необходимые свойства\r",
+                      "pm.test(\"Response body has the correct properties\", function () {\r",
+                      "    pm.expect(response).to.have.property(\"habitId\");\r",
+                      "    pm.expect(response).to.have.property(\"scenario\");\r",
+                      "    pm.expect(response).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "// Проверка, что свойства имеют корректные значения\r",
+                      "pm.test(\"Properties have correct values\", function () {\r",
+                      "    pm.expect(response.habitId).to.eql(pm.environment.get('positiveHabitId'));\r",
+                      "    pm.expect(response.scenario).to.eql('lazy');\r",
+                      "    pm.expect(response.message).to.be.a('string');\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"scenario\": \"lazy\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}/insights/support",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}",
+                    "insights",
+                    "support"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Returns 404 and error \"Not found\"",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Проверка, что статус-код равен 404\r",
+                      "pm.test(\"Status code is 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"scenario\": \"lazy\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/habits/{{positiveHabitId}}a/insights/support",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "habits",
+                    "{{positiveHabitId}}a",
+                    "insights",
+                    "support"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "HabitsEntries",
