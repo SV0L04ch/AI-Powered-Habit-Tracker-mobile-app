@@ -68,7 +68,7 @@ function HabitsPage() {
   };
 
   const handleToggleActive = async (habit) => {
-    await updateHabit(habit.id, { isActive: !habit.is_active });
+    await updateHabit(habit.id, { isActive: !habit.isActive });
     setMenuData(null);
   };
 
@@ -76,19 +76,20 @@ function HabitsPage() {
     navigate('/habits/new');
   };
 
-  const activeHabits = habits.filter((h) => h.is_active !== false);
-  const completedHabits = habits.filter((h) => h.is_active === false);
+  const activeHabits = habits.filter((h) => h.isActive !== false);
+  const completedHabits = habits.filter((h) => h.isActive === false);
 
   const renderHabitCard = (habit, isCompleted = false) => (
     <Substrate 
       key={habit.id} 
       variant="secondary" 
+      className={isCompleted ? styles.completedHabit : ''}
       data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}`}
     >
       <div className={styles.habitWrap}>
         <div className={styles.checkDesc}>
           <Checkbox 
-            checked={!!habit.is_active}
+            checked={!habit.isActive}
             onChange={() => !isCompleted && handleToggleActive(habit)}
             disabled={isCompleted}
             data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}-checkbox`}
@@ -162,7 +163,7 @@ function HabitsPage() {
       {habitsError && <Typography variant="body1" style={{ color: 'red' }} data-testid="server-error">Ошибка: {habitsError}</Typography>}
 
       <Typography variant="body1">
-        Твой прогресс сегодня: {habits.length > 0 ? `${habits.length}/5 привычек` : 'Нет данных'}
+        Твой прогресс сегодня: {habits.length > 0 ? `${completedHabits.length}/${habits.length} привычек` : 'Нет данных'}
       </Typography>
 
       <div className={styles.blockHabits} data-testid="active-habits-section">
