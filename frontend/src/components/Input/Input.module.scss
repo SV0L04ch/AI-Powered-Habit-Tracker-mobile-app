@@ -1,53 +1,50 @@
 @use '../../styles/abstracts/variables' as var;
 @use '../../styles/abstracts/mixins' as mix;
 
+.inputContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var.$spacing-1;
+  background: var(--input-bg);
+  box-shadow: var(--box-shadow);
+  border: 1.5px solid transparent;
+  border-radius: var.$base-radius;
+  padding: var.$spacing-1 var.$spacing-3;
 
+  &:focus-within {
+    border: var(--border-color);
+  }
 
-.inputContainer{
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: var.$spacing-1;
-    background: var.$dark-input;
-    box-shadow: var.$box-shadow;
-    border: 1.5px solid transparent;
-    border-radius: var.$base-radius;
-    padding: var.$spacing-1 var.$spacing-3;
-
-    &:focus-within{
-        border: var.$dark-border; 
-    }
-
-    &.disabled{
-        opacity: 0.5;
-    }
-
+  &.disabled {
+    opacity: 0.5;
+  }
 }
 
-.field{
-    outline: none;
-    @include mix.body1;
-    
-    border: none;
-    background: transparent;
-    padding: 0;
-    color: var.$dark-placeholder;
+.field {
+  outline: none;
+  @include mix.body1;
 
-    &::placeholder{
-        color: var.$dark-placeholder;
-    }
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--placeholder);
+
+  &::placeholder {
+    color: var(--placeholder);
+  }
 }
 
-.icon{
-    box-sizing: border-box;
-    padding: 1px;
-    width: 18px;
-    height: 18px;
-    display: flex;
-    color: var.$dark-placeholder;
+.icon {
+  box-sizing: border-box;
+  padding: 1px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  color: var(--placeholder);
 }
 
 .icon svg {
-    width: 18px;
-    height: 18px;
+  width: 18px;
+  height: 18px;
 }

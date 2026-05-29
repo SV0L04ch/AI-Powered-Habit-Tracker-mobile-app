@@ -11,10 +11,10 @@
 }
 
 .content {
-  background: var.$dark-background;
+  background: var(--bg-primary);
   border-radius: var.$secondary-radius;
   padding: var.$spacing-3;
   width: 90%;
   max-width: 400px;
-  color: var.$dark-main-text;
+  color: var(--text-primary);
 }

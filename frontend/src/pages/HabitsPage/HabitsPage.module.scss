@@ -1,26 +1,26 @@
 @use "../../styles/abstracts/variables" as var;
 
-.desc{
-    display: flex;
-    flex-direction: column;
-    gap: var.$base-spacing;
+.desc {
+  display: flex;
+  flex-direction: column;
+  gap: var.$base-spacing;
 }
 
-.captions{
-    display: flex;
-    gap: var.$spacing-2;
+.captions {
+  display: flex;
+  gap: var.$spacing-2;
 }
 
-.checkDesc{
-    display: flex;
-    gap: var.$spacing-2;
-    align-items: center;
+.checkDesc {
+  display: flex;
+  gap: var.$spacing-2;
+  align-items: center;
 }
 
-.blockHabits{
-    display: flex;
-    gap: var.$spacing-1;
-    flex-direction: column;
+.blockHabits {
+  display: flex;
+  gap: var.$spacing-1;
+  flex-direction: column;
 }
 
 .insightContainer {
@@ -52,9 +52,26 @@
   }
 }
 
-.habitWrap{
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
+.pageTitle {
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.progressText {
+  color: var(--text-primary);
+}
+
+.sectionTitle {
+  color: var(--text-primary);
+}
+
+.sectionCompleted {
+  color: var(--accent-color);
+}
+
+.habitWrap {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
 }

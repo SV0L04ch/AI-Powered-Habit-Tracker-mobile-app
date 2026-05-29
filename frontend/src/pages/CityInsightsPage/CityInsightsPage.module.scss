@@ -1,14 +1,13 @@
 @use '../../styles/abstracts/variables' as var;
 
 .page {
-  background: var.$dark-background;
+  background: var(--bg-primary);
   border-radius: var.$base-radius;
   font-family: var.$font-family;
 }
 
-
 .title {
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$h1-font-size;
   margin-bottom: 30px;
 }
@@ -18,15 +17,13 @@
 }
 
 .searchInput {
-  background: var.$dark-input;
-  border: var.$dark-border;
-  color: var.$dark-main-text;
+  background: var(--input-bg);
+  border: var(--border-color);
+  color: var(--text-primary);
 }
 
-
-
 .popularTitle {
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$h3-font-size;
   margin-bottom: 12px;
 }
@@ -45,12 +42,11 @@
 }
 
 .cityButton {
-  
-  background: var.$dark-input;
-  border: var.$dark-border;
+  background: var(--input-bg);
+  border: var(--border-color);
   border-radius: var.$base-radius;
   padding: 8px 20px;
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$body1-font-size;
   font-family: inherit;
   cursor: pointer;
@@ -59,20 +55,20 @@
 }
 
 .cityButton:hover {
-  background: var.$dark-decorate;
-  border-color: var.$dark-border;
+  background: var(--decorate);
+  border-color: var(--border-color);
 }
 
 .activeCity {
-  background: var.$dark-decorate;
+  background: var(--decorate);
 }
 
 .statCard {
   width: 100%;
-  background: var.$dark-substrate;
+  background: var(--bg-card);
   border-radius: var.$base-radius;
   padding: 16px 20px;
-  box-shadow: var.$box-shadow;
+  box-shadow: var(--box-shadow);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -86,13 +82,34 @@
   margin-top: 8px;
 }
 
+.statItemTexts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
 .statItemPercent {
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$h2-font-size;
+  text-align: left;
+  width: 100%;
+  margin: 0;
 }
 
 .statItemDescription {
-  color: var.$dark-main-text;
+  color: var(--text-primary);
   font-size: var.$body2-font-size;
+  text-align: left;
+  width: 100%;
 }
 
+.statItemCard {
+  width: 100%;
+  text-align: left;
+}
+
+.statItemContent {
+  width: 100%;
+  text-align: left;
+}

@@ -20,20 +20,20 @@
   width: 15px;
   height: 15px;
   border-radius: 2px;
-  background-color: var.$dark-buttons;
+  background-color: var(--accent-color);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
-  color: white; 
+  color: white;
 }
 
 .input:checked + .checkmark {
-  background-color: var.$dark-buttons; 
+  background-color: var(--accent-color);
 }
 
 .icon {
-  display: none; 
+  display: none;
   width: 12px;
   height: 12px;
 }

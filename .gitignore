@@ -40,4 +40,4 @@ lerna-debug.log*
 *.sln
 
 # ===== Tests =====
-**/TestResults/
+**/TestResults/backend/HabitApi/.dotnet/

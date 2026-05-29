@@ -15,6 +15,7 @@ function CreateHabitPage() {
   const isLoading = useHabits((state) => state.isLoading);
   const error = useHabits((state) => state.error);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const existingHabits = useHabits((state) => state.habits); // получаем список существующих привычек
 
   // Локальное состояние формы
   const [habit, setHabit] = useState({
@@ -26,44 +27,93 @@ function CreateHabitPage() {
   const [validationError, setValidationError] = useState('');
 
   const handleChange = (e) => {
-    setHabit({ ...habit, [e.target.name]: e.target.value });
-    setValidationError('');
-  };
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  // Валидация
-  if (!habit.name.trim()) {
-    setValidationError('Введите название привычки');
-    return;
-  }
-  if (!habit.trigger_value.trim()) {
-    setValidationError('Введите значение (время или количество)');
-    return;
-  }
-
-  const triggerType = habit.type ? 2 : 1;   // 1 = время, 2 = повторы
-
-  // Собираем данные строго по контракту (camelCase, верхний уровень)
-  const habitData = {
-    name: habit.name,
-    type: habit.type,                // true = положительная, false = отрицательная
-    category: habit.category,        // true = сложная, false = легкая
-    triggerType: triggerType,        // 1 или 2
-    triggerValue: habit.trigger_value,  // всегда строка ("08:00" или "5")
-    // Остальные поля пока не отправляем, т.к. они необязательны
-    // targetDays: 30,
-    // penaltyDaysPerMiss: 0,
-    // reminders: [habit.trigger_value],
-  };
-
-  await addHabit(habitData);
-
-  if (!useHabits.getState().error) {
-    navigate('/habits');
-  }
+    const { name, value } = e.target;
+    
+    // Валидация для поля trigger_value
+    if (name === 'trigger_value') {
+        let cleaned = value;
+        
+        if (habit.type) {
+            // Режим "Количество повторов" — только цифры
+            cleaned = value.replace(/[^0-9]/g, '');
+            
+            // Ограничиваем длину 
+            if (cleaned.length > 3) cleaned = cleaned.slice(0, 3);
+            
+        } else {
+            // Режим "Время напоминания" — только цифры и двоеточие
+            cleaned = value.replace(/[^0-9:]/g, '');
+            
+            // Автоматически добавляем двоеточие после 2 цифр
+            if (cleaned.length === 3 && !cleaned.includes(':')) {
+                cleaned = cleaned.slice(0, 2) + ':' + cleaned.slice(2);
+            }
+            
+            // Ограничиваем длину
+            cleaned = cleaned.slice(0, 5);
+        }
+        
+        setHabit(prev => ({ ...prev, [name]: cleaned }));
+        return;
+    }
+    
+    // Для остальных полей — без изменений
+    setHabit(prev => ({ ...prev, [name]: value }));
 };
+
+
+
+
+  // Проверка на уникальность названия
+  const isNameUnique = (name) => {
+    const trimmedName = name.trim();
+    if (!trimmedName) return false;
+    
+    const exists = existingHabits.some(
+      (h) => h.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    return !exists;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const trimmedName = habit.name.trim();
+
+    // Валидация
+    if (!trimmedName) {
+      setValidationError('Введите название привычки');
+      return;
+    }
+    
+    // Проверка на дубликат
+    if (!isNameUnique(trimmedName)) {
+      setValidationError('Привычка с таким названием уже существует');
+      return;
+    }
+    
+    if (!habit.trigger_value.trim()) {
+      setValidationError('Введите значение (время или количество)');
+      return;
+    }
+
+    const triggerType = habit.type ? 2 : 1;   // 1 = время, 2 = повторы
+
+    // Собираем данные строго по контракту (camelCase, верхний уровень)
+    const habitData = {
+      name: trimmedName,
+      type: habit.type,
+      category: habit.category,
+      triggerType: triggerType,
+      triggerValue: habit.trigger_value,
+    };
+
+    await addHabit(habitData);
+
+    if (!useHabits.getState().error) {
+      navigate('/habits');
+    }
+  };
 
   const descClass = `${styles.basicText} ${styles.desc}`;
 
@@ -152,11 +202,13 @@ const handleSubmit = async (e) => {
 
         <div className={styles.block}>
           <div className={styles.blocktext}>
-            <Typography variant='headline2' className={styles.mainText}>Время напоминания</Typography>
+            <Typography variant='headline2' className={styles.mainText}>
+              {habit.type ? 'Количество повторов' : 'Время напоминания'}
+            </Typography>
             <Input
               name="trigger_value"
-              placeholder="08:00 или 5"
-              icon={<icons.Watch />}
+              placeholder={habit.type ? "5" : "08:00"}
+              icon={habit.type ? <icons.Count /> : <icons.Watch />}
               value={habit.trigger_value}
               onChange={handleChange}
               disabled={isLoading}

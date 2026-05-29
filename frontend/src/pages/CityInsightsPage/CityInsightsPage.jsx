@@ -1,101 +1,95 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import styles from './CityInsightsPage.module.scss';
 import Substrate from '../../components/Substrate/Substrate';
 import Button from '../../components/Button/Button';
 import Typography from '../../components/Typography/Typography';
 import Input from '../../components/Input/Input';
-import icons from '../../lib/icons';
 
 const CityInsightsPage = () => {
   const navigate = useNavigate();
   const [selectedCity, setSelectedCity] = useState('Москва');
   const [searchValue, setSearchValue] = useState('');
-  const [stats, setStats] = useState({ totalUsers: 0, completionRate: 0 });
   const [cityStats, setCityStats] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const popularCities = ['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'];
 
-  
-  const cityDataMap = {
-    Москва: {
-      stats: [
-        { percent: 55, description: 'Бегали в парках до 10 утра' , icons: 'Sneakers'},
-        { percent: 20, description: 'Читали книги перед сном', icons: 'Book' },
-        { percent: 15, description: 'Практиковали осознанность утром', icons: 'Moon' },
-      ],
-    },
-    'Санкт-Петербург': {
-      
-      stats: [
-        { percent: 40, description: 'Посещали музеи в выходные' },
-        { percent: 35, description: 'Гуляли пяо набережным' },
-        { percent: 25, description: 'Пили кофе в уютных кофейнях' },
-      ],
-    },
-    Новосибирск: {
-      
-      stats: [
-        { percent: 30, description: 'Занимались спортом' },
-        { percent: 25, description: 'Читали книги' },
-        { percent: 20, description: 'Медитировали' },
-      ],
-    },
-    Екатеринбург: {
-      
-      stats: [
-        { percent: 35, description: 'Ходили в тренажёрный зал' },
-        { percent: 28, description: 'Гуляли на свежем воздухе' },
-        { percent: 22, description: 'Учились новому' },
-      ],
-    },
-    Казань: {
-      
-      stats: [
-        { percent: 33, description: 'Посещали мероприятия' },
-        { percent: 27, description: 'Занимались творчеством' },
-        { percent: 20, description: 'Общались с друзьями' },
-      ],
-    },
+  // Функция для получения токена
+  const getToken = () => {
+    try {
+      const authStorage = localStorage.getItem('auth-storage');
+      if (authStorage) {
+        const parsed = JSON.parse(authStorage);
+        return parsed.state?.token || null;
+      }
+    } catch (e) {
+      console.error('Ошибка при чтении токена:', e);
+    }
+    return null;
   };
 
+  // Загрузка статистики при выборе города
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    loadCityStats(selectedCity);
+  }, [selectedCity]);
 
-    loadCityData(selectedCity);
-  }, [navigate, selectedCity]);
-
-  const loadCityData = (city) => {
-    const data = cityDataMap[city] || cityDataMap['Москва'];
-    setStats({
-      totalUsers: data.totalUsers,
-      completionRate: data.completionRate,
-    });
-    setCityStats(data.stats || []);
+  const loadCityStats = async (city) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const token = getToken();
+      const response = await axios.get(`/api/stats/city-summary?city=${encodeURIComponent(city)}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      
+      // Обрабатываем ответ в зависимости от формата
+      if (response.data && response.data.stats) {
+        setCityStats(response.data.stats);
+      } else if (Array.isArray(response.data)) {
+        setCityStats(response.data);
+      } else {
+        setCityStats([]);
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки статистики:', err);
+      setError('Не удалось загрузить статистику для этого города');
+      setCityStats([]);
+    }
+    
+    setIsLoading(false);
   };
 
   const handleCitySelect = (city) => {
     setSelectedCity(city);
-    loadCityData(city);
   };
 
   const handleSearch = () => {
-    if (searchValue.trim()) {
-      handleCitySelect(searchValue.trim());
-      setSearchValue('');
-    }
+    if (!searchValue.trim()) return;
+    setSelectedCity(searchValue.trim());
+    setSearchValue('');
   };
 
   return (
     <div className={styles.page}>
       <Typography variant="headline1" className={styles.title}>Статистика города</Typography>
+      
       <div className={styles.searchContainer}>
-        <Input
-          placeholder="Найти свой город:"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          className={styles.searchInput}
-        />
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Input
+            placeholder="Найти свой город:"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            className={styles.searchInput}
+          />
+          <Button onClick={handleSearch} variant="primary">
+            Найти
+          </Button>
+        </div>
       </div>
 
       <div className={styles.popularSection}>
@@ -116,11 +110,22 @@ const CityInsightsPage = () => {
       </div>
 
       <div className={styles.statsGrid}>
+        {isLoading && <Typography>Загрузка статистики...</Typography>}
+        
+        {error && (
+          <Typography variant="body1" style={{ color: 'red' }}>
+            {error}
+          </Typography>
+        )}
+        
+        {!isLoading && !error && cityStats.length === 0 && (
+          <Typography>Нет данных для города "{selectedCity}"</Typography>
+        )}
+        
         <div className={styles.statsList}>
           {cityStats.map((item, idx) => (
             <Substrate key={idx} variant="form" className={styles.statItemCard}>
               <div className={styles.statItemContent}>
-                
                 <div className={styles.statItemTexts}>
                   <Typography variant="headline2" className={styles.statItemPercent}>
                     {item.percent}%

@@ -1,52 +1,50 @@
 @use '../../styles/abstracts/variables' as var;
 @use '../../styles/abstracts/mixins' as mix;
 
-.btn{
-    @include mix.buttons;
+.btn {
+  @include mix.buttons;
 
-    box-sizing: border-box;
-    color: var.$dark-main-text;
+  box-sizing: border-box;
+  color: var(--text-primary);
 
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: var.$base-radius;
+  border: var(--border-color);
+  box-shadow: var(--box-shadow);
+  background-color: rgba(160, 82, 45, 0.6);
+  cursor: pointer;
+
+  &.form {
+    min-width: 55.08%;
+    padding: var.$spacing-1;
+    width: 100%;
+  }
+
+  &:active {
+    background-color: var(--button-bg);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+  }
+
+  &.primary {
+    padding: var.$spacing-1 0;
+    width: 100%;
+  }
+
+  &.secondary {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    border-radius: var.$base-radius;
-    border: var.$dark-border;
-    box-shadow: var.$box-shadow;
-    background-color: rgba(160, 82, 45, 0.6);
-    cursor: pointer;
-
-    &.form{
-        min-width: 55.08%;
-        padding: var.$spacing-1;
-        width: 100%;
-    }
-
-    &:active{
-        background-color: var.$dark-buttons;
-    }
-
-    &:disabled{
-        opacity: 0.4;
-    }
-
-    &.primary{
-        padding: var.$spacing-1 0;
-        width: 100%
-    }
-
-    &.secondary{
-        display: flex;
-        border: none;
-        background: var.$dark-decorate2;
-        max-width: 160px;
-        min-width: 140px;
-        padding: var.$spacing-1 var.$spacing-3;
-        flex-direction:column; 
-        gap: 5px;
-        color: var.$dark-basic-text
-    }
-
+    border: none;
+    background: var(--decorate2);
+    max-width: 160px;
+    min-width: 140px;
+    padding: var.$spacing-1 var.$spacing-3;
+    flex-direction: column;
+    gap: 5px;
+    color: var(--text-secondary);
+  }
 }
-

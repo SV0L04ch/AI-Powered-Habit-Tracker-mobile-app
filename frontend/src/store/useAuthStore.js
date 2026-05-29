@@ -7,9 +7,10 @@ import useHabits from "./useHabitsStore";
 import useInsight from "./useInsightStore"
 
 const useAuthUser = create(
-    persist((set) => ({
+    persist((set, get) => ({
         email: null,
         city: null,
+        reportTime: null,  // Добавляем поле для времени отчёта
         isAuthenticated: false,
         isLoading: false,
         error: null,
@@ -45,11 +46,49 @@ const useAuthUser = create(
             }
         },
 
+        // ✅ НОВЫЙ МЕТОД: Получение профиля
+        getProfile: async () => {
+            set({ isLoading: true, error: null });
+            try {
+                const response = await axios.get('/api/profile');
+                set({ 
+                    email: response.data.email,
+                    city: response.data.city,
+                    reportTime: response.data.reportTime,
+                    isLoading: false 
+                });
+                return response.data;
+            } catch (err) {
+                set({ error: getErrorMessage(err), isLoading: false });
+                throw err;
+            }
+        },
+
+        // ✅ НОВЫЙ МЕТОД: Обновление профиля
+        updateProfile: async (profileData) => {
+            set({ isLoading: true, error: null });
+            try {
+                const response = await axios.put('/api/profile', profileData);
+                // Обновляем локальные данные
+                if (profileData.city !== undefined) {
+                    set({ city: profileData.city });
+                }
+                if (profileData.reportTime !== undefined) {
+                    set({ reportTime: profileData.reportTime });
+                }
+                set({ isLoading: false });
+                return response.data;
+            } catch (err) {
+                set({ error: getErrorMessage(err), isLoading: false });
+                throw err;
+            }
+        },
+
         logout: async () => {
             try { await axios.post('/api/auth/logout'); } catch(e){ }
             useHabits.getState().clearHabits();
             useInsight.getState().clearInsight()
-            set({ email: null, city: null, isAuthenticated: false });
+            set({ email: null, city: null, reportTime: null, isAuthenticated: false });
         },
     }),
     {
@@ -57,8 +96,10 @@ const useAuthUser = create(
         partialize: (state) => ({
             email: state.email,
             city: state.city,
+            reportTime: state.reportTime,
             isAuthenticated: state.isAuthenticated
         })
     })
 );
+
 export default useAuthUser;

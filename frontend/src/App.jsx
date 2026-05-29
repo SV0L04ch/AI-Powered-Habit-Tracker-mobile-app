@@ -11,6 +11,7 @@ import ProfilePage from './pages/ProfilePage/ProfilePage';
 import BottomNav from './components/BottomNav/BottomNav';
 import GuestRoute from './components/Guards/GuestRoute';
 import ProtectedAuth from './components/Guards/ProtectedAuth';
+import useThemeStore from './store/useThemeStore';
 import './styles/main.scss'
 
 
@@ -19,6 +20,20 @@ function App() {
   const navigate = useNavigate()
   const tabFromPath = location.pathname.replace('/', '') || 'habits'
   const [activeTab, setActiveTab] = useState(tabFromPath)
+  
+  // Получаем тему из store
+  const { theme } = useThemeStore();
+
+  // Применяем класс темы к body
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme');
+      document.body.classList.remove('light-theme');
+    } else {
+      document.body.classList.add('light-theme');
+      document.body.classList.remove('dark-theme');
+    }
+  }, [theme]);
 
   useEffect(() => {
     setActiveTab(tabFromPath)
@@ -29,11 +44,12 @@ function App() {
     setActiveTab(tabId)
     navigate(tabId || '/habits')
   }
+
   return (
     <div className="container">
       <Routes>
-        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
-        <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/habits" element={<ProtectedAuth><HabitsPage /></ProtectedAuth>} />
         <Route path="/habits/:id" element={<ProtectedAuth><HabitDetailPage /></ProtectedAuth> } />
         <Route path="/insights/personal" element={<ProtectedAuth><PersonalInsightsPage /></ProtectedAuth>} />
