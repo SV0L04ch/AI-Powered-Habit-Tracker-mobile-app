@@ -12,7 +12,8 @@ function PersonalInsightsPage() {
   const {summary, isLoading, error, fetchStats} = useDailySummaryStore()
 
   useEffect(() => {
-    fetchStats()
+    const today = new Date().toISOString().slice(0, 10)
+    fetchStats(today)
   }, [fetchStats])
 
   const productivityPercent = summary && summary.habitsCompleted + summary.habitsPartiallyCompleted + summary.habitsSkipped > 0 ? 
