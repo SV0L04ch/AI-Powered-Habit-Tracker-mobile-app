@@ -39,13 +39,6 @@ function HabitsPage() {
     }
   }, [isAuthenticated]);
 
-  // Открытие модалки AI-совета
-  useEffect(() => {
-    if (insightMessage) {
-      setShowInsightModal(true);
-    }
-  }, [insightMessage]);
-
   const handleCloseInsight = () => {
     setShowInsightModal(false);
     clearInsight();
@@ -127,17 +120,27 @@ function HabitsPage() {
               items={[
                 { 
                   label: 'Редактировать', 
-                  onClick: () => { setEditingHabit(habit); closeMenu(); },
+                  onClick: () => { 
+                    setEditingHabit(habit)
+                    closeMenu() 
+                  },
                   testId: 'edit-habit-btn'
                 },
                 { 
                   label: 'Удалить', 
-                  onClick: () => { handleDelete(habit.id); closeMenu(); },
+                  onClick: () => {
+                    handleDelete(habit.id)
+                    closeMenu()
+                  },
                   testId: 'delete-habit-btn'
                 },
                 { 
                   label: 'Совет дня', 
-                  onClick: () => { fetchSupport(habit.id, habit.name); closeMenu(); },
+                  onClick: () => { 
+                    closeMenu()
+                    setShowInsightModal(true);  
+                    fetchSupport(habit.id, habit.name) 
+                  },
                   testId: 'daily-tip-btn'
                 },
               ]}
@@ -194,7 +197,7 @@ function HabitsPage() {
           {insightMessage && <Typography variant="body1" data-testid="insight-message">{insightMessage}</Typography>}
         </div>
         <div className={styles.modalActions}>
-          <Button variant="primary" onClick={handleCloseInsight} data-testid="insight-close-button">
+          <Button variant="primary" onClick={handleCloseInsight} data-testid="insight-close-button" disabled={isInsightLoading}>
             Хорошо
           </Button>
         </div>
