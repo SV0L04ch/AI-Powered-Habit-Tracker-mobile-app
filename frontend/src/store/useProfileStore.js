@@ -10,7 +10,7 @@ const applyThemeToDOM = (theme) => {
 
 const useProfileStore = create((set, get) => ({
     email: null,
-    theme: 'light',
+    theme: 'dark',
     remindTime: '08:00',
     city: null,
     error: null,
@@ -22,11 +22,11 @@ const useProfileStore = create((set, get) => ({
         set({isLoading: true, error: null})
         try {
             const data = await getProfile()
-            const theme = data.theme || 'light'
+            const theme = data.theme || 'dark'
             applyThemeToDOM(theme)
             set({
                 email: data.email,
-                theme: data.theme || 'light',
+                theme: data.theme || 'dark',
                 remindTime: data.remindTime || '08:00',
                 city: data.city,
                 isLoading: false,
@@ -53,7 +53,7 @@ const useProfileStore = create((set, get) => ({
     updProfile: async (updates) => {
         set({isLoading: true, error: null})
         try {
-            const upd = await updateProfile(updates)
+            const data = await updateProfile(updates)
                   if (data.theme) applyThemeToDOM(data.theme);
             set({
                 email: data.email,
