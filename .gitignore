@@ -6,7 +6,6 @@
 *.cache
 *.log
 .vs/
-.vscode/
 .idea/
 appsettings.Development.json
 appsettings.Production.json
@@ -16,7 +15,7 @@ appsettings.Production.json
 secrets.json
 .env
 
-# ===== Frontend =====
+# ===== Frontend (Vite / React) =====
 node_modules/
 dist/
 dist-ssr/
@@ -27,6 +26,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# ===== Tauri =====
+# Скомпилированные артефакты Rust
+**/src-tauri/target/
+
+# Сгенерированные проекты для мобильных платформ
+**/src-tauri/gen/
+
+# Файлы окружения Tauri (если используются)
+# .env.staging
+# .env.production
+
 # ===== Editor & OS =====
 .vscode/*
 !.vscode/extensions.json
@@ -36,7 +46,6 @@ lerna-debug.log*
 *.ntvs*
 *.njsproj
 *.swp
-*.sln
 
 # ===== Tests =====
 **/TestResults/
