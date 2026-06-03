@@ -22,12 +22,12 @@ const useProfileStore = create((set, get) => ({
         set({isLoading: true, error: null})
         try {
             const data = await getProfile()
-            const theme = data.theme || 'dark'
+            const theme = data.themePreference || 'dark'  // <-- было data.theme
             applyThemeToDOM(theme)
             set({
                 email: data.email,
-                theme: data.theme || 'dark',
-                remindTime: data.remindTime || '08:00',
+                theme: theme,
+                remindTime: data.habitReminderTime || '08:00', // <-- было data.remindTime
                 city: data.city,
                 isLoading: false,
                 isLoaded: true
@@ -36,14 +36,13 @@ const useProfileStore = create((set, get) => ({
             set({error: getErrorMessage(err), isLoading: false})
         }
     },
-
     toggleTheme: async () => {
         const currentTheme = get().theme
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
         applyThemeToDOM(newTheme)
         set ({ theme: newTheme, isLoading: true})
         try {
-            await updateProfile({ theme: newTheme })
+            await updateProfile({ themePreference: newTheme }) // <-- ключ themePreference
             set({isLoading: false})
         } catch (err) {
             set({theme: currentTheme, error: getErrorMessage(err), isLoading: false})
@@ -53,12 +52,21 @@ const useProfileStore = create((set, get) => ({
     updProfile: async (updates) => {
         set({isLoading: true, error: null})
         try {
-            const data = await updateProfile(updates)
-                  if (data.theme) applyThemeToDOM(data.theme);
+            const requestData = { ...updates };
+            if (updates.theme) {
+                requestData.themePreference = updates.theme;
+                delete requestData.theme;
+            }
+            if (updates.remindTime) {
+                requestData.habitReminderTime = updates.remindTime;
+                delete requestData.remindTime;
+            }
+            const data = await updateProfile(requestData)
+            if (data.themePreference) applyThemeToDOM(data.themePreference);
             set({
                 email: data.email,
-                theme: data.theme || get().theme,
-                remindTime: data.remindTime,
+                theme: data.themePreference || get().theme,
+                remindTime: data.habitReminderTime || get().remindTime,
                 city: data.city,
                 isLoading: false,
             })
