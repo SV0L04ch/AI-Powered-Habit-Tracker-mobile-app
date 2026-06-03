@@ -1,94 +1,69 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styles from './CityInsightsPage.module.scss';
 import Substrate from '../../components/Substrate/Substrate';
-import Button from '../../components/Button/Button';
 import Typography from '../../components/Typography/Typography';
 import Input from '../../components/Input/Input';
-import icons from '../../lib/icons';
+import useCitySummaryStore from '../../store/useCitySummaryStore';
+import useProfileStore from '../../store/useProfileStore';
+
+const cityMap = {
+  Москва: 'Москва',
+  'Санкт-Петербург': 'Санкт-Петербург',
+  Новосибирск: 'Новосибирск',
+  Екатеринбург: 'Екатеринбург',
+  Казань: 'Казань',
+};
+
+const popularCityKeys = Object.keys(cityMap);
 
 const CityInsightsPage = () => {
-  const navigate = useNavigate();
-  const [selectedCity, setSelectedCity] = useState('Москва');
+  const [selectedCityKey, setSelectedCityKey] = useState('Moscow');
   const [searchValue, setSearchValue] = useState('');
-  const [stats, setStats] = useState({ totalUsers: 0, completionRate: 0 });
-  const [cityStats, setCityStats] = useState([]);
+  const profileCity = useProfileStore((state) => state.city);
 
-  const popularCities = ['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'];
-
-  
-  const cityDataMap = {
-    Москва: {
-      stats: [
-        { percent: 55, description: 'Бегали в парках до 10 утра' , icons: 'Sneakers'},
-        { percent: 20, description: 'Читали книги перед сном', icons: 'Book' },
-        { percent: 15, description: 'Практиковали осознанность утром', icons: 'Moon' },
-      ],
-    },
-    'Санкт-Петербург': {
-      
-      stats: [
-        { percent: 40, description: 'Посещали музеи в выходные' },
-        { percent: 35, description: 'Гуляли пяо набережным' },
-        { percent: 25, description: 'Пили кофе в уютных кофейнях' },
-      ],
-    },
-    Новосибирск: {
-      
-      stats: [
-        { percent: 30, description: 'Занимались спортом' },
-        { percent: 25, description: 'Читали книги' },
-        { percent: 20, description: 'Медитировали' },
-      ],
-    },
-    Екатеринбург: {
-      
-      stats: [
-        { percent: 35, description: 'Ходили в тренажёрный зал' },
-        { percent: 28, description: 'Гуляли на свежем воздухе' },
-        { percent: 22, description: 'Учились новому' },
-      ],
-    },
-    Казань: {
-      
-      stats: [
-        { percent: 33, description: 'Посещали мероприятия' },
-        { percent: 27, description: 'Занимались творчеством' },
-        { percent: 20, description: 'Общались с друзьями' },
-      ],
-    },
-  };
+  const { data, isLoading, error, fetchCitySummary } = useCitySummaryStore();
 
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  if (profileCity) {
+    const foundKey = Object.keys(cityMap).find(
+      (key) => cityMap[key].toLowerCase() === profileCity.toLowerCase()
+    );
+    if (foundKey) {
+      setSelectedCityKey(foundKey);
+    }
+  }
+}, [profileCity]);
 
-    loadCityData(selectedCity);
-  }, [navigate, selectedCity]);
+  useEffect(() => {
+    fetchCitySummary(selectedCityKey);
+  }, [selectedCityKey, fetchCitySummary]);
 
-  const loadCityData = (city) => {
-    const data = cityDataMap[city] || cityDataMap['Москва'];
-    setStats({
-      totalUsers: data.totalUsers,
-      completionRate: data.completionRate,
-    });
-    setCityStats(data.stats || []);
-  };
-
-  const handleCitySelect = (city) => {
-    setSelectedCity(city);
-    loadCityData(city);
+  const handleCitySelect = (cityKey) => {
+    setSelectedCityKey(cityKey);
   };
 
   const handleSearch = () => {
-    if (searchValue.trim()) {
-      handleCitySelect(searchValue.trim());
-      setSearchValue('');
+    const trimmed = searchValue.trim();
+    if (!trimmed) return;
+    // Ищем ключ по русскому названию
+    const foundKey = Object.keys(cityMap).find(
+      (key) => cityMap[key].toLowerCase() === trimmed.toLowerCase()
+    );
+    if (foundKey) {
+      handleCitySelect(foundKey);
+    } else {
+      // если город не найден, можно показать уведомление
+      alert('Город не найден');
     }
+    setSearchValue('');
   };
 
   return (
     <div className={styles.page}>
-      <Typography variant="headline1" className={styles.title}>Статистика города</Typography>
+      <Typography variant="headline1" className={styles.title}>
+        Статистика города
+      </Typography>
+
       <div className={styles.searchContainer}>
         <Input
           placeholder="Найти свой город:"
@@ -99,16 +74,18 @@ const CityInsightsPage = () => {
       </div>
 
       <div className={styles.popularSection}>
-        <Typography variant="headline3" className={styles.popularTitle}>Популярные города</Typography>
+        <Typography variant="headline3" className={styles.popularTitle}>
+          Популярные города
+        </Typography>
         <div className={styles.horizontalScroll}>
           <div className={styles.cityList}>
-            {popularCities.map((city) => (
+            {popularCityKeys.map((cityKey) => (
               <button
-                key={city}
-                className={`${styles.cityButton} ${selectedCity === city ? styles.activeCity : ''}`}
-                onClick={() => handleCitySelect(city)}
+                key={cityKey}
+                className={`${styles.cityButton} ${selectedCityKey === cityKey ? styles.activeCity : ''}`}
+                onClick={() => handleCitySelect(cityKey)}
               >
-                {city}
+                {cityMap[cityKey]}
               </button>
             ))}
           </div>
@@ -116,23 +93,38 @@ const CityInsightsPage = () => {
       </div>
 
       <div className={styles.statsGrid}>
-        <div className={styles.statsList}>
-          {cityStats.map((item, idx) => (
-            <Substrate key={idx} variant="form" className={styles.statItemCard}>
-              <div className={styles.statItemContent}>
-                
-                <div className={styles.statItemTexts}>
-                  <Typography variant="headline2" className={styles.statItemPercent}>
-                    {item.percent}%
-                  </Typography>
-                  <Typography variant="body2" className={styles.statItemDescription}>
-                    {item.description}
-                  </Typography>
+        {isLoading && <Typography variant="body1">Загрузка...</Typography>}
+        {error && (
+          <Typography variant="body1" style={{ color: 'red' }}>
+            {error}
+          </Typography>
+        )}
+
+        {data && !isLoading && !error && (
+          <div className={styles.statsList}>
+            {data.popularHabits.map((habit, idx) => (
+              <Substrate key={idx} variant="form" className={styles.statItemCard}>
+                <div className={styles.statItemContent}>
+                  <div className={styles.statItemTexts}>
+                    <Typography variant="headline2" className={styles.statItemPercent}>
+                      {habit.percentage}%
+                    </Typography>
+                    <Typography variant="body2" className={styles.statItemDescription}>
+                      {habit.habitName}
+                    </Typography>
+                    <Typography variant="caption">
+                      {habit.userCount} пользоватеaлей
+                    </Typography>
+                  </div>
                 </div>
-              </div>
-            </Substrate>
-          ))}
-        </div>
+              </Substrate>
+            ))}
+          </div>
+        )}
+
+        {data && data.popularHabits.length === 0 && (
+          <Typography variant="body1">Нет данных по выбранному городу</Typography>
+        )}
       </div>
     </div>
   );
