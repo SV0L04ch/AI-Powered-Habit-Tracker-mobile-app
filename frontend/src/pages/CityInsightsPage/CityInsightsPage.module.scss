@@ -1,14 +1,13 @@
 @use '../../styles/abstracts/variables' as var;
 
 .page {
-  background: var.$dark-background;
+  background: var(--app-background);
   border-radius: var.$base-radius;
   font-family: var.$font-family;
 }
 
-
 .title {
-  color: var.$dark-main-text;
+  color: var(--app-text);
   font-size: var.$h1-font-size;
   margin-bottom: 30px;
 }
@@ -18,15 +17,13 @@
 }
 
 .searchInput {
-  background: var.$dark-input;
-  border: var.$dark-border;
-  color: var.$dark-main-text;
+  background: var(--app-input);
+  border: var(--app-border);
+  color: var(--app-text);
 }
 
-
-
 .popularTitle {
-  color: var.$dark-main-text;
+  color: var(--app-text);
   font-size: var.$h3-font-size;
   margin-bottom: 12px;
 }
@@ -45,12 +42,11 @@
 }
 
 .cityButton {
-  
-  background: var.$dark-input;
-  border: var.$dark-border;
+  background: var(--app-input);
+  border: var(--app-border);
   border-radius: var.$base-radius;
   padding: 8px 20px;
-  color: var.$dark-main-text;
+  color: var(--app-text);
   font-size: var.$body1-font-size;
   font-family: inherit;
   cursor: pointer;
@@ -59,17 +55,17 @@
 }
 
 .cityButton:hover {
-  background: var.$dark-decorate;
-  border-color: var.$dark-border;
+  background: var(--app-decorate);
+  border-color: var(--app-border);
 }
 
 .activeCity {
-  background: var.$dark-decorate;
+  background: var(--app-decorate);
 }
 
 .statCard {
   width: 100%;
-  background: var.$dark-substrate;
+  background: var(--app-substrate);
   border-radius: var.$base-radius;
   padding: 16px 20px;
   box-shadow: var.$box-shadow;
@@ -87,12 +83,11 @@
 }
 
 .statItemPercent {
-  color: var.$dark-main-text;
+  color: var(--app-text);
   font-size: var.$h2-font-size;
 }
 
 .statItemDescription {
-  color: var.$dark-main-text;
+  color: var(--app-text);
   font-size: var.$body2-font-size;
 }
-

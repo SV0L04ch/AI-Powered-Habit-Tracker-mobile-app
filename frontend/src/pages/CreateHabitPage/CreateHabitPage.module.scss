@@ -1,36 +1,36 @@
 @use '../../styles/abstracts/variables' as var;
 
-.blocktext{
+.blocktext {
     display: flex;
     flex-direction: column;
     gap: var.$spacing-1;
 }
 
-.buttons{
+.buttons {
     display: flex;
     justify-content: space-between;
-    gap: var.$spacing-2; // небольшой зазор, чтобы кнопки не слипались
+    gap: var.$spacing-2;
 }
 
-.block{
+.block {
     display: flex;
     flex-direction: column;
     gap: var.$spacing-3;
 }
 
-.mainText{
-    color: var.$dark-main-text
+.mainText {
+    color: var(--app-text);
 }
 
-.basicText{
-    color: var.$dark-basic-text;
+.basicText {
+    color: var(--app-text);
 
-    &.desc{
+    &.desc {
         opacity: 0.6;
     }
 }
 
-.stars{
+.stars {
     display: flex;
     gap: 8px;
 }
@@ -40,7 +40,6 @@
     margin-top: 4px;
 }
 
-// Новый класс для вертикального расположения контента внутри кнопки-опции
 .optionContent {
     display: flex;
     flex-direction: column;

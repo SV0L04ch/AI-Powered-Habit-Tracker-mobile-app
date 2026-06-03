@@ -1,47 +1,45 @@
 @use '../../styles/abstracts/variables' as var;
 @use '../../styles/abstracts/mixins' as mix;
 
-.sub{
+.sub {
     @include mix.body1;
     box-sizing: border-box;
-
-    color: var.$dark-basic-text;
+    color: var(--app-text);
     display: flex;
     flex-direction: row;
     align-items: center;
     padding: var.$spacing-2 var.$spacing-3;
-    background: var.$dark-substrate;
+    background: var(--app-substrate);
 
-    &.main{
-        color: var.$dark-main-text;
+    &.main {
+        color: var(--app-text);
         border-radius: var.$secondary-radius;
     }
 
-    &.secondary{
-        color: var.$dark-basic-text;
+    &.secondary {
+        color: var(--app-text);
         padding: var.$spacing-1 var.$spacing-3;
         border-radius: var.$base-radius;
         justify-content: space-between;
     }
 
-    &.form{
+    &.form {
         flex-direction: column;
         border-radius: var.$form-radius;
         width: 100%;
-        color: var.$dark-main-text;
+        color: var(--app-text);
         padding: 30px 24px;
         gap: 30px;
     }
 }
 
-.icon{
+.icon {
     width: 32px;
     height: 32px;
 }
 
-.image{
+.image {
     max-width: 100%;
     height: auto;
     display: block;
 }
-

@@ -1,50 +1,46 @@
 @use '../../styles/abstracts/variables' as var;
 @use '../../styles/abstracts/mixins' as mix;
 
-
-
-.inputContainer{
+.inputContainer {
     width: 100%;
     display: flex;
     align-items: center;
     gap: var.$spacing-1;
-    background: var.$dark-input;
+    background: var(--app-input);
     box-shadow: var.$box-shadow;
     border: 1.5px solid transparent;
     border-radius: var.$base-radius;
     padding: var.$spacing-1 var.$spacing-3;
 
-    &:focus-within{
-        border: var.$dark-border; 
+    &:focus-within {
+        border: var(--app-border);
     }
 
-    &.disabled{
+    &.disabled {
         opacity: 0.5;
     }
-
 }
 
-.field{
+.field {
     outline: none;
     @include mix.body1;
-    
     border: none;
     background: transparent;
     padding: 0;
-    color: var.$dark-placeholder;
+    color: var(--app-text);
 
-    &::placeholder{
-        color: var.$dark-placeholder;
+    &::placeholder {
+        color: var(--app-text-secondary, #666666);
     }
 }
 
-.icon{
+.icon {
     box-sizing: border-box;
     padding: 1px;
     width: 18px;
     height: 18px;
     display: flex;
-    color: var.$dark-placeholder;
+    color: var(--app-text-secondary, #666666);
 }
 
 .icon svg {

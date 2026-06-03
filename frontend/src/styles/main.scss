@@ -1,27 +1,39 @@
-@use './abstracts/_variables.scss' as var;
+@use './abstracts/variables' as var;
 
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-:root,
-[data-theme="dark"] {
-    --app-background: #{var.$dark-background};
-}
-
-[data-theme="light"]{
+// Светлая тема
+:root {
     --app-background: #{var.$light-background};
     --app-text: #{var.$light-text};
+    --app-substrate: #{var.$light-substrate};
+    --app-decorate: #{var.$light-decorate};
+    --app-input: #{var.$light-input};
+    --app-border: #{var.$light-border};
+    --app-buttons: #{var.$light-background-buttons};
 }
 
-body{
+// Тёмная тема
+[data-theme="dark"] {
+    --app-background: #{var.$dark-background};
+    --app-text: #{var.$dark-main-text};
+    --app-substrate: #{var.$dark-substrate};
+    --app-decorate: #{var.$dark-decorate};
+    --app-input: #{var.$dark-input};
+    --app-border: #{var.$dark-border};
+    --app-buttons: #{var.$dark-buttons};
+}
+
+body {
     background-color: var(--app-background);
     color: var(--app-text);
 }
 
-.container{
+.container {
     width: 338px;
     margin: 0 auto;
 }

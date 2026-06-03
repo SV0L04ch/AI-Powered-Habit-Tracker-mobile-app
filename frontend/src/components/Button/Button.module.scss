@@ -5,16 +5,16 @@
     @include mix.buttons;
 
     box-sizing: border-box;
-    color: var.$dark-main-text;
+    color: var(--app-text);  
 
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     border-radius: var.$base-radius;
-    border: var.$dark-border;
+    border: var(--app-border);  
     box-shadow: var.$box-shadow;
-    background-color: rgba(160, 82, 45, 0.6);
+    background-color: var(--app-buttons);  
     cursor: pointer;
 
     &.form{
@@ -24,7 +24,7 @@
     }
 
     &:active{
-        background-color: var.$dark-buttons;
+        background-color: var(--app-buttons-active);  // ← добавим позже
     }
 
     &:disabled{
@@ -33,20 +33,20 @@
 
     &.primary{
         padding: var.$spacing-1 0;
-        width: 100%
+        width: 100%;
+        background: var(--app-buttons);
+        color: var(--app-text);
     }
 
     &.secondary{
         display: flex;
         border: none;
-        background: var.$dark-decorate2;
+        background: var(--app-decorate);
         max-width: 160px;
         min-width: 140px;
         padding: var.$spacing-1 var.$spacing-3;
         flex-direction:column; 
         gap: 5px;
-        color: var.$dark-basic-text
+        color: var(--app-text);
     }
-
 }
-
