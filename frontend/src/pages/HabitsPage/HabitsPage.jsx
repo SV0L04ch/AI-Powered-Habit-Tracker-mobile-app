@@ -39,13 +39,6 @@ function HabitsPage() {
     }
   }, [isAuthenticated]);
 
-  // Открытие модалки AI-совета
-  useEffect(() => {
-    if (insightMessage) {
-      setShowInsightModal(true);
-    }
-  }, [insightMessage]);
-
   const handleCloseInsight = () => {
     setShowInsightModal(false);
     clearInsight();
@@ -75,7 +68,7 @@ function HabitsPage() {
   };
 
   const handleToggleActive = async (habit) => {
-    await updateHabit(habit.id, { isActive: !habit.is_active });
+    await updateHabit(habit.id, { isActive: !habit.isActive });
     setMenuData(null);
   };
 
@@ -83,19 +76,20 @@ function HabitsPage() {
     navigate('/habits/new');
   };
 
-  const activeHabits = habits.filter((h) => h.is_active !== false);
-  const completedHabits = habits.filter((h) => h.is_active === false);
+  const activeHabits = habits.filter((h) => h.isActive !== false);
+  const completedHabits = habits.filter((h) => h.isActive === false);
 
   const renderHabitCard = (habit, isCompleted = false) => (
     <Substrate 
       key={habit.id} 
       variant="secondary" 
+      className={isCompleted ? styles.completedHabit : ''}
       data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}`}
     >
       <div className={styles.habitWrap}>
         <div className={styles.checkDesc}>
           <Checkbox 
-            checked={!!habit.is_active}
+            checked={!habit.isActive}
             onChange={() => !isCompleted && handleToggleActive(habit)}
             disabled={isCompleted}
             data-testid={`${isCompleted ? 'inactive' : 'active'}-habit-${habit.id}-checkbox`}
@@ -127,17 +121,27 @@ function HabitsPage() {
               items={[
                 { 
                   label: 'Редактировать', 
-                  onClick: () => { setEditingHabit(habit); closeMenu(); },
+                  onClick: () => { 
+                    setEditingHabit(habit)
+                    closeMenu() 
+                  },
                   testId: 'edit-habit-btn'
                 },
                 { 
                   label: 'Удалить', 
-                  onClick: () => { handleDelete(habit.id); closeMenu(); },
+                  onClick: () => {
+                    handleDelete(habit.id)
+                    closeMenu()
+                  },
                   testId: 'delete-habit-btn'
                 },
                 { 
                   label: 'Совет дня', 
-                  onClick: () => { fetchSupport(habit.id, habit.name); closeMenu(); },
+                  onClick: () => { 
+                    closeMenu()
+                    setShowInsightModal(true);  
+                    fetchSupport(habit.id, habit.name) 
+                  },
                   testId: 'daily-tip-btn'
                 },
               ]}
@@ -159,7 +163,7 @@ function HabitsPage() {
       {habitsError && <Typography variant="body1" style={{ color: 'red' }} data-testid="server-error">Ошибка: {habitsError}</Typography>}
 
       <Typography variant="body1">
-        Твой прогресс сегодня: {habits.length > 0 ? `${habits.length}/5 привычек` : 'Нет данных'}
+        Твой прогресс сегодня: {habits.length > 0 ? `${completedHabits.length}/${habits.length} привычек` : 'Нет данных'}
       </Typography>
 
       <div className={styles.blockHabits} data-testid="active-habits-section">
@@ -194,7 +198,7 @@ function HabitsPage() {
           {insightMessage && <Typography variant="body1" data-testid="insight-message">{insightMessage}</Typography>}
         </div>
         <div className={styles.modalActions}>
-          <Button variant="primary" onClick={handleCloseInsight} data-testid="insight-close-button">
+          <Button variant="primary" onClick={handleCloseInsight} data-testid="insight-close-button" disabled={isInsightLoading}>
             Хорошо
           </Button>
         </div>

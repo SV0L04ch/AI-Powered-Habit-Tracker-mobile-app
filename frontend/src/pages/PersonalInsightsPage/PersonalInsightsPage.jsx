@@ -7,16 +7,20 @@ import images from '../../lib/images';
 import styles from './PersonalInsights.module.scss';
 import HistoryCard from '../../components/HistoryCard/HistoryCard';
 import useDailySummaryStore from '../../store/useDailySummaryStore';
+import useHabits from '../../store/useHabitsStore';
 
 function PersonalInsightsPage() {
+
+  const habits = useHabits((state) => state.habits);
+  const completedCount = habits.filter(h => h.isActive === false).length;
+  const totalCount = habits.length;
+  const productivityPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : null;
   const {summary, isLoading, error, fetchStats} = useDailySummaryStore()
 
   useEffect(() => {
-    fetchStats()
+    const today = new Date().toISOString().slice(0, 10)
+    fetchStats(today)
   }, [fetchStats])
-
-  const productivityPercent = summary && summary.habitsCompleted + summary.habitsPartiallyCompleted + summary.habitsSkipped > 0 ? 
-  Math.round((summary.habitsCompleted / (summary.habitsCompleted + summary.habitsPartiallyCompleted + summary.habitsSkipped)) * 100) : null
 
   const transparency = `${styles.basicText} ${styles.transparancy}`
   return (
