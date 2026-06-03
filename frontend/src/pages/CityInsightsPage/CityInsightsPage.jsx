@@ -7,14 +7,14 @@ import useCitySummaryStore from '../../store/useCitySummaryStore';
 import useProfileStore from '../../store/useProfileStore';
 
 const cityMap = {
-  Moscow: 'Москва',
-  Spb: 'Санкт-Петербург',
-  Novosibirsk: 'Новосибирск',
-  Ekaterinburg: 'Екатеринбург',
-  Kazan: 'Казань',
+  Москва: 'Москва',
+  'Санкт-Петербург': 'Санкт-Петербург',
+  Новосибирск: 'Новосибирск',
+  Екатеринбург: 'Екатеринбург',
+  Казань: 'Казань',
 };
 
-const popularCityKeys = Object.keys(cityMap); // ['moscow', 'spb', ...]
+const popularCityKeys = Object.keys(cityMap);
 
 const CityInsightsPage = () => {
   const [selectedCityKey, setSelectedCityKey] = useState('Moscow');
@@ -24,15 +24,15 @@ const CityInsightsPage = () => {
   const { data, isLoading, error, fetchCitySummary } = useCitySummaryStore();
 
   useEffect(() => {
-    if (profileCity) {
-      const foundKey = Object.keys(cityMap).find(
-        (key) => cityMap[key].toLowerCase() === profileCity.toLowerCase()
-      );
-      if (foundKey) {
-        setSelectedCityKey(foundKey);
-      }
+  if (profileCity) {
+    const foundKey = Object.keys(cityMap).find(
+      (key) => cityMap[key].toLowerCase() === profileCity.toLowerCase()
+    );
+    if (foundKey) {
+      setSelectedCityKey(foundKey);
     }
-  }, [profileCity]);
+  }
+}, [profileCity]);
 
   useEffect(() => {
     fetchCitySummary(selectedCityKey);
