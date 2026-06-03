@@ -1,46 +1,45 @@
 @use '../../styles/abstracts/variables' as var;
 
-.cards{
+.cards {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.card{
+.card {
     width: 100%;
     display: flex;
     justify-content: space-between;
 }
 
-.card .cardLeft{
+.card .cardLeft {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.card .cardRight{
+.card .cardRight {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     text-align: right;
-    gap: 5px
+    gap: 5px;
 }
 
-.blockHistory{
+.blockHistory {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.basicText{
-    color: var.$dark-basic-text;
+.basicText {
+    color: var(--app-text);
 
-        &.transparancy{
+    &.transparancy {
         opacity: 0.6;
     }
 }
 
-.mainText{
-    color: var.$dark-main-text;
-
+.mainText {
+    color: var(--app-text);
 }

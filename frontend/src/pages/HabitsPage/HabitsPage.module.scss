@@ -1,58 +1,58 @@
 @use "../../styles/abstracts/variables" as var;
 
-.desc{
+.desc {
     display: flex;
     flex-direction: column;
     gap: var.$base-spacing;
 }
 
-.captions{
+.captions {
     display: flex;
     gap: var.$spacing-2;
 }
 
-.checkDesc{
+.checkDesc {
     display: flex;
     gap: var.$spacing-2;
     align-items: center;
 }
 
-.blockHabits{
+.blockHabits {
     display: flex;
     gap: var.$spacing-1;
     flex-direction: column;
 }
 
 .insightContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
 }
 
 .modalActions {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
 }
 
 .menuButton {
-  background: none;
-  border: none;
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
-  cursor: pointer;
-  padding: 0 8px;
-  line-height: 1;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-  &:hover {
-    opacity: 1;
-  }
+    background: none;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--app-text);
+    cursor: pointer;
+    padding: 0 8px;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    &:hover {
+        opacity: 1;
+    }
 }
 
-.habitWrap{
+.habitWrap {
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -60,5 +60,5 @@
 }
 
 .completedHabit {
-  opacity: 0.6;
+    opacity: 0.6;
 }

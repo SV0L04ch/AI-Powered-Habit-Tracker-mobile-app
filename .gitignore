@@ -39,4 +39,4 @@ lerna-debug.log*
 *.sln
 
 # ===== Tests =====
-**/TestResults/
+**/TestResults/AI-Powered-Habit-Tracker-mobile-app/

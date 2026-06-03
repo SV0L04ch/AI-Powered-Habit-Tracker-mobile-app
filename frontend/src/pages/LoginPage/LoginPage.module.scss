@@ -1,12 +1,12 @@
 @use '../../styles/abstracts/_variables.scss' as var;
 
-.auth{
-  color: var.$dark-main-text;
+.auth {
+  color: var(--app-text);
 }
 
 .link {
   font-size: var.$buttons-font-size;
-  color: var.$dark-main-text;
+  color: var(--app-text);
   text-decoration: none;
 }
 
@@ -16,13 +16,13 @@
   height: 108px;
   left: 94px;
   top: -36px;
-  border-radius: var.$circle;          
-  background: var.$dark-decorate;        
-  pointer-events: none;        
-  z-index: 0;                    
+  border-radius: var.$circle;
+  background: var(--app-decorate);
+  pointer-events: none;
+  z-index: 0;
   box-shadow: var.$box-shadow;
-  };
-  
+}
+
 .circle2 {
   position: absolute;
   width: 217px;
@@ -30,11 +30,11 @@
   left: 281px;
   top: -68px;
   border-radius: var.$circle;
-  background: var.$dark-decorate;
-  pointer-events: none;        
-  z-index: 0;                    
+  background: var(--app-decorate);
+  pointer-events: none;
+  z-index: 0;
   box-shadow: var.$box-shadow;
-  };
+}
 
 .circle3 {
   position: absolute;
@@ -43,12 +43,12 @@
   left: -85px;
   top: 600px;
   border-radius: var.$circle;
-  background: var.$dark-decorate;
-  pointer-events: none;        
-  z-index: 0;                    
+  background: var(--app-decorate);
+  pointer-events: none;
+  z-index: 0;
   box-shadow: var.$box-shadow;
-  };
-  
+}
+
 .circle4 {
   position: absolute;
   width: 108px;
@@ -56,50 +56,49 @@
   left: 360px;
   top: 840px;
   border-radius: var.$circle;
-  background: var.$dark-decorate;
-  pointer-events: none;        
-  z-index: 0;                    
-  box-shadow: var.$box-shadow;     
-  };
-  
+  background: var(--app-decorate);
+  pointer-events: none;
+  z-index: 0;
+  box-shadow: var.$box-shadow;
+}
+
 .page {
   display: flex;
   flex-direction: column;
-  align-items: center;    
+  align-items: center;
   justify-content: center;
   gap: 10px;
 }
 
 .error {
-  font-size: '13px';
-  color: '#ff3b30';
-  margin-top: '-12px';
-  margin-bottom: '12px';
-  text-align: 'left';
-};
+  font-size: 13px;
+  color: #ff3b30;
+  margin-top: -12px;
+  margin-bottom: 12px;
+  text-align: left;
+}
 
-.centeredPage{
+.centeredPage {
   min-height: 100vh;
   justify-content: center;
   overflow: hidden;
 }
 
-form{
+form {
   width: 100%;
 }
 
-.form{
+.form {
   display: flex;
   flex-direction: column;
   gap: 30px;
   align-items: center;
 }
 
-.Buttons{
-    width: 195px;
+.Buttons {
+  width: 195px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   align-items: center;
 }
-

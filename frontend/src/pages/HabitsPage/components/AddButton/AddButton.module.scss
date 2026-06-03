@@ -3,7 +3,7 @@
 .icon {
   width: 20px;
   height: 20px;
-  color: var.$dark-main-text;
+  color: var(--app-text);
 }
 
 .addButton {
@@ -15,7 +15,7 @@
   justify-content: center;
   width: 50px;
   height: 50px;
-  background-color: var.$dark-buttons;
+  background-color: var(--app-buttons);
   border-radius: var.$circle;
   border: none;
   cursor: pointer;

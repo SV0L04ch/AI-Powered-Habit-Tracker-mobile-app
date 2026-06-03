@@ -1,0 +1,19 @@
+@use './abstracts/variables' as var;
+@use './abstracts/theme';  // ← подключаем тему
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var.$font-family;
+}
+
+.container {
+    width: 338px;
+    margin: 0 auto;
+}
