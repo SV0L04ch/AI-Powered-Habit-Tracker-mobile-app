@@ -71,8 +71,9 @@ public sealed class HabitService : IHabitService
     /// <inheritdoc />
     public async Task<HabitDto?> UpdateHabitAsync(Guid userId, Guid habitId, UpdateHabitDto request, CancellationToken cancellationToken)
     {
+        // Ищем привычку без фильтра IsActive, чтобы можно было повторно активировать
         var habit = await _dbContext.Habits
-            .FirstOrDefaultAsync(h => h.Id == habitId && h.UserId == userId && h.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(h => h.Id == habitId && h.UserId == userId, cancellationToken);
         if (habit is null) return null;
 
         if (request.Name != null)
@@ -91,6 +92,9 @@ public sealed class HabitService : IHabitService
             habit.PenaltyDaysPerMiss = request.PenaltyDaysPerMiss.Value;
         if (request.Reminders != null)
             habit.Reminders = request.Reminders;
+        // Новая проверка – теперь IsActive обновляется
+        if (request.IsActive.HasValue)
+            habit.IsActive = request.IsActive.Value;
 
         // Проверка корректности TriggerValue после обновления
         if (!string.IsNullOrEmpty(habit.TriggerValue) && !IsValidTriggerValue(habit.TriggerType, habit.TriggerValue))

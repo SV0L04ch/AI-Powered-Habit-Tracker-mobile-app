@@ -32,4 +32,7 @@ public sealed class UpdateHabitDto
 
     /// <summary>Новый список времён напоминаний в формате HH:mm.</summary>
     public List<string>? Reminders { get; set; }
+    
+    /// <summary>Активна ли привычка (soft delete).</summary>
+    public bool? IsActive { get; set; }
 }
