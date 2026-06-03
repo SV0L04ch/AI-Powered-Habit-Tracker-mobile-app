@@ -223,7 +223,10 @@ docker compose down
 
 - `@SV0L04ch`
 - `@jakepz23`
-
+- `@Mungums`
+- `@arcteryx00`
+- `@Chomachok`
+  
 ## Лицензия
 
 Проект распространяется под лицензией MIT. Подробности см. в файле `LICENSE`.
