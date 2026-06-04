@@ -4,20 +4,21 @@
 .sub {
     @include mix.body1;
     box-sizing: border-box;
-    color: var(--app-text);
+
+    color: var(--app-basic-text);
     display: flex;
     flex-direction: row;
     align-items: center;
     padding: var.$spacing-2 var.$spacing-3;
     background: var(--app-substrate);
 
-    &.main {
-        color: var(--app-text);
+    &.main{
+        color: var(--app-basic-text);
         border-radius: var.$secondary-radius;
     }
 
-    &.secondary {
-        color: var(--app-text);
+    &.secondary{
+        color: var(--app-basic-text);
         padding: var.$spacing-1 var.$spacing-3;
         border-radius: var.$base-radius;
         justify-content: space-between;
@@ -27,7 +28,7 @@
         flex-direction: column;
         border-radius: var.$form-radius;
         width: 100%;
-        color: var(--app-text);
+        color: var(--app-basic-text);
         padding: 30px 24px;
         gap: 30px;
     }

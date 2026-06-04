@@ -1,52 +1,52 @@
-@use '../../styles/abstracts/variables' as var;
 @use '../../styles/abstracts/mixins' as mix;
+@use '../../styles/abstracts/variables' as var;
 
-.btn{
+.btn {
     @include mix.buttons;
 
     box-sizing: border-box;
-    color: var(--app-text);  
-
+    color: var(--app-text);
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    border-radius: var.$base-radius;
-    border: var(--app-border);  
-    box-shadow: var.$box-shadow;
-    background-color: var(--app-buttons);  
+    border-radius: 16px;
+    border: var(--app-border);
+    box-shadow: 0px 0px 16px 1px rgba(0, 0, 0, 0.2);
+    background-color: var(--app-buttons);
     cursor: pointer;
 
-    &.form{
+    &.form {
         min-width: 55.08%;
-        padding: var.$spacing-1;
+        padding: 10px 0;
         width: 100%;
     }
 
-    &:active{
-        background-color: var(--app-buttons-active);  // ← добавим позже
-    }
-
-    &:disabled{
-        opacity: 0.4;
-    }
-
-    &.primary{
-        padding: var.$spacing-1 0;
+    &.primary {
+        padding: 10px 0;
         width: 100%;
         background: var(--app-buttons);
         color: var(--app-text);
     }
 
-    &.secondary{
+    &.secondary {
         display: flex;
         border: none;
         background: var(--app-decorate);
         max-width: 160px;
         min-width: 140px;
-        padding: var.$spacing-1 var.$spacing-3;
-        flex-direction:column; 
+        padding: 10px 15px;
+        flex-direction: column;
         gap: 5px;
-        color: var(--app-text);
+        color: var(--app-basic-text);
+    }
+
+    &:active {
+        background-color: var(--app-buttons-active);
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
 }

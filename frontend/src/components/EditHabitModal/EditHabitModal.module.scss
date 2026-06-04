@@ -33,9 +33,7 @@
 }
 
 .label {
-  display: block;
-  color: var(--app-text-secondary, #666666);  
-  margin-bottom: var.$spacing-1;
+  color: var(--app-basic-text);
 }
 
 .input {

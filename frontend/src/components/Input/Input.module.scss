@@ -12,8 +12,8 @@
     border-radius: var.$base-radius;
     padding: var.$spacing-1 var.$spacing-3;
 
-    &:focus-within {
-        border: var(--app-border);
+    &:focus-within{
+        border: var(--app-border); 
     }
 
     &.disabled {
@@ -27,10 +27,10 @@
     border: none;
     background: transparent;
     padding: 0;
-    color: var(--app-text);
+    color: var(--app-basictext);
 
-    &::placeholder {
-        color: var(--app-text-secondary, #666666);
+    &::placeholder{
+        color: var(--app-placeholder);
     }
 }
 

@@ -2,12 +2,12 @@
 
 .page {
   background: var(--app-background);
-  padding: 30px 20px 40px;
-  margin-top: -40px;
+  padding: 30px 20px 40px;    
+  margin-top: -40px;  
 }
 
 .title {
-  color: var(--app-text);
+  color: var(--app-basic-text);
   font-size: var.$h1-font-size;
   text-align: center;
   margin-bottom: 12px;
@@ -22,7 +22,7 @@
 }
 
 .name {
-  color: var(--app-text);
+  color: var(--app-basic-text);
   font-size: var.$h2-font-size;
   text-align: center;
   margin-bottom: 40px;
@@ -30,7 +30,7 @@
 }
 
 .sectionTitle {
-  color: var(--app-text);
+  color: var(--app-basic-text);
   font-size: var.$h3-font-size;
   margin-bottom: 10px;
 }
@@ -53,7 +53,7 @@
   border: var(--app-border);
   border-radius: var.$base-radius;
   padding: 6px 12px;
-  color: var(--app-text);
+  color: var(--app-basic-text);
   font-size: 14px;
   font-family: var.$font-family;
   cursor: pointer;
@@ -64,7 +64,7 @@
   border: var(--app-border);
   border-radius: var.$base-radius;
   padding: 6px 12px;
-  color: var(--app-text);
+  color: var(--app-basic-text);
   font-size: 14px;
   font-family: var.$font-family;
   cursor: pointer;
@@ -76,7 +76,7 @@
   height: 30px;
   flex-shrink: 0;
   margin-right: 12px;
-  color: var(--app-text);
+  color: var(--app-basic-text); 
 }
 
 .logoutButton {

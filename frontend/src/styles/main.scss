@@ -6,7 +6,11 @@
     box-sizing: border-box;
 }
 
+<<<<<<< HEAD
 // Светлая тема
+=======
+// Светлая тема (по умолчанию)
+>>>>>>> main
 :root {
     --app-background: #{var.$light-background};
     --app-text: #{var.$light-text};
@@ -14,18 +18,35 @@
     --app-decorate: #{var.$light-decorate};
     --app-input: #{var.$light-input};
     --app-border: #{var.$light-border};
+<<<<<<< HEAD
     --app-buttons: #{var.$light-background-buttons};
+=======
+    --app-buttons: #{var.$light-input};
+    --app-buttons-active: #45B1C0;
+    --app-basic-text: #{var.$light-text};
+    --app-placeholder: #{var.$light-placeholder};
+>>>>>>> main
 }
 
 // Тёмная тема
 [data-theme="dark"] {
+<<<<<<< HEAD
+=======
+    --app-placeholder: #{var.$dark-placeholder};
+>>>>>>> main
     --app-background: #{var.$dark-background};
     --app-text: #{var.$dark-main-text};
     --app-substrate: #{var.$dark-substrate};
     --app-decorate: #{var.$dark-decorate};
     --app-input: #{var.$dark-input};
     --app-border: #{var.$dark-border};
+<<<<<<< HEAD
     --app-buttons: #{var.$dark-buttons};
+=======
+    --app-buttons: #{rgba(160, 82, 45, 0.6)};
+    --app-buttons-active: #{var.$dark-buttons};
+    --app-basic-text: #{var.$dark-basic-text};
+>>>>>>> main
 }
 
 body {

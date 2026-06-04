@@ -32,14 +32,15 @@
     gap: 10px;
 }
 
-.basicText {
-    color: var(--app-text);
+.basicText{
+    color: var(--app-basic-text);
 
     &.transparancy {
         opacity: 0.6;
     }
 }
 
-.mainText {
-    color: var(--app-text);
+.mainText{
+    color: var(--app-basic-text);
+
 }
