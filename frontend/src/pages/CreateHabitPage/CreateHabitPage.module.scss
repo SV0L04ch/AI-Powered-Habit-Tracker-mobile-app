@@ -19,11 +19,11 @@
 }
 
 .mainText{
-    color: var.$dark-main-text
+    color: var(--app-basic-text)
 }
 
 .basicText{
-    color: var.$dark-basic-text;
+    color: var(--app-basic-text);
 
     &.desc{
         opacity: 0.6;
