@@ -95,8 +95,8 @@ const handleSubmit = async (e) => {
               >
                 <div className={styles.optionContent}>
                   <icons.Wristwatch />
-                  <Typography variant='body2' className={styles.basicText}>Время</Typography>
-                  <Typography variant='caption' className={descClass}>Напоминание</Typography>
+                  <Typography variant='body2' className={!habit.type ? styles.basicText : styles.inactiveText}>Время</Typography>
+                  <Typography variant='caption' className={!habit.type ? descClass : `${descClass} ${styles.inactiveDesc}`}>Напоминание</Typography>
                 </div>
               </Button>
               <Button
@@ -106,8 +106,8 @@ const handleSubmit = async (e) => {
               >
                 <div className={styles.optionContent}>
                   <icons.Count className={styles.basicText} />
-                  <Typography variant='body2' className={styles.basicText}>Повторы</Typography>
-                  <Typography variant='caption' className={descClass}>Счетчик</Typography>
+                  <Typography variant='body2' className={habit.type ? styles.basicText : styles.inactiveText}>Повторы</Typography>
+                  <Typography variant='caption' className={habit.type ? descClass : `${descClass} ${styles.inactiveDesc}`}>Счетчик</Typography>
                 </div>
               </Button>
             </div>
@@ -116,36 +116,36 @@ const handleSubmit = async (e) => {
           <div className={styles.blocktext}>
             <Typography variant='headline2' className={styles.mainText}>Сложность</Typography>
             <div className={styles.buttons}>
-              <Button
-                variant={habit.category ? 'primary' : 'secondary'}
-                onClick={() => setHabit({ ...habit, category: true })}
-                data-testid="categoryType-hard-button"
-              >
-                <div className={styles.optionContent}>
-                  <div className={styles.stars}>
-                    <icons.FillStar />
-                    <icons.FillStar />
-                    <icons.FillStar />
-                  </div>
-                  <Typography variant='body2' className={styles.basicText}>Тяжело</Typography>
-                  <Typography variant='caption' className={descClass}>Штрафы<br/> за пропуск</Typography>
+            <Button
+              variant={habit.category ? 'primary' : 'secondary'}
+              onClick={() => setHabit({ ...habit, category: true })}
+              data-testid="categoryType-hard-button"
+            >
+              <div className={styles.optionContent}>
+                <div className={styles.stars}>
+                  <icons.FillStar />
+                  <icons.FillStar />
+                  <icons.FillStar />
                 </div>
-              </Button>
-              <Button
-                variant={!habit.category ? 'primary' : 'secondary'}
-                onClick={() => setHabit({ ...habit, category: false })}
-                data-testid="categoryType-easy-button"
-              >
-                <div className={styles.optionContent}>
-                  <div className={styles.stars}>
-                    <icons.EmptyStar />
-                    <icons.EmptyStar />
-                    <icons.EmptyStar />
-                  </div>
-                  <Typography variant='body2' className={styles.basicText}>Легко</Typography>
-                  <Typography variant='caption' className={descClass}>Нету штрафов<br/> за пропуск</Typography>
+                <Typography variant='body2' className={habit.category ? styles.basicText : styles.inactiveText}>Тяжело</Typography>
+                <Typography variant='caption' className={habit.category ? descClass : `${descClass} ${styles.inactiveDesc}`}>Штрафы<br/> за пропуск</Typography>
+              </div>
+            </Button>
+            <Button
+              variant={!habit.category ? 'primary' : 'secondary'}
+              onClick={() => setHabit({ ...habit, category: false })}
+              data-testid="categoryType-easy-button"
+            >
+              <div className={styles.optionContent}>
+                <div className={styles.stars}>
+                  <icons.EmptyStar />
+                  <icons.EmptyStar />
+                  <icons.EmptyStar />
                 </div>
-              </Button>
+                <Typography variant='body2' className={!habit.category ? styles.basicText : styles.inactiveText}>Легко</Typography>
+                <Typography variant='caption' className={!habit.category ? descClass : `${descClass} ${styles.inactiveDesc}`}>Нету штрафов<br/> за пропуск</Typography>
+              </div>
+            </Button>
             </div>
           </div>
         </div>

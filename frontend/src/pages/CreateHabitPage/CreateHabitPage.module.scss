@@ -53,3 +53,11 @@
     flex-direction: column;
     gap: var.$spacing-3;
 }
+
+.inactiveText {
+    color: var(--app-text-inactive);
+}
+
+.inactiveDesc {
+    color: var(--app-text-inactive);
+}
