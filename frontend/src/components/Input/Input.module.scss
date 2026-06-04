@@ -8,14 +8,14 @@
     display: flex;
     align-items: center;
     gap: var.$spacing-1;
-    background: var.$dark-input;
+    background: var(--app-input);
     box-shadow: var.$box-shadow;
     border: 1.5px solid transparent;
     border-radius: var.$base-radius;
     padding: var.$spacing-1 var.$spacing-3;
 
     &:focus-within{
-        border: var.$dark-border; 
+        border: var(--app-border); 
     }
 
     &.disabled{
@@ -31,10 +31,10 @@
     border: none;
     background: transparent;
     padding: 0;
-    color: var.$dark-placeholder;
+    color: var(--app-basictext);
 
     &::placeholder{
-        color: var.$dark-placeholder;
+        color: var(--app-placeholder);
     }
 }
 

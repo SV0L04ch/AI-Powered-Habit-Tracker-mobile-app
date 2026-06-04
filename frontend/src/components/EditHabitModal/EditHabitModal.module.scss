@@ -13,7 +13,7 @@
 }
 
 .label {
-  color: var.$dark-main-text;
+  color: var(--app-basic-text);
 }
 
 .buttons {

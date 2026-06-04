@@ -1,27 +1,45 @@
 @use './abstracts/_variables.scss' as var;
 
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-:root,
-[data-theme="dark"] {
-    --app-background: #{var.$dark-background};
-}
-
-[data-theme="light"]{
+// Светлая тема (по умолчанию)
+:root {
     --app-background: #{var.$light-background};
     --app-text: #{var.$light-text};
+    --app-substrate: #{var.$light-substrate};
+    --app-decorate: #{var.$light-decorate};
+    --app-input: #{var.$light-input};
+    --app-border: #{var.$light-border};
+    --app-buttons: #{var.$light-input};
+    --app-buttons-active: #45B1C0;
+    --app-basic-text: #{var.$light-text};
+    --app-placeholder: #{var.$light-placeholder};
 }
 
-body{
+// Тёмная тема
+[data-theme="dark"] {
+    --app-placeholder: #{var.$dark-placeholder};
+    --app-background: #{var.$dark-background};
+    --app-text: #{var.$dark-main-text};
+    --app-substrate: #{var.$dark-substrate};
+    --app-decorate: #{var.$dark-decorate};
+    --app-input: #{var.$dark-input};
+    --app-border: #{var.$dark-border};
+    --app-buttons: #{rgba(160, 82, 45, 0.6)};
+    --app-buttons-active: #{var.$dark-buttons};
+    --app-basic-text: #{var.$dark-basic-text};
+}
+
+body {
     background-color: var(--app-background);
     color: var(--app-text);
 }
 
-.container{
+.container {
     width: 338px;
     margin: 0 auto;
 }

@@ -33,7 +33,7 @@
 }
 
 .basicText{
-    color: var.$dark-basic-text;
+    color: var(--app-basic-text);
 
         &.transparancy{
         opacity: 0.6;
@@ -41,6 +41,6 @@
 }
 
 .mainText{
-    color: var.$dark-main-text;
+    color: var(--app-basic-text);
 
 }

@@ -1,6 +1,6 @@
 .menu {
   position: fixed;
-  background: #2A3E4C;
+  background: var(--app-substrate);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   padding: 8px 0;
@@ -11,11 +11,11 @@
 
 .menuItem {
   padding: 10px 16px;
-  color: #fff;
+  color: var(--app-basic-text);
   cursor: pointer;
   transition: background 0.2s;
   &:hover {
-    background: #A0522D;
+    background: var(--app-buttons-active);
   }
 }
 

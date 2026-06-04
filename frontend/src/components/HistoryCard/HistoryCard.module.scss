@@ -1,7 +1,7 @@
 @use '../../styles/abstracts/variables' as var;
 
 .basicText{
-    color: var.$dark-basic-text;
+    color: var(--app-basic-text);
 }
 
 .historyCard{
