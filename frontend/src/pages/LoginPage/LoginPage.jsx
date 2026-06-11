@@ -101,10 +101,10 @@ const LoginPage = () => {
           )}
 
           <Button type="submit" variant="form" loading={isLoading} data-testid="login-button">
-            Войти
+            {t('auth.login')}
           </Button>
           <Link to="/register" className={styles.link} data-testid="register-link">
-            Создать аккаунт
+            {t('auth.createAccount')}
           </Link>
         </form>
       </section>
