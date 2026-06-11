@@ -1,0 +1,13 @@
+.page { animation: slideUp 300ms var(--ease-out-expo) both; max-width: 560px; }
+h1 { font-size: var(--text-2xl); font-weight: var(--weight-bold); margin-bottom: var(--space-xl); }
+.form { display: flex; flex-direction: column; gap: var(--space-md); }
+.field { display: flex; flex-direction: column; gap: var(--space-2xs); }
+.field label { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--app-text-secondary); }
+.field input, .field select { padding: var(--space-sm) var(--space-md); border-radius: var(--app-radius-sm); border: 1px solid var(--app-border-strong); background: var(--app-surface); font-size: var(--text-base); transition: all var(--app-transition); }
+.field input:focus, .field select:focus { outline: none; border-color: var(--app-primary); box-shadow: 0 0 0 3px var(--app-primary-light); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+.toggleGroup { display: flex; gap: var(--space-xs); }
+.toggle { flex: 1; padding: var(--space-sm); border-radius: var(--app-radius-sm); border: 1px solid var(--app-border-strong); background: var(--app-surface); font-size: var(--text-sm); cursor: pointer; transition: all var(--app-transition); }
+.toggle.active { background: var(--app-primary-light); border-color: var(--app-primary); color: var(--app-primary); font-weight: var(--weight-semibold); }
+.submitBtn { padding: var(--space-sm); border-radius: var(--app-radius-sm); background: linear-gradient(135deg, var(--app-primary), var(--app-accent)); color: white; font-size: var(--text-base); font-weight: var(--weight-semibold); border: none; cursor: pointer; transition: all var(--app-transition); margin-top: var(--space-sm); }
+.submitBtn:hover { opacity: 0.9; transform: translateY(-1px); }

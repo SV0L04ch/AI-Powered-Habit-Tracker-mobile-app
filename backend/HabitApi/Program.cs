@@ -236,6 +236,10 @@ builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IEconomicsService, EconomicsService>();
 builder.Services.AddScoped<ISocialService, SocialService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
+builder.Services.AddScoped<ILeagueService, LeagueService>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IWebhookService, WebhookService>();
 // IWeatherService и IAiInsightsService уже зарегистрированы через AddHttpClient
 
 // Health Checks

@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using HabitApi.Services;
 using HabitApi.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HabitApi.Controllers;
 
 [ApiController]
 [Route("api/schedule")]
+[Authorize]
 public class ScheduleController : ControllerBase
 {
     private readonly IScheduleService _scheduleService;

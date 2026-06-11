@@ -1,0 +1,8 @@
+.page { animation: slideUp 300ms var(--ease-out-expo) both; }
+h1 { font-size: var(--text-2xl); font-weight: var(--weight-bold); margin-bottom: var(--space-xl); }
+.addRow { display: flex; gap: var(--space-sm); margin-bottom: var(--space-xl); }
+input { flex: 1; padding: var(--space-sm) var(--space-md); border-radius: var(--app-radius-sm); border: 1px solid var(--app-border-strong); background: var(--app-surface); font-size: var(--text-base); }
+button { padding: var(--space-sm) var(--space-lg); border-radius: var(--app-radius-sm); background: linear-gradient(135deg, var(--app-primary), var(--app-accent)); color: white; font-weight: var(--weight-semibold); border: none; cursor: pointer; }
+.list { display: flex; flex-direction: column; gap: var(--space-sm); }
+.friend { display: flex; justify-content: space-between; padding: var(--space-md); border-radius: var(--app-radius-sm); border: 1px solid var(--app-border); background: var(--app-surface); }
+.status { font-size: var(--text-xs); padding: 2px 8px; border-radius: var(--app-radius-full); background: var(--app-success-light); color: var(--app-success); }

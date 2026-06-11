@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import styles from './ProfilePage.module.scss';
 import Button from '../../components/Button/Button';
 import Typography from '../../components/Typography/Typography';
@@ -9,6 +10,7 @@ import useAuthUser from '../../store/useAuthStore';
 import useThemeStore from '../../store/useThemeStore';
 
 const ProfilePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile, email, profileLoading, profileError, loadProfile, saveProfile, logout, isLoading } =
     useAuthUser();
@@ -49,20 +51,20 @@ const ProfilePage = () => {
 
   const requestGeoCity = () => {
     if (!navigator.geolocation) {
-      setSavedMessage('Геолокация недоступна в этом браузере.');
+      setSavedMessage(t('profile.geoUnavailable'));
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      () => setSavedMessage('Геолокация получена. Введите название города и сохраните профиль.'),
-      () => setSavedMessage('Не удалось получить геолокацию. Город можно ввести вручную.'),
+      () => setSavedMessage(t('profile.geoSuccess')),
+      () => setSavedMessage(t('profile.geoError')),
       { enableHighAccuracy: false, timeout: 6000 },
     );
   };
 
   const handleSave = async () => {
     const saved = await saveProfile(form);
-    if (saved) setSavedMessage('Профиль сохранен.');
+    if (saved) setSavedMessage(t('profile.saved'));
   };
 
   const handleLogout = async () => {
@@ -74,7 +76,7 @@ const ProfilePage = () => {
     <div className={styles.page} data-testid="profile-page">
       <header className={styles.header} data-testid="profile-header">
         <Typography variant="headline1" className={styles.title} data-testid="profile-title">
-          Профиль
+          {t('profile.title')}
         </Typography>
         <Typography variant="body1" className={styles.muted} data-testid="profile-email">
           {email || profile?.email}
@@ -86,20 +88,20 @@ const ProfilePage = () => {
           <div className={styles.settingTitle}>
             <icons.MapPoint className={styles.icon} />
             <div>
-              <Typography variant="headline3">Город</Typography>
+              <Typography variant="headline3">{t('profile.cityTitle')}</Typography>
               <Typography variant="body2" className={styles.muted}>
-                Используется для погоды и городской сводки.
+                {t('profile.cityDesc')}
               </Typography>
             </div>
           </div>
           <Input
-            label="Город"
+            label={t('profile.cityTitle')}
             value={form.city}
             onChange={(event) => patchForm({ city: event.target.value })}
             data-testid="profile-city-input"
           />
           <Button variant="ghost" onClick={requestGeoCity} data-testid="profile-geolocation-button">
-            Использовать геолокацию
+            {t('profile.geolocation')}
           </Button>
         </article>
 
@@ -107,14 +109,14 @@ const ProfilePage = () => {
           <div className={styles.settingTitle}>
             <icons.Notification className={styles.icon} />
             <div>
-              <Typography variant="headline3">Уведомления</Typography>
+              <Typography variant="headline3">{t('profile.notifications')}</Typography>
               <Typography variant="body2" className={styles.muted}>
-                Время будет применяться для ежедневных напоминаний.
+                {t('profile.notificationsDesc')}
               </Typography>
             </div>
           </div>
           <label className={styles.switchRow} data-testid="reminder-enabled-row">
-            <span>Ежедневное напоминание</span>
+            <span>{t('profile.dailyReminder')}</span>
             <input
               type="checkbox"
               checked={form.habitReminderEnabled}
@@ -124,7 +126,7 @@ const ProfilePage = () => {
           </label>
           <Input
             type="time"
-            label="Время уведомлений"
+            label={t('profile.reminderTime')}
             value={form.habitReminderTime}
             onChange={(event) => patchForm({ habitReminderTime: event.target.value })}
             disabled={!form.habitReminderEnabled}
@@ -136,9 +138,9 @@ const ProfilePage = () => {
           <div className={styles.settingTitle}>
             <icons.Moon className={styles.icon} />
             <div>
-              <Typography variant="headline3">Тема</Typography>
+              <Typography variant="headline3">{t('profile.theme')}</Typography>
               <Typography variant="body2" className={styles.muted}>
-                Светлая тема включена по умолчанию.
+                {t('profile.themeDesc')}
               </Typography>
             </div>
           </div>
@@ -149,7 +151,7 @@ const ProfilePage = () => {
               onClick={() => handleThemeChange('light')}
               data-testid="theme-light-button"
             >
-              Светлая
+              {t('profile.light')}
             </button>
             <button
               type="button"
@@ -157,7 +159,7 @@ const ProfilePage = () => {
               onClick={() => handleThemeChange('dark')}
               data-testid="theme-dark-button"
             >
-              Темная
+              {t('profile.dark')}
             </button>
           </div>
         </article>
@@ -177,10 +179,10 @@ const ProfilePage = () => {
 
       <div className={styles.actions} data-testid="profile-actions">
         <Button variant="primary" onClick={handleSave} loading={profileLoading} data-testid="profile-save-button">
-          Сохранить
+          {t('profile.save')}
         </Button>
         <Button variant="danger" onClick={handleLogout} loading={isLoading} data-testid="logout-button">
-          Выйти
+          {t('profile.logout')}
         </Button>
       </div>
     </div>

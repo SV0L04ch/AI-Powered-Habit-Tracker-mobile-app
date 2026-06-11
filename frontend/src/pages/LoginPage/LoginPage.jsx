@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Button from '../../components/Button/Button';
 import Input from '../../components/Input/Input';
 import Typography from '../../components/Typography/Typography';
@@ -8,6 +9,7 @@ import useAuthUser from '../../store/useAuthStore';
 import styles from './LoginPage.module.scss';
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const savedEmail = localStorage.getItem('remembered-email') || '';
   const [form, setForm] = useState({ email: savedEmail, password: '' });
@@ -30,7 +32,7 @@ const LoginPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!form.email || !form.password) {
-      setError('Заполните email и пароль.');
+      setError(t('auth.fillEmailPassword'));
       return;
     }
 
@@ -49,10 +51,10 @@ const LoginPage = () => {
           AI-Powered Habit Tracker
         </span>
         <Typography variant="headline1" className={styles.title} data-testid="login-title">
-          Вход в ритм дня
+          {t('auth.loginTitle')}
         </Typography>
         <Typography variant="body1" className={styles.subtitle} data-testid="login-subtitle">
-          Привычки, погода и ежедневные AI-подсказки в одном мобильном дашборде.
+          {t('auth.loginSubtitle')}
         </Typography>
       </section>
 
@@ -70,7 +72,7 @@ const LoginPage = () => {
           <Input
             name="password"
             type="password"
-            label="Пароль"
+            label={t('auth.password')}
             value={form.password}
             onChange={handleChange}
             autoComplete="current-password"
@@ -84,7 +86,7 @@ const LoginPage = () => {
               onChange={(event) => setRemember(event.target.checked)}
               data-testid="remember-me-checkbox"
             />
-            <span data-testid="remember-me-label">Запомнить меня</span>
+            <span data-testid="remember-me-label">{t('auth.rememberMe')}</span>
           </label>
 
           {error && (

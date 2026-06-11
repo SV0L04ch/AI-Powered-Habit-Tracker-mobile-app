@@ -1,8 +1,18 @@
 @base = http://localhost:5093
 @contentType = application/json
-@habitId = 00000000-0000-0000-0000-000000000000   # Замените на ID из ответа после создания привычки
+@habitId = 00000000-0000-0000-0000-000000000000
+@habitEntryId = 00000000-0000-0000-0000-000000000000
+@templateId = 11111111-1111-1111-1111-111111111101
+@friendshipId = 00000000-0000-0000-0000-000000000000
+@challengeId = 00000000-0000-0000-0000-000000000000
+@goalId = 00000000-0000-0000-0000-000000000000
+@photoId = 00000000-0000-0000-0000-000000000000
+@locationId = 00000000-0000-0000-0000-000000000000
+@webhookId = 00000000-0000-0000-0000-000000000000
 
-### 1. Регистрация нового пользователя (устанавливает cookie)
+### ===== AUTH =====
+
+### 1. Регистрация
 POST {{base}}/api/auth/register
 Content-Type: {{contentType}}
 
@@ -12,7 +22,7 @@ Content-Type: {{contentType}}
   "city": "Moscow"
 }
 
-### 2. Логин (устанавливает cookie)
+### 2. Логин
 POST {{base}}/api/auth/login
 Content-Type: {{contentType}}
 
@@ -21,11 +31,16 @@ Content-Type: {{contentType}}
   "password": "Secret123"
 }
 
-### 3. Получить все привычки текущего пользователя
+### 3. Выход
+POST {{base}}/api/auth/logout
+
+### ===== HABITS =====
+
+### 4. Все привычки
 GET {{base}}/api/habits
 Accept: {{contentType}}
 
-### 4. Создать новую привычку (используя упрощённую модель)
+### 5. Создать привычку
 POST {{base}}/api/habits
 Content-Type: {{contentType}}
 
@@ -40,11 +55,10 @@ Content-Type: {{contentType}}
   "reminders": ["09:00", "15:00", "20:00"]
 }
 
-### 5. Получить привычку по ID (замените {{habitId}})
+### 6. Привычка по ID
 GET {{base}}/api/habits/{{habitId}}
-Accept: {{contentType}}
 
-### 6. Обновить привычку (частичное обновление)
+### 7. Обновить привычку
 PUT {{base}}/api/habits/{{habitId}}
 Content-Type: {{contentType}}
 
@@ -53,10 +67,12 @@ Content-Type: {{contentType}}
   "reminders": ["09:00", "15:00", "20:00", "22:00"]
 }
 
-### 7. Удалить привычку (мягкое удаление)
+### 8. Удалить привычку
 DELETE {{base}}/api/habits/{{habitId}}
 
-### 8. Добавить отметку выполнения для положительной привычки
+### ===== HABIT ENTRIES =====
+
+### 9. Отметка — положительная привычка
 POST {{base}}/api/habits/{{habitId}}/entries
 Content-Type: {{contentType}}
 
@@ -67,7 +83,7 @@ Content-Type: {{contentType}}
   "note": "Drank 5 glasses out of 8"
 }
 
-### 9. Добавить отметку срыва для отрицательной привычки
+### 10. Отметка — срыв
 POST {{base}}/api/habits/{{habitId}}/entries
 Content-Type: {{contentType}}
 
@@ -77,27 +93,25 @@ Content-Type: {{contentType}}
   "note": "Had 2 cigarettes"
 }
 
-### 10. Получить отметки выполнения за период
+### 11. Отметки за период
 GET {{base}}/api/habits/{{habitId}}/entries?fromDate=2026-04-01&toDate=2026-04-30
-Accept: {{contentType}}
 
-### 11. Ежедневная персональная сводка (по умолчанию за вчера)
+### ===== STATS =====
+
+### 12. Ежедневная сводка
 GET {{base}}/api/stats/daily-summary
-Accept: {{contentType}}
 
-### 12. Ежедневная сводка за конкретную дату
-GET {{base}}/api/stats/daily-summary?date=2026-04-29
-Accept: {{contentType}}
-
-### 13. Городская сводка (публичный эндпоинт)
+### 13. Городская сводка
 GET {{base}}/api/stats/city-summary?city=Moscow
-Accept: {{contentType}}
 
-### 14. Погода (требует аутентификации)
+### ===== WEATHER =====
+
+### 14. Погода
 GET {{base}}/api/weather?city=Moscow&date=2026-04-30
-Accept: {{contentType}}
 
-### 15. ИИ-совет для привычки
+### ===== AI INSIGHTS =====
+
+### 15. AI-совет
 POST {{base}}/api/habits/{{habitId}}/insights/support
 Content-Type: {{contentType}}
 
@@ -105,5 +119,263 @@ Content-Type: {{contentType}}
   "scenario": "lazy"
 }
 
-### 16. Выход (удаляет cookie)
-POST {{base}}/api/auth/logout
+### ===== PROFILE =====
+
+### 16. Профиль
+GET {{base}}/api/profile
+
+### 17. Обновить профиль
+PUT {{base}}/api/profile
+Content-Type: {{contentType}}
+
+{
+  "name": "Test User"
+}
+
+### ===== STREAKS =====
+
+### 18. Все стрики
+GET {{base}}/api/streaks
+
+### 19. Стрик привычки
+GET {{base}}/api/streaks/{{habitId}}
+
+### ===== GAMIFICATION =====
+
+### 20. Геймификация
+GET {{base}}/api/gamification
+
+### 21. Добавить XP
+POST {{base}}/api/gamification/xp
+Content-Type: {{contentType}}
+
+{
+  "amount": 50,
+  "reason": "Completed workout"
+}
+
+### 22. Проверить достижения
+POST {{base}}/api/gamification/check-achievements
+
+### ===== ECONOMICS =====
+
+### 23. Кошелёк
+GET {{base}}/api/economics/wallet
+
+### 24. Транзакции
+GET {{base}}/api/economics/transactions
+
+### ===== SCHEDULE =====
+
+### 25. Расписание привычки
+GET {{base}}/api/schedule/{{habitId}}
+
+### 26. Сегодняшние привычки
+GET {{base}}/api/schedule/today
+
+### 27. Обновить расписание
+PUT {{base}}/api/schedule/{{habitId}}
+Content-Type: {{contentType}}
+
+{
+  "frequency": "daily",
+  "daysOfWeek": [1, 2, 3, 4, 5],
+  "timeOfDay": "09:00",
+  "exceptions": []
+}
+
+### ===== TEMPLATES =====
+
+### 28. Список шаблонов
+GET {{base}}/api/templates
+
+### 29. Шаблоны по категории
+GET {{base}}/api/templates?category=Fitness
+
+### 30. Установить шаблон как привычку
+POST {{base}}/api/templates/{{templateId}}/install
+
+### ===== QUOTES =====
+
+### 31. Цитата дня
+GET {{base}}/api/quotes/daily
+
+### ===== JOURNAL =====
+
+### 32. Заметки привычки
+GET {{base}}/api/journal/notes/{{habitId}}
+
+### 33. Добавить заметку
+POST {{base}}/api/journal/notes/{{habitId}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Felt great today!",
+  "mood": 8
+}
+
+### 34. История настроения
+GET {{base}}/api/journal/mood
+
+### 35. Лог настроения
+POST {{base}}/api/journal/mood
+Content-Type: {{contentType}}
+
+{
+  "mood": 7,
+  "notes": "Good day"
+}
+
+### 36. История сна
+GET {{base}}/api/journal/sleep
+
+### 37. Лог сна
+POST {{base}}/api/journal/sleep
+Content-Type: {{contentType}}
+
+{
+  "bedtime": "2026-04-29T23:00:00",
+  "wakeTime": "2026-04-30T07:00:00",
+  "quality": 8,
+  "notes": "Slept well"
+}
+
+### 38. История еды
+GET {{base}}/api/journal/meals
+
+### 39. Лог еды
+POST {{base}}/api/journal/meals
+Content-Type: {{contentType}}
+
+{
+  "type": "lunch",
+  "foods": "Chicken salad, water",
+  "calories": 450,
+  "notes": ""
+}
+
+### 40. Цели
+GET {{base}}/api/journal/goals
+
+### 41. Создать цель
+POST {{base}}/api/journal/goals
+Content-Type: {{contentType}}
+
+{
+  "title": "Run 100km total",
+  "targetValue": 100,
+  "deadline": "2026-07-01T00:00:00"
+}
+
+### 42. Обновить прогресс цели
+PUT {{base}}/api/journal/goals/{{goalId}}
+Content-Type: {{contentType}}
+
+{
+  "currentValue": 25,
+  "isCompleted": false
+}
+
+### 43. Удалить цель
+DELETE {{base}}/api/journal/goals/{{goalId}}
+
+### ===== SOCIAL =====
+
+### 44. Лента города
+GET {{base}}/api/social/feed?city=Moscow
+
+### 45. Пост в ленту
+POST {{base}}/api/social/feed
+Content-Type: {{contentType}}
+
+{
+  "city": "Moscow",
+  "habitName": "Morning Run"
+}
+
+### 46. Друзья
+GET {{base}}/api/social/friends
+
+### 47. Отправить запрос дружбы
+POST {{base}}/api/social/friends/{{friendId}}
+
+### 48. Принять запрос дружбы
+PUT {{base}}/api/social/friends/{{friendshipId}}/status
+
+### 49. Список вызовов
+GET {{base}}/api/social/challenges
+
+### 50. Создать вызов
+POST {{base}}/api/social/challenges
+Content-Type: {{contentType}}
+
+{
+  "name": "30 Day Push-up Challenge",
+  "description": "Do 50 push-ups every day for 30 days",
+  "startDate": "2026-07-01T00:00:00",
+  "endDate": "2026-07-31T23:59:59"
+}
+
+### 51. Присоединиться к вызову
+POST {{base}}/api/social/challenges/{{challengeId}}/join
+
+### ===== LEAGUES =====
+
+### 52. Все лиги
+GET {{base}}/api/leagues
+
+### 53. Моя лига
+GET {{base}}/api/leagues/mine
+
+### ===== PHOTOS =====
+
+### 54. Фото записи
+GET {{base}}/api/photos/entries/{{habitEntryId}}
+
+### 55. Добавить фото
+POST {{base}}/api/photos/entries/{{habitEntryId}}
+Content-Type: {{contentType}}
+
+{
+  "photoUrl": "https://example.com/photo.jpg",
+  "caption": "Morning workout"
+}
+
+### 56. Удалить фото
+DELETE {{base}}/api/photos/{{photoId}}
+
+### ===== LOCATIONS =====
+
+### 57. Локации записи
+GET {{base}}/api/locations/entries/{{habitEntryId}}
+
+### 58. Добавить локацию
+POST {{base}}/api/locations/entries/{{habitEntryId}}
+Content-Type: {{contentType}}
+
+{
+  "latitude": 55.7558,
+  "longitude": 37.6173,
+  "name": "Gym"
+}
+
+### 59. Удалить локацию
+DELETE {{base}}/api/locations/{{locationId}}
+
+### ===== WEBHOOKS =====
+
+### 60. Мои вебхуки
+GET {{base}}/api/webhooks
+
+### 61. Создать вебхук
+POST {{base}}/api/webhooks
+Content-Type: {{contentType}}
+
+{
+  "url": "https://example.com/webhook",
+  "events": ["habit.completed", "streak.updated"],
+  "secret": "my-secret-key"
+}
+
+### 62. Удалить вебхук
+DELETE {{base}}/api/webhooks/{{webhookId}}

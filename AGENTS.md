@@ -2,7 +2,7 @@
 
 ## Repo overview
 
-AI-Powered Habit Tracker — monorepo with a .NET 10 backend API and a React 19 + Vite 8 frontend (PWA). Backend communicates with PostgreSQL, Redis, Ollama (AI), and OpenWeatherMap. Frontend is a mobile-first SPA.
+AI-Powered Habit Tracker — monorepo with a .NET 10 backend API and a React 19 + Vite 8 frontend (PWA). Backend communicates with PostgreSQL, Redis, Ollama (AI), and OpenWeatherMap. Frontend is a mobile-first SPA. Backend has 19 controllers and 20 services.
 
 ## Project layout
 
@@ -72,6 +72,8 @@ npm run e2e-tests:ordered   # from repo root
 
 This runs `frontend/end-to-end-tests/scenarious/*.spec.js` (register → login → habits → profile) then `smoke/*.spec.js`. Workers=1, retries=2 in CI.
 
+**Critical**: The runner (`frontend/e2e-tests-run.js`) stops and exits if any scenario test fails — smoke tests won't run. Fix scenario tests first.
+
 Playwright config: `frontend/playwright.config.cjs`. Scenario tests run on Chromium; smoke tests run on Firefox, WebKit, and Mobile Chrome (Pixel 5).
 
 Base URL: `http://localhost:5173`. Both frontend dev server and backend API must be running.
@@ -80,7 +82,7 @@ Base URL: `http://localhost:5173`. Both frontend dev server and backend API must
 
 Two GitHub Actions workflows on push/PR to `main`:
 
-- **Playwright Tests** (`playwright.yml`): Starts DB + Redis + MailHog via `docker-compose.ci.yml`, applies EF migrations, starts API, installs frontend, runs `npm run e2e-tests:ordered`.
+- **Playwright Tests** (`playwright.yml`): Starts DB + Redis + MailHog via `docker-compose.ci.yml`, applies EF migrations, starts API, installs frontend, runs `npm run e2e-tests:ordered`. Also creates `frontend/.env` with `VITE_API_BASE_URL`.
 - **Postman API Tests** (`postman.yml`): Same infra setup, runs Newman collections (setup first, then main tests).
 
 Both use the CI compose file: `backend/HabitApi/docker-compose.ci.yml` (includes a `weather_mock` service instead of real OpenWeatherMap).
@@ -115,7 +117,7 @@ Both use the CI compose file: `backend/HabitApi/docker-compose.ci.yml` (includes
 - `docker-compose.ci.yml` uses a `weather_mock` service — do not use it for local dev where you want real weather data.
 - Backend integration tests use `Testcontainers` — they require Docker Desktop running.
 - The root `end-to-end-tests/` directory contains legacy Playwright specs; the active ones are in `frontend/end-to-end-tests/`. Do not run tests from the root `end-to-end-tests/`.
-- The root `playwright.config.js` is a legacy config pointing at `./end-to-end-tests` — the active config is `frontend/playwright.config.cjs`.
+- The root `playwright.config.js` and `backend/HabitApi/playwright.config.js` are legacy configs pointing at non-existent `./end-to-end-tests` dirs — the active config is `frontend/playwright.config.cjs`.
 - Root-level `HabitApi/` and `HabitApi.Tests/` directories contain only `bin/obj` build artifacts. Actual source is in `backend/HabitApi/` and `backend/HabitApi.Tests/`.
 - Frontend `pnpm-lock.yaml` exists alongside `package-lock.json` — CI uses npm, stick with npm.
 - Root `package.json` has a broken `test:e2e` script referencing `QA/e2e` which doesn't exist. Use `npm run e2e-tests:ordered` instead.

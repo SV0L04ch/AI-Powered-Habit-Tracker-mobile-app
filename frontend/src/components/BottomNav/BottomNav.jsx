@@ -1,13 +1,15 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import icons from '../../lib/icons';
 import styles from './BottomNav.module.scss';
 
 const BottomNav = ({ activeTab, onTabChange }) => {
+  const { t } = useTranslation();
   const tabs = [
-    { id: 'habits', icon: icons.Home, label: 'Главная', testid: 'nav-button-habits' },
-    { id: 'insights/personal', icon: icons.Diagram, label: 'Статистика', testid: 'nav-button-personal' },
-    { id: 'insights/city', icon: icons.City, label: 'Город', testid: 'nav-button-city' },
-    { id: 'profile', icon: icons.Profile, label: 'Профиль', testid: 'nav-button-profile' },
+    { id: 'habits', icon: icons.Home, label: t('nav.home'), testid: 'nav-button-habits' },
+    { id: 'insights/personal', icon: icons.Diagram, label: t('nav.stats'), testid: 'nav-button-personal' },
+    { id: 'insights/city', icon: icons.City, label: t('nav.city'), testid: 'nav-button-city' },
+    { id: 'profile', icon: icons.Profile, label: t('nav.profile'), testid: 'nav-button-profile' },
   ];
 
   return (

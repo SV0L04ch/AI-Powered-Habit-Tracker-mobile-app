@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using HabitApi.Services;
 using HabitApi.Models.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HabitApi.Controllers;
 
 [ApiController]
 [Route("api/journal")]
+[Authorize]
 public class JournalController : ControllerBase
 {
     private readonly IJournalService _journalService;
@@ -48,6 +50,22 @@ public class JournalController : ControllerBase
     [HttpPost("goals")]
     public async Task<ActionResult> CreateGoal([FromBody] CreateGoalRequest request) =>
         Ok(await _journalService.CreateGoalAsync(GetUserId(), request.Title, request.TargetValue, request.Deadline));
+
+    [HttpPut("goals/{goalId}")]
+    public async Task<ActionResult> UpdateGoal(Guid goalId, [FromBody] UpdateGoalRequest request)
+    {
+        var result = await _journalService.UpdateGoalAsync(GetUserId(), goalId, request.CurrentValue, request.IsCompleted);
+        if (result == null) return NotFound("Goal not found.");
+        return Ok(result);
+    }
+
+    [HttpDelete("goals/{goalId}")]
+    public async Task<ActionResult> DeleteGoal(Guid goalId)
+    {
+        var result = await _journalService.DeleteGoalAsync(GetUserId(), goalId);
+        if (!result) return NotFound("Goal not found.");
+        return NoContent();
+    }
 }
 
 public record AddNoteRequest(string Text, int? Mood);
@@ -55,3 +73,4 @@ public record LogMoodRequest(int Mood, string? Notes);
 public record LogSleepRequest(DateTime Bedtime, DateTime WakeTime, int Quality, string? Notes);
 public record LogMealRequest(string Type, string Foods, int? Calories, string? Notes);
 public record CreateGoalRequest(string Title, int TargetValue, DateTime Deadline);
+public record UpdateGoalRequest(int? CurrentValue, bool? IsCompleted);

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Typography from '../../components/Typography/Typography';
 import AddButton from './components/AddButton/AddButton';
 import PageLayout from '../../components/PageLayout/PageLayout';
@@ -25,9 +26,9 @@ const getWeatherImage = (condition) => {
   return images.Sun;
 };
 
-const getTriggerLabel = (habit) => {
-  if (Number(habit.triggerType) === 1) return `В ${habit.triggerValue}`;
-  return `${habit.triggerValue} раз в день`;
+const getTriggerLabel = (t, habit) => {
+  if (Number(habit.triggerType) === 1) return t('habits.timeTrigger', { time: habit.triggerValue });
+  return t('habits.countTrigger', { count: habit.triggerValue });
 };
 
 const getProgress = (habit, entry) => {
@@ -40,6 +41,7 @@ const getProgress = (habit, entry) => {
 };
 
 function HabitsPage() {
+  const { t } = useTranslation();
   const [editingHabit, setEditingHabit] = useState(null);
   const [menuData, setMenuData] = useState(null);
   const [showInsightModal, setShowInsightModal] = useState(false);
@@ -113,7 +115,7 @@ function HabitsPage() {
   const closeMenu = () => setMenuData(null);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm('Удалить привычку?');
+    const confirmed = window.confirm(t('habits.deleteConfirm'));
     if (confirmed) {
       await deleteHabit(id);
       await fetchStats();
@@ -155,15 +157,15 @@ function HabitsPage() {
                 className={styles.menuButton}
                 onClick={(event) => handleMenuClick(event, habit.id)}
                 data-testid={`options-menu-btn-${habit.id}`}
-                aria-label="Действия привычки"
+                aria-label={t('habits.habitActions')}
               >
                 ⋯
               </button>
             </div>
             <div className={styles.habitMeta}>
-              <span data-testid={`${testPrefix}-habit-${habit.id}-trigger`}>{getTriggerLabel(habit)}</span>
+              <span data-testid={`${testPrefix}-habit-${habit.id}-trigger`}>{getTriggerLabel(t, habit)}</span>
               <span data-testid={`${testPrefix}-habit-${habit.id}-type`}>
-                {habit.isPositive ? 'полезная' : 'контроль срывов'}
+                {habit.isPositive ? t('habits.positive') : t('habits.negative')}
               </span>
             </div>
             <div className={styles.progressTrack} data-testid={`${testPrefix}-habit-${habit.id}-progress`}>
@@ -176,7 +178,7 @@ function HabitsPage() {
           <ContextMenu
             items={[
               {
-                label: 'Редактировать',
+                label: t('habits.edit'),
                 onClick: () => {
                   setEditingHabit(habit);
                   closeMenu();
@@ -184,12 +186,12 @@ function HabitsPage() {
                 testId: 'edit-habit-btn',
               },
               {
-                label: 'Удалить',
+                label: t('habits.delete'),
                 onClick: () => handleDelete(habit.id),
                 testId: 'delete-habit-btn',
               },
               {
-                label: 'AI-совет',
+                label: t('habits.aiTip'),
                 onClick: () => {
                   fetchSupport(habit.id, habit.isPositive ? (isCompleted ? 'skip' : 'lazy') : 'relapse');
                   closeMenu();
@@ -210,10 +212,10 @@ function HabitsPage() {
       <header className={styles.header} data-testid="dashboard-header">
         <div>
           <Typography variant="headline1" data-testid="dashboard-title">
-            Сегодня
+            {t('habits.today')}
           </Typography>
           <Typography variant="body1" className={styles.muted} data-testid="dashboard-city">
-            {city ? `Город: ${city}` : 'Город можно указать в профиле'}
+            {city ? t('habits.cityLabel', { city }) : t('habits.cityPlaceholder')}
           </Typography>
         </div>
         <div className={styles.rateBadge} data-testid="completion-rate">
@@ -223,7 +225,7 @@ function HabitsPage() {
 
       <section className={styles.summaryGrid} data-testid="summary-grid">
         <div className={styles.summaryCard} data-testid="progress-summary-card">
-          <span className={styles.summaryLabel}>Выполнено</span>
+          <span className={styles.summaryLabel}>{t('habits.completedCount')}</span>
           <strong>{completedCount}/{habits.length}</strong>
           <div className={styles.progressTrack}>
             <span style={{ width: `${completionRate}%` }} />
@@ -235,11 +237,11 @@ function HabitsPage() {
           ) : (
             <>
               <img src={getWeatherImage(summary?.weather?.condition)} alt="" />
-              <span className={styles.summaryLabel}>{summary?.weather?.condition || 'Погода'}</span>
+              <span className={styles.summaryLabel}>{summary?.weather?.condition || t('habits.weather')}</span>
               <strong>
                 {summary?.weather?.temperatureCelsius != null
                   ? `${summary.weather.temperatureCelsius}°C`
-                  : 'нет данных'}
+                  : t('habits.noData')}
               </strong>
             </>
           )}
@@ -254,7 +256,7 @@ function HabitsPage() {
 
       <section className={styles.listSection} data-testid="active-habits-section">
         <div className={styles.sectionHeader}>
-          <Typography variant="headline2">Привычки</Typography>
+          <Typography variant="headline2">{t('habits.habitsSection')}</Typography>
           <span data-testid="habits-count">{habits.length}</span>
         </div>
 
@@ -268,12 +270,12 @@ function HabitsPage() {
 
         {!isHabitsLoading && habits.length === 0 && (
           <div className={styles.emptyState} data-testid="empty-habits-state">
-            <Typography variant="headline3">Привычек пока нет</Typography>
+            <Typography variant="headline3">{t('habits.noHabitsTitle')}</Typography>
             <Typography variant="body2" className={styles.muted}>
-              Создайте первую привычку, и дашборд начнет собирать прогресс.
+              {t('habits.noHabitsDesc')}
             </Typography>
             <Button variant="secondary" onClick={() => navigate('/habits/new')} data-testid="empty-add-button">
-              Добавить привычку
+              {t('habits.addHabitButton')}
             </Button>
           </div>
         )}
@@ -299,7 +301,7 @@ function HabitsPage() {
       <Modal isOpen={showInsightModal} onClose={handleCloseInsight} data-testid="insight-modal">
         <div className={styles.insightContainer}>
           <Typography variant="headline3" data-testid="insight-title">
-            AI-совет
+            {t('habits.aiTip')}
           </Typography>
           {isInsightLoading && <div className={styles.skeletonBlock} data-testid="insight-loader" />}
           {insightError && (
@@ -313,7 +315,7 @@ function HabitsPage() {
             </Typography>
           )}
           <Button variant="primary" onClick={handleCloseInsight} data-testid="insight-close-button">
-            Понятно
+            {t('habits.understood')}
           </Button>
         </div>
       </Modal>

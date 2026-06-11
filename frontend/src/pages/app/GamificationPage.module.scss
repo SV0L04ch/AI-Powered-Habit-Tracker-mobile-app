@@ -1,0 +1,13 @@
+.page { animation: slideUp 300ms var(--ease-out-expo) both; }
+h1 { font-size: var(--text-2xl); font-weight: var(--weight-bold); margin-bottom: var(--space-xl); }
+h2 { font-size: var(--text-lg); font-weight: var(--weight-semibold); margin: var(--space-xl) 0 var(--space-md); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+.card { padding: var(--space-xl); border-radius: var(--app-radius-lg); border: 1px solid var(--app-border); background: var(--app-surface); text-align: center; }
+.level { font-size: var(--text-4xl); font-weight: var(--weight-bold); color: var(--app-primary); }
+.xp { font-size: var(--text-2xl); font-weight: var(--weight-bold); color: var(--app-accent); }
+.label { font-size: var(--text-xs); color: var(--app-text-muted); margin-top: var(--space-2xs); }
+.progressBar { height: 8px; border-radius: 4px; background: var(--app-bg-soft); overflow: hidden; margin-bottom: var(--space-sm); }
+.progressFill { height: 100%; border-radius: 4px; background: linear-gradient(135deg, var(--app-primary), var(--app-accent)); transition: width 500ms var(--ease-out-expo); }
+.achievements { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-sm); }
+.achievement { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); border-radius: var(--app-radius-sm); border: 1px solid var(--app-border); background: var(--app-surface); font-size: var(--text-sm); }
+.achievementIcon { font-size: 20px; }

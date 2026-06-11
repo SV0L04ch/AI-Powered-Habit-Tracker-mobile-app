@@ -1,0 +1,5 @@
+.page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; }
+h1 { font-size: 80px; font-weight: var(--weight-bold); background: linear-gradient(135deg, var(--app-primary), var(--app-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+p { font-size: var(--text-lg); color: var(--app-text-muted); margin-bottom: var(--space-xl); }
+.homeBtn { padding: var(--space-sm) var(--space-xl); border-radius: var(--app-radius-sm); background: linear-gradient(135deg, var(--app-primary), var(--app-accent)); color: white; font-weight: var(--weight-semibold); text-decoration: none; }
+.homeBtn:hover { opacity: 0.9; }

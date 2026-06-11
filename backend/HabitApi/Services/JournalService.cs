@@ -16,6 +16,8 @@ public interface IJournalService
     Task<MealEntry> LogMealAsync(Guid userId, string type, string foods, int? calories, string? notes);
     Task<List<Goal>> GetGoalsAsync(Guid userId);
     Task<Goal> CreateGoalAsync(Guid userId, string title, int targetValue, DateTime deadline);
+    Task<Goal?> UpdateGoalAsync(Guid userId, Guid goalId, int? currentValue, bool? isCompleted);
+    Task<bool> DeleteGoalAsync(Guid userId, Guid goalId);
 }
 
 public class JournalService : IJournalService
@@ -89,5 +91,32 @@ public class JournalService : IJournalService
         _db.Goals.Add(goal);
         await _db.SaveChangesAsync();
         return goal;
+    }
+
+    public async Task<Goal?> UpdateGoalAsync(Guid userId, Guid goalId, int? currentValue, bool? isCompleted)
+    {
+        var goal = await _db.Goals.FirstOrDefaultAsync(g => g.Id == goalId && g.UserId == userId);
+        if (goal == null) return null;
+
+        if (currentValue.HasValue)
+            goal.CurrentValue = currentValue.Value;
+        if (isCompleted.HasValue)
+            goal.IsCompleted = isCompleted.Value;
+
+        if (goal.CurrentValue >= goal.TargetValue)
+            goal.IsCompleted = true;
+
+        await _db.SaveChangesAsync();
+        return goal;
+    }
+
+    public async Task<bool> DeleteGoalAsync(Guid userId, Guid goalId)
+    {
+        var goal = await _db.Goals.FirstOrDefaultAsync(g => g.Id == goalId && g.UserId == userId);
+        if (goal == null) return false;
+
+        _db.Goals.Remove(goal);
+        await _db.SaveChangesAsync();
+        return true;
     }
 }

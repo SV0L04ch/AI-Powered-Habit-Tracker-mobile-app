@@ -30,6 +30,8 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRo
     public DbSet<SleepEntry> SleepEntries { get; set; }
     public DbSet<MealEntry> MealEntries { get; set; }
     public DbSet<Webhook> Webhooks { get; set; }
+    public DbSet<League> Leagues { get; set; }
+    public DbSet<ChallengeParticipant> ChallengeParticipants { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -142,6 +144,85 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRo
         modelBuilder.Entity<Habit>(entity =>
         {
             entity.Property(h => h.Color).HasMaxLength(7);
+        });
+
+        modelBuilder.Entity<Friendship>(entity =>
+        {
+            entity.HasKey(f => f.Id);
+            entity.Property(f => f.Status).IsRequired().HasMaxLength(20);
+            entity.HasIndex(f => new { f.UserId, f.FriendId }).IsUnique();
+        });
+
+        modelBuilder.Entity<Challenge>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(200);
+            entity.Property(c => c.Description).HasMaxLength(1000);
+            entity.HasIndex(c => c.IsActive);
+        });
+
+        modelBuilder.Entity<ChallengeParticipant>(entity =>
+        {
+            entity.HasKey(cp => cp.Id);
+            entity.HasIndex(cp => new { cp.ChallengeId, cp.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<Goal>(entity =>
+        {
+            entity.HasKey(g => g.Id);
+            entity.Property(g => g.Title).IsRequired().HasMaxLength(200);
+            entity.HasIndex(g => g.UserId);
+        });
+
+        modelBuilder.Entity<HabitPhoto>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.PhotoUrl).IsRequired().HasMaxLength(2000);
+            entity.Property(p => p.Caption).HasMaxLength(500);
+            entity.HasIndex(p => p.HabitEntryId);
+        });
+
+        modelBuilder.Entity<HabitLocation>(entity =>
+        {
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Name).HasMaxLength(200);
+            entity.HasIndex(l => l.HabitEntryId);
+        });
+
+        modelBuilder.Entity<League>(entity =>
+        {
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Name).IsRequired().HasMaxLength(100);
+            entity.Property(l => l.Tier).IsRequired().HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Webhook>(entity =>
+        {
+            entity.HasKey(w => w.Id);
+            entity.Property(w => w.Url).IsRequired().HasMaxLength(2000);
+            entity.Property(w => w.Secret).HasMaxLength(200);
+            entity.HasIndex(w => w.UserId);
+        });
+
+        modelBuilder.Entity<SocialFeed>(entity =>
+        {
+            entity.HasKey(f => f.Id);
+            entity.Property(f => f.City).IsRequired().HasMaxLength(200);
+            entity.Property(f => f.HabitName).IsRequired().HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<SleepEntry>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.HasIndex(s => s.UserId);
+        });
+
+        modelBuilder.Entity<MealEntry>(entity =>
+        {
+            entity.HasKey(m => m.Id);
+            entity.Property(m => m.Type).IsRequired().HasMaxLength(50);
+            entity.Property(m => m.Foods).IsRequired().HasMaxLength(500);
+            entity.HasIndex(m => m.UserId);
         });
 
         SeedTemplates(modelBuilder);

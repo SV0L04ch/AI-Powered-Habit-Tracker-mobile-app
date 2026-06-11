@@ -1,0 +1,9 @@
+.page { padding: 0; }
+.hero { text-align: center; padding: var(--space-4xl) var(--space-lg) var(--space-2xl); }
+.hero h1 { font-size: clamp(32px, 4vw, 48px); font-weight: var(--weight-bold); margin-bottom: var(--space-md); }
+.gradient { background: linear-gradient(135deg, var(--app-primary), var(--app-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero p { font-size: var(--text-lg); color: var(--app-text-secondary); }
+.content { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-lg); max-width: 1000px; margin: 0 auto; padding: 0 var(--space-lg) var(--space-4xl); }
+.card { padding: var(--space-xl); border-radius: var(--app-radius-lg); border: 1px solid var(--app-border); background: var(--app-surface); }
+.card h2 { font-size: var(--text-xl); font-weight: var(--weight-semibold); margin-bottom: var(--space-sm); }
+.card p { font-size: var(--text-base); color: var(--app-text-secondary); line-height: 1.6; }

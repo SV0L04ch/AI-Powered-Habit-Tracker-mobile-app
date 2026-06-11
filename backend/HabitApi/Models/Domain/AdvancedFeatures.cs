@@ -125,3 +125,12 @@ public class Webhook
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
+
+public class ChallengeParticipant
+{
+    public Guid Id { get; set; }
+    public Guid ChallengeId { get; set; }
+    public Guid UserId { get; set; }
+    public int CompletedCount { get; set; }
+    public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+}

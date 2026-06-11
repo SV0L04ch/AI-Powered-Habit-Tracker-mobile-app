@@ -56,7 +56,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("UserId", "Type")
                         .IsUnique();
 
-                    b.ToTable("Achievements", (string)null);
+                    b.ToTable("Achievements");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.ApplicationUser", b =>
@@ -162,7 +162,8 @@ namespace HabitApi.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
@@ -172,14 +173,43 @@ namespace HabitApi.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Challenges", (string)null);
+                    b.HasIndex("IsActive");
+
+                    b.ToTable("Challenges");
+                });
+
+            modelBuilder.Entity("HabitApi.Models.Domain.ChallengeParticipant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChallengeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CompletedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChallengeId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("ChallengeParticipants");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Friendship", b =>
@@ -196,14 +226,18 @@ namespace HabitApi.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Friendships", (string)null);
+                    b.HasIndex("UserId", "FriendId")
+                        .IsUnique();
+
+                    b.ToTable("Friendships");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Goal", b =>
@@ -229,14 +263,17 @@ namespace HabitApi.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Goals", (string)null);
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Goals");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Habit", b =>
@@ -296,7 +333,7 @@ namespace HabitApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Habits", (string)null);
+                    b.ToTable("Habits");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitEntry", b =>
@@ -332,7 +369,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("HabitId", "Date")
                         .IsUnique();
 
-                    b.ToTable("HabitEntries", (string)null);
+                    b.ToTable("HabitEntries");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitLocation", b =>
@@ -354,14 +391,17 @@ namespace HabitApi.Migrations
                         .HasColumnType("double precision");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("HabitLocations", (string)null);
+                    b.HasIndex("HabitEntryId");
+
+                    b.ToTable("HabitLocations");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitNote", b =>
@@ -391,7 +431,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HabitNotes", (string)null);
+                    b.ToTable("HabitNotes");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitPhoto", b =>
@@ -401,7 +441,8 @@ namespace HabitApi.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Caption")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -411,14 +452,17 @@ namespace HabitApi.Migrations
 
                     b.Property<string>("PhotoUrl")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("HabitPhotos", (string)null);
+                    b.HasIndex("HabitEntryId");
+
+                    b.ToTable("HabitPhotos");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitSchedule", b =>
@@ -457,7 +501,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("HabitId")
                         .IsUnique();
 
-                    b.ToTable("HabitSchedules", (string)null);
+                    b.ToTable("HabitSchedules");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitTemplate", b =>
@@ -513,14 +557,14 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HabitTemplates", (string)null);
+                    b.ToTable("HabitTemplates");
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111101"),
                             Category = "Mindfulness",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 720, DateTimeKind.Utc).AddTicks(8027),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(1749),
                             Description = "10 minutes of mindfulness meditation",
                             HasPenalty = false,
                             Icon = "🧘",
@@ -537,7 +581,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111102"),
                             Category = "Learning",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3600),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5291),
                             Description = "Read a book for 30 minutes daily",
                             HasPenalty = false,
                             Icon = "📚",
@@ -554,7 +598,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111103"),
                             Category = "Health",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3673),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5309),
                             Description = "Stay hydrated throughout the day",
                             HasPenalty = false,
                             Icon = "💧",
@@ -571,7 +615,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111104"),
                             Category = "Fitness",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3678),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5314),
                             Description = "30 minutes of exercise",
                             HasPenalty = false,
                             Icon = "💪",
@@ -588,7 +632,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111105"),
                             Category = "Mindfulness",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3685),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5316),
                             Description = "Write 3 things you are grateful for",
                             HasPenalty = false,
                             Icon = "📝",
@@ -605,7 +649,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111106"),
                             Category = "Productivity",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3690),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5317),
                             Description = "Avoid social media for the day",
                             HasPenalty = false,
                             Icon = "📵",
@@ -622,7 +666,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111107"),
                             Category = "Health",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3697),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5320),
                             Description = "Get a full night of quality sleep",
                             HasPenalty = false,
                             Icon = "😴",
@@ -639,7 +683,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111108"),
                             Category = "Learning",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3701),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5322),
                             Description = "30 minutes of coding practice",
                             HasPenalty = false,
                             Icon = "💻",
@@ -656,7 +700,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111109"),
                             Category = "Health",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3703),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5324),
                             Description = "Avoid added sugar for the day",
                             HasPenalty = false,
                             Icon = "🚫",
@@ -673,7 +717,7 @@ namespace HabitApi.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111110"),
                             Category = "Mindfulness",
-                            CreatedAt = new DateTime(2026, 6, 11, 16, 26, 47, 721, DateTimeKind.Utc).AddTicks(3708),
+                            CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5326),
                             Description = "5 minutes of deep breathing exercises",
                             HasPenalty = false,
                             Icon = "🌬️",
@@ -686,6 +730,33 @@ namespace HabitApi.Migrations
                             TriggerType = 1,
                             TriggerValue = 1
                         });
+                });
+
+            modelBuilder.Entity("HabitApi.Models.Domain.League", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("MaxXP")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinXP")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Tier")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Leagues");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.MealEntry", b =>
@@ -702,21 +773,25 @@ namespace HabitApi.Migrations
 
                     b.Property<string>("Foods")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("MealEntries", (string)null);
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MealEntries");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.MoodEntry", b =>
@@ -742,7 +817,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MoodEntries", (string)null);
+                    b.ToTable("MoodEntries");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Quote", b =>
@@ -771,7 +846,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Quotes", (string)null);
+                    b.ToTable("Quotes");
 
                     b.HasData(
                         new
@@ -882,7 +957,9 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SleepEntries", (string)null);
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SleepEntries");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.SocialFeed", b =>
@@ -893,7 +970,8 @@ namespace HabitApi.Migrations
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -903,11 +981,12 @@ namespace HabitApi.Migrations
 
                     b.Property<string>("HabitName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SocialFeed", (string)null);
+                    b.ToTable("SocialFeed");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Streak", b =>
@@ -942,7 +1021,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("UserId", "HabitId")
                         .IsUnique();
 
-                    b.ToTable("Streaks", (string)null);
+                    b.ToTable("Streaks");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Transaction", b =>
@@ -974,7 +1053,7 @@ namespace HabitApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.UserLevel", b =>
@@ -1003,7 +1082,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserLevels", (string)null);
+                    b.ToTable("UserLevels");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Wallet", b =>
@@ -1029,7 +1108,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Wallets", (string)null);
+                    b.ToTable("Wallets");
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Webhook", b =>
@@ -1049,18 +1128,22 @@ namespace HabitApi.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Secret")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Webhooks", (string)null);
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Webhooks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>

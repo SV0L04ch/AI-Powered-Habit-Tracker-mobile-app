@@ -1,0 +1,20 @@
+.page { animation: slideUp 300ms var(--ease-out-expo) both; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-xl); }
+.header h1 { font-size: var(--text-2xl); font-weight: var(--weight-bold); }
+.addBtn { padding: var(--space-xs) var(--space-md); border-radius: var(--app-radius-sm); background: linear-gradient(135deg, var(--app-primary), var(--app-accent)); color: white; font-size: var(--text-sm); font-weight: var(--weight-semibold); text-decoration: none; transition: all var(--app-transition); }
+.addBtn:hover { opacity: 0.9; transform: translateY(-1px); }
+.list { display: flex; flex-direction: column; gap: var(--space-sm); }
+.card { display: flex; align-items: center; justify-content: space-between; padding: var(--space-md) var(--space-lg); border-radius: var(--app-radius-lg); border: 1px solid var(--app-border); background: var(--app-surface); transition: all var(--app-transition); }
+.card:hover { box-shadow: var(--app-shadow-sm); }
+.cardInfo h3 { font-size: var(--text-base); font-weight: var(--weight-semibold); }
+.badge { font-size: var(--text-xs); padding: 2px 8px; border-radius: var(--app-radius-full); background: var(--app-primary-light); color: var(--app-primary); margin-left: var(--space-xs); }
+.cardActions { display: flex; gap: var(--space-xs); align-items: center; }
+.completeBtn, .detailBtn, .deleteBtn { width: 32px; height: 32px; border-radius: var(--app-radius-sm); display: flex; align-items: center; justify-content: center; font-size: var(--text-sm); transition: all var(--app-transition); }
+.completeBtn { background: var(--app-success-light); color: var(--app-success); }
+.completeBtn:hover { background: var(--app-success); color: white; }
+.detailBtn { background: var(--app-bg-soft); color: var(--app-text-muted); text-decoration: none; }
+.detailBtn:hover { background: var(--app-bg-hover); color: var(--app-text); }
+.deleteBtn { background: var(--app-danger-light); color: var(--app-danger); }
+.deleteBtn:hover { background: var(--app-danger); color: white; }
+.empty { text-align: center; padding: var(--space-3xl); color: var(--app-text-muted); }
+.empty p { margin-bottom: var(--space-md); }

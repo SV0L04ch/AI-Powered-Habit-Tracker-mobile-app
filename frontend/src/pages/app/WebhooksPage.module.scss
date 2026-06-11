@@ -1,0 +1,8 @@
+.page { animation: slideUp 300ms var(--ease-out-expo) both; }
+h1 { font-size: var(--text-2xl); font-weight: var(--weight-bold); margin-bottom: var(--space-xl); }
+.form { display: flex; gap: var(--space-sm); margin-bottom: var(--space-xl); }
+.form input { flex: 1; padding: var(--space-sm) var(--space-md); border-radius: var(--app-radius-sm); border: 1px solid var(--app-border-strong); background: var(--app-surface); font-size: var(--text-sm); }
+.form button { padding: var(--space-sm) var(--space-lg); border-radius: var(--app-radius-sm); background: linear-gradient(135deg, var(--app-primary), var(--app-accent)); color: white; font-weight: var(--weight-semibold); border: none; cursor: pointer; white-space: nowrap; }
+.list { display: flex; flex-direction: column; gap: var(--space-sm); }
+.webhook { display: flex; justify-content: space-between; align-items: center; padding: var(--space-md); border-radius: var(--app-radius-sm); border: 1px solid var(--app-border); background: var(--app-surface); font-size: var(--text-sm); }
+.deleteBtn { padding: var(--space-2xs) var(--space-sm); border-radius: var(--app-radius-xs); background: var(--app-danger-light); color: var(--app-danger); font-size: var(--text-xs); border: none; cursor: pointer; }

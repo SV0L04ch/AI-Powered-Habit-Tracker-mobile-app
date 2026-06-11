@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using HabitApi.Services;
 using HabitApi.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HabitApi.Controllers;
 
 [ApiController]
 [Route("api/economics")]
+[Authorize]
 public class EconomicsController : ControllerBase
 {
     private readonly IEconomicsService _economicsService;

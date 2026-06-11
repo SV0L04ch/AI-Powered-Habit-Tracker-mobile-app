@@ -1,11 +1,13 @@
 using HabitApi.Services;
 using HabitApi.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HabitApi.Controllers;
 
 [ApiController]
 [Route("api/quotes")]
+[Authorize]
 public class QuotesController : ControllerBase
 {
     private readonly IQuoteService _quoteService;

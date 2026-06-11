@@ -1,0 +1,19 @@
+.page { animation: slideUp 300ms var(--ease-out-expo) both; }
+.header { margin-bottom: var(--space-xl); }
+.header h1 { font-size: var(--text-2xl); font-weight: var(--weight-bold); }
+.date { font-size: var(--text-sm); color: var(--app-text-muted); margin-top: var(--space-2xs); }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-bottom: var(--space-xl); }
+.metricCard { padding: var(--space-lg); border-radius: var(--app-radius-lg); border: 1px solid var(--app-border); background: var(--app-surface); text-align: center; transition: all var(--app-transition); }
+.metricCard:hover { transform: translateY(-2px); box-shadow: var(--app-shadow-sm); }
+.metricIcon { font-size: 24px; margin-bottom: var(--space-xs); }
+.metricValue { font-size: var(--text-2xl); font-weight: var(--weight-bold); }
+.metricLabel { font-size: var(--text-xs); color: var(--app-text-muted); margin-top: var(--space-2xs); }
+.quoteCard, .weatherCard { padding: var(--space-lg); border-radius: var(--app-radius-lg); border: 1px solid var(--app-border); background: var(--app-surface); margin-bottom: var(--space-md); }
+.quoteText { font-size: var(--text-lg); font-style: italic; color: var(--app-text-secondary); line-height: 1.5; }
+.quoteAuthor { font-size: var(--text-sm); color: var(--app-text-muted); margin-top: var(--space-sm); }
+.weatherInfo { display: flex; align-items: center; gap: var(--space-md); }
+.weatherIcon { font-size: 32px; }
+.weatherTemp { font-size: var(--text-xl); font-weight: var(--weight-bold); }
+.weatherCity { font-size: var(--text-sm); color: var(--app-text-muted); }
+.weatherDesc { font-size: var(--text-sm); color: var(--app-text-secondary); margin-top: var(--space-sm); }
+@media (max-width: 768px) { .metrics { grid-template-columns: repeat(2, 1fr); } }

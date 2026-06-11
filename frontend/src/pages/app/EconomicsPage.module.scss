@@ -1,0 +1,15 @@
+.page { animation: slideUp 300ms var(--ease-out-expo) both; }
+h1 { font-size: var(--text-2xl); font-weight: var(--weight-bold); margin-bottom: var(--space-xl); }
+h2 { font-size: var(--text-lg); font-weight: var(--weight-semibold); margin: var(--space-xl) 0 var(--space-md); }
+.wallet { padding: var(--space-xl); border-radius: var(--app-radius-lg); border: 1px solid var(--app-border); background: var(--app-surface); text-align: center; margin-bottom: var(--space-md); }
+.balance { display: flex; align-items: center; justify-content: center; gap: var(--space-sm); }
+.coin { font-size: 32px; }
+.amount { font-size: var(--text-4xl); font-weight: var(--weight-bold); color: var(--app-primary); }
+.unit { font-size: var(--text-sm); color: var(--app-text-muted); }
+.total { font-size: var(--text-sm); color: var(--app-text-muted); margin-top: var(--space-sm); }
+.list { display: flex; flex-direction: column; gap: var(--space-xs); }
+.tx { display: flex; justify-content: space-between; padding: var(--space-sm) var(--space-md); border-radius: var(--app-radius-sm); border: 1px solid var(--app-border); background: var(--app-surface); }
+.txDesc { font-size: var(--text-sm); }
+.txAmount { font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.positive { color: var(--app-success); }
+.negative { color: var(--app-danger); }
