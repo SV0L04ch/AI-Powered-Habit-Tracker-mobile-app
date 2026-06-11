@@ -12,7 +12,7 @@ backend/HabitApi.Tests/    # xUnit unit + integration tests
 backend/scripts/           # PowerShell scripts for integration tests
 frontend/                  # React + Vite + Zustand + SCSS
 frontend/end-to-end-tests/ # Playwright E2E (scenarious/ + smoke/)
-end-to-end-tests/          # Legacy Playwright specs (root-level)
+end-to-end-tests/          # Legacy Playwright specs (root-level, IGNORE)
 postman/                   # Newman test collections
 artefacts/                 # Design docs (tech spec, ER diagram)
 ```
@@ -36,7 +36,7 @@ backend/scripts/Run-LlmIntegrationTests.ps1
 docker compose --env-file .env -f backend/HabitApi/docker-compose.yml up -d db redis mailhog ollama
 
 # Run API outside container (needs infra from above)
-dotnet ef database update
+dotnet ef database update --project backend/HabitApi/HabitApi.csproj
 dotnet run --project backend/HabitApi/HabitApi.csproj
 
 # Full stack via Docker Compose
@@ -70,7 +70,7 @@ E2E tests must run in strict sequential order. Use the ordered runner:
 npm run e2e-tests:ordered   # from repo root
 ```
 
-This runs `end-to-end-tests/scenarious/*.spec.js` (register → login → habits → profile) then `smoke/*.spec.js`. Workers=1, retries=2 in CI.
+This runs `frontend/end-to-end-tests/scenarious/*.spec.js` (register → login → habits → profile) then `smoke/*.spec.js`. Workers=1, retries=2 in CI.
 
 Playwright config: `frontend/playwright.config.cjs`. Scenario tests run on Chromium; smoke tests run on Firefox, WebKit, and Mobile Chrome (Pixel 5).
 
@@ -89,14 +89,14 @@ Both use the CI compose file: `backend/HabitApi/docker-compose.ci.yml` (includes
 
 1. Copy `backend/HabitApi/.env.example` to `.env` at repo root
 2. Required vars: `DB_PASSWORD`, `JWT_SECRET` (min 32 chars), `WEATHER_API_KEY`, `AI_API_KEY`
-3. Backend loads `.env` from CWD via DotNetEnv (`Program.cs:20`)
-4. Frontend needs `frontend/.env` with `VITE_API_BASE_URL` (CI sets `http://localhost:5093`)
+3. Backend loads `.env` from CWD via DotNetEnv (`Program.cs:25`)
+4. Frontend does not need a `.env` — the API client uses `/api` as baseURL and Vite's dev-server proxy forwards it to `localhost:5093` (see `vite.config.js`).
 
 **Do not commit `.env` files.** They are gitignored.
 
 ## Key architecture facts
 
-- **Auth**: JWT in HttpOnly cookie `access_token`. No `Authorization` header — the backend reads the cookie directly (`Program.cs:98`). Protected endpoints require this cookie.
+- **Auth**: JWT in HttpOnly cookie `access_token`. No `Authorization` header — the backend reads the cookie directly (`Program.cs:112`). Protected endpoints require this cookie.
 - **Backend API port**: 5093 (external) → 8080 (container). Frontend dev server: 5173.
 - **Infra ports**: PostgreSQL 5431, Redis 6379, MailHog 8025, Ollama 11434.
 - **Docker Compose files**: `docker-compose.yml` (full stack with Ollama), `docker-compose.ci.yml` (CI without Ollama, uses weather mock).
@@ -114,5 +114,9 @@ Both use the CI compose file: `backend/HabitApi/docker-compose.ci.yml` (includes
 - E2E tests are order-dependent (register creates the user that login/habits/profile specs use). Do not reorder or skip files.
 - `docker-compose.ci.yml` uses a `weather_mock` service — do not use it for local dev where you want real weather data.
 - Backend integration tests use `Testcontainers` — they require Docker Desktop running.
-- The root `end-to-end-tests/` directory contains legacy Playwright specs; the active ones are in `frontend/end-to-end-tests/`.
+- The root `end-to-end-tests/` directory contains legacy Playwright specs; the active ones are in `frontend/end-to-end-tests/`. Do not run tests from the root `end-to-end-tests/`.
+- The root `playwright.config.js` is a legacy config pointing at `./end-to-end-tests` — the active config is `frontend/playwright.config.cjs`.
+- Root-level `HabitApi/` and `HabitApi.Tests/` directories contain only `bin/obj` build artifacts. Actual source is in `backend/HabitApi/` and `backend/HabitApi.Tests/`.
 - Frontend `pnpm-lock.yaml` exists alongside `package-lock.json` — CI uses npm, stick with npm.
+- Root `package.json` has a broken `test:e2e` script referencing `QA/e2e` which doesn't exist. Use `npm run e2e-tests:ordered` instead.
+- Root `package.json` `dev:backend` runs `cd backend && dotnet run` which will fail (no project in `backend/`). Use `dotnet run --project backend/HabitApi/HabitApi.csproj` instead.
