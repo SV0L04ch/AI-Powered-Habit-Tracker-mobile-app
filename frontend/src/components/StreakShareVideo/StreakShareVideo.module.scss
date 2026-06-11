@@ -1,0 +1,55 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.canvas {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.generateBtn {
+  padding: 12px 24px;
+  background: var(--app-primary);
+  color: var(--app-primary-contrast);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 300ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(217, 119, 6, 0.25);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.downloadBtn {
+  padding: 12px 24px;
+  background: var(--app-bg-soft);
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 300ms ease;
+
+  &:hover {
+    background: var(--app-bg-elevated);
+  }
+}

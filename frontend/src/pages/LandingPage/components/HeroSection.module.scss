@@ -1,0 +1,359 @@
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 24px 80px;
+  background: linear-gradient(135deg, var(--app-bg) 0%, var(--app-bg-soft) 50%, var(--app-bg) 100%);
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    padding: 120px 48px 80px;
+    gap: 60px;
+  }
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--app-primary);
+  opacity: 0.15;
+  animation: particleFloat 6s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+  25% { transform: translate(10px, -30px) scale(1.2); opacity: 0.25; }
+  50% { transform: translate(-10px, -60px) scale(0.8); opacity: 0.1; }
+  75% { transform: translate(15px, -30px) scale(1.1); opacity: 0.2; }
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    text-align: left;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--app-bg-elevated);
+  border: 1px solid var(--app-border);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--app-text-muted);
+  margin-bottom: 24px;
+}
+
+.badgeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--app-accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+
+.headline {
+  font-size: clamp(36px, 8vw, 64px);
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--app-text);
+  margin: 0 0 20px;
+  letter-spacing: -0.02em;
+}
+
+.gradient {
+  background: linear-gradient(135deg, var(--app-primary), var(--app-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subheadline {
+  font-size: clamp(16px, 2.5vw, 20px);
+  line-height: 1.6;
+  color: var(--app-text-muted);
+  margin: 0 0 32px;
+  max-width: 480px;
+
+  @media (min-width: 768px) {
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 40px;
+
+  @media (min-width: 480px) {
+    flex-direction: row;
+  }
+}
+
+.ctaPrimary {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, var(--app-primary), #b45309);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 400ms cubic-bezier(0.25, 1.2, 0.5, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(217, 119, 6, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 100ms;
+  }
+}
+
+.ctaGhost {
+  padding: 16px 32px;
+  background: transparent;
+  color: var(--app-text);
+  border: 1.5px solid var(--app-border-strong);
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 400ms cubic-bezier(0.25, 1.2, 0.5, 1);
+
+  &:hover {
+    border-color: var(--app-primary);
+    color: var(--app-primary);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 100ms;
+  }
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+
+  @media (min-width: 768px) {
+    justify-content: flex-start;
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.statNumber {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--app-text-muted);
+  font-weight: 500;
+}
+
+.statDivider {
+  width: 1px;
+  height: 32px;
+  background: var(--app-border);
+}
+
+.phoneFrame {
+  position: relative;
+  width: 280px;
+  height: 560px;
+  background: var(--app-bg-elevated);
+  border-radius: 36px;
+  border: 3px solid var(--app-border-strong);
+  box-shadow: 0 40px 80px rgba(26, 22, 20, 0.15),
+              0 0 0 1px rgba(26, 22, 20, 0.05);
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-top: 40px;
+
+  @media (min-width: 768px) {
+    margin-top: 0;
+  }
+}
+
+.phoneNotch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 28px;
+  background: var(--app-text);
+  border-radius: 0 0 16px 16px;
+  z-index: 2;
+}
+
+.phoneScreen {
+  padding: 52px 20px 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mockHeader {
+  margin-bottom: 4px;
+}
+
+.mockGreeting {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.mockDate {
+  font-size: 13px;
+  color: var(--app-text-muted);
+}
+
+.mockStreak {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.1), rgba(217, 119, 6, 0.05));
+  border-radius: 14px;
+  border: 1px solid rgba(217, 119, 6, 0.15);
+}
+
+.mockFire {
+  font-size: 20px;
+  animation: fireFlicker 2s ease-in-out infinite;
+}
+
+@keyframes fireFlicker {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.1) rotate(-3deg); }
+  50% { transform: scale(0.95) rotate(2deg); }
+  75% { transform: scale(1.05) rotate(-1deg); }
+}
+
+.mockStreakCount {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--app-primary);
+}
+
+.mockHabits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mockHabit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--app-bg-elevated);
+  border-radius: 12px;
+  border: 1px solid var(--app-border);
+  font-size: 14px;
+  color: var(--app-text);
+  transition: all 300ms ease;
+
+  &:hover {
+    border-color: var(--app-primary);
+  }
+}
+
+.mockCheck {
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  border: 2px solid var(--app-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: transparent;
+  transition: all 300ms cubic-bezier(0.25, 1.2, 0.5, 1);
+  flex-shrink: 0;
+
+  &.checked {
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: #fff;
+    animation: checkBounce 400ms cubic-bezier(0.25, 1.2, 0.5, 1);
+  }
+}
+
+@keyframes checkBounce {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.mockProgress {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mockProgressBar {
+  height: 8px;
+  background: var(--app-bg-soft);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.mockProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--app-accent), var(--app-accent-2));
+  border-radius: 100px;
+  transition: width 1s cubic-bezier(0.25, 1.2, 0.5, 1);
+}
+
+.mockProgressText {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app-accent);
+  text-align: right;
+}

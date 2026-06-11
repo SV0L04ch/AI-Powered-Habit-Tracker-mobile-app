@@ -10,18 +10,32 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IO.Compression;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Polly;
 using Polly.Extensions.Http;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
+using Serilog;
+using Mapster;
+using HabitApi.Mappings;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Structured logging
+// Serilog structured logging
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/habitapi-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
@@ -164,6 +178,25 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "HabitTracker_";
 });
 
+// Response Compression (Brotli + Gzip)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.SmallestSize;
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.SmallestSize;
+});
+
+// Output Caching
+builder.Services.AddOutputCache();
+
 // Rate Limiter
 builder.Services.AddRateLimiter(options =>
 {
@@ -173,6 +206,19 @@ builder.Services.AddRateLimiter(options =>
         config.Window = TimeSpan.FromMinutes(1);
         config.QueueLimit = 0;
     });
+    options.AddFixedWindowLimiter("ai", config =>
+    {
+        config.PermitLimit = 10;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueLimit = 0;
+    });
+    options.AddFixedWindowLimiter("default", config =>
+    {
+        config.PermitLimit = 100;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueLimit = 0;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 // Регистрация остальных сервисов
@@ -182,11 +228,29 @@ builder.Services.AddScoped<IHabitEntryService, HabitEntryService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IStreakService, StreakService>();
+builder.Services.AddScoped<IGamificationService, GamificationService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<IQuoteService, QuoteService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IEconomicsService, EconomicsService>();
+builder.Services.AddScoped<ISocialService, SocialService>();
+builder.Services.AddScoped<IJournalService, JournalService>();
 // IWeatherService и IAiInsightsService уже зарегистрированы через AddHttpClient
+
+// Health Checks
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
 
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+// MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+
+// Mapster
+MappingConfig.Register();
 
 var app = builder.Build();
 
@@ -210,13 +274,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseResponseCompression();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
+app.UseOutputCache();
 app.MapControllers();
 
-app.MapGet("/health", () => Results.Ok("Healthy"));
+app.MapHealthChecks("/health");
+app.MapGet("/health/ready", () => Results.Ok("Ready"));
 
 app.Run();
 

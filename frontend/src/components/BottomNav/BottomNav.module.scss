@@ -40,12 +40,12 @@
 
 .active {
   color: var(--app-primary-contrast);
-  background: linear-gradient(135deg, var(--app-primary), #2563eb 62%, var(--app-accent));
+  background: linear-gradient(135deg, var(--app-primary), #b45309 62%, var(--app-accent));
 }
 
 :global([data-theme='dark']) .active {
   color: #fff;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 62%, #42d392 100%);
+  background: linear-gradient(135deg, #b45309 0%, #92400e 62%, #34d399 100%);
 }
 
 :global([data-theme='dark']) .tab {

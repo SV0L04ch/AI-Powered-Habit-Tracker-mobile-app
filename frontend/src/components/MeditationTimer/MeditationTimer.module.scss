@@ -1,0 +1,131 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--app-bg);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 40px;
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--app-bg-soft);
+  color: var(--app-text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 200ms ease;
+
+  &:hover {
+    background: var(--app-border);
+    color: var(--app-text);
+  }
+}
+
+.breatheCircle {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.1), rgba(124, 58, 237, 0.1));
+  border: 2px solid var(--app-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 4s ease-in-out;
+
+  &.animating {
+    border-color: var(--app-primary);
+  }
+}
+
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.time {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.phase {
+  font-size: 14px;
+  color: var(--app-text-muted);
+}
+
+.progressRing {
+  width: 120px;
+  height: 120px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.durations {
+  display: flex;
+  gap: 8px;
+}
+
+.durBtn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border);
+  background: var(--app-bg-soft);
+  color: var(--app-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+
+  &.active {
+    background: var(--app-primary);
+    color: var(--app-primary-contrast);
+    border-color: var(--app-primary);
+  }
+
+  &:hover:not(.active) {
+    border-color: var(--app-primary);
+  }
+}
+
+.startBtn {
+  padding: 16px 48px;
+  background: var(--app-primary);
+  color: var(--app-primary-contrast);
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.25, 1.2, 0.5, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(217, 119, 6, 0.3);
+  }
+}

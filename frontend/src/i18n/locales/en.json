@@ -1,0 +1,45 @@
+{
+  "app": { "name": "Habit Tracker" },
+  "nav": { "home": "Home", "stats": "Stats", "city": "City", "profile": "Profile" },
+  "habits": {
+    "title": "My Habits",
+    "empty": "No habits yet. Create your first habit!",
+    "add": "Add Habit",
+    "complete": "Complete",
+    "skip": "Skip",
+    "streak": "{{count}} Day Streak",
+    "todayProgress": "Today's Progress"
+  },
+  "insights": {
+    "title": "Insights",
+    "dailySummary": "Daily Summary",
+    "completed": "Completed",
+    "partial": "Partial",
+    "skipped": "Skipped",
+    "aiComment": "AI Insight"
+  },
+  "profile": {
+    "title": "Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "darkMode": "Dark Mode",
+    "logout": "Log Out"
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "city": "City",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "landing": {
+    "hero": "Build Better Habits, One Day at a Time",
+    "subtitle": "AI-powered habit tracking with smart insights, streaks, and beautiful analytics.",
+    "getStarted": "Get Started Free",
+    "signIn": "Sign In"
+  }
+}

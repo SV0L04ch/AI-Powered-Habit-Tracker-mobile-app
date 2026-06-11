@@ -1,0 +1,54 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 24px;
+}
+
+.card {
+  text-align: center;
+  max-width: 400px;
+  padding: 40px 32px;
+  background: var(--app-bg-elevated);
+  border: 1px solid var(--app-border);
+  border-radius: 20px;
+  box-shadow: var(--app-shadow-soft);
+}
+
+.icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--app-text);
+  margin: 0 0 8px;
+}
+
+.message {
+  font-size: 14px;
+  color: var(--app-text-muted);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.retryBtn {
+  padding: 12px 24px;
+  background: var(--app-primary);
+  color: var(--app-primary-contrast);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 300ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(217, 119, 6, 0.25);
+  }
+}

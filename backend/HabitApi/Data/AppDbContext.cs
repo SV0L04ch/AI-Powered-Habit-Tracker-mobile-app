@@ -11,6 +11,25 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRo
 
     public DbSet<Habit> Habits { get; set; }
     public DbSet<HabitEntry> HabitEntries { get; set; }
+    public DbSet<Streak> Streaks { get; set; }
+    public DbSet<Achievement> Achievements { get; set; }
+    public DbSet<UserLevel> UserLevels { get; set; }
+    public DbSet<HabitTemplate> HabitTemplates { get; set; }
+    public DbSet<Quote> Quotes { get; set; }
+    public DbSet<HabitSchedule> HabitSchedules { get; set; }
+    public DbSet<Wallet> Wallets { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
+    public DbSet<MoodEntry> MoodEntries { get; set; }
+    public DbSet<HabitNote> HabitNotes { get; set; }
+    public DbSet<HabitPhoto> HabitPhotos { get; set; }
+    public DbSet<HabitLocation> HabitLocations { get; set; }
+    public DbSet<SocialFeed> SocialFeed { get; set; }
+    public DbSet<Friendship> Friendships { get; set; }
+    public DbSet<Challenge> Challenges { get; set; }
+    public DbSet<Goal> Goals { get; set; }
+    public DbSet<SleepEntry> SleepEntries { get; set; }
+    public DbSet<MealEntry> MealEntries { get; set; }
+    public DbSet<Webhook> Webhooks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,5 +73,110 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRo
             entity.Property(e => e.Note).HasMaxLength(500);
             entity.HasIndex(e => new { e.HabitId, e.Date }).IsUnique();
         });
+
+        // Streak
+        modelBuilder.Entity<Streak>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.HasIndex(s => new { s.UserId, s.HabitId }).IsUnique();
+        });
+
+        // Achievement
+        modelBuilder.Entity<Achievement>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.HasIndex(a => new { a.UserId, a.Type }).IsUnique();
+        });
+
+        // UserLevel
+        modelBuilder.Entity<UserLevel>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.UserId).IsUnique();
+        });
+
+        // HabitTemplate
+        modelBuilder.Entity<HabitTemplate>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(200);
+            entity.Property(t => t.Category).IsRequired().HasMaxLength(100);
+        });
+
+        // Quote
+        modelBuilder.Entity<Quote>(entity =>
+        {
+            entity.HasKey(q => q.Id);
+            entity.Property(q => q.Text).IsRequired().HasMaxLength(1000);
+            entity.Property(q => q.Author).HasMaxLength(200);
+            entity.Property(q => q.Category).HasMaxLength(100);
+        });
+
+        // HabitSchedule
+        modelBuilder.Entity<HabitSchedule>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.HasIndex(s => s.HabitId).IsUnique();
+            entity.Property(s => s.Frequency).IsRequired().HasMaxLength(50);
+            entity.Property(s => s.DaysOfWeek).HasColumnType("jsonb");
+            entity.Property(s => s.Exceptions).HasColumnType("jsonb");
+        });
+
+        // Wallet
+        modelBuilder.Entity<Wallet>(entity =>
+        {
+            entity.HasKey(w => w.Id);
+            entity.HasIndex(w => w.UserId).IsUnique();
+        });
+
+        // Transaction
+        modelBuilder.Entity<Transaction>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.HasIndex(t => t.UserId);
+            entity.Property(t => t.Type).IsRequired().HasMaxLength(50);
+            entity.Property(t => t.Description).HasMaxLength(500);
+        });
+
+        // Habit Color
+        modelBuilder.Entity<Habit>(entity =>
+        {
+            entity.Property(h => h.Color).HasMaxLength(7);
+        });
+
+        SeedTemplates(modelBuilder);
+        SeedQuotes(modelBuilder);
+    }
+
+    private static void SeedTemplates(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<HabitTemplate>().HasData(
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111101"), Name = "Morning Meditation", Description = "10 minutes of mindfulness meditation", Category = "Mindfulness", Icon = "🧘", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111102"), Name = "Read 30 Minutes", Description = "Read a book for 30 minutes daily", Category = "Learning", Icon = "📚", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111103"), Name = "Drink 8 Glasses Water", Description = "Stay hydrated throughout the day", Category = "Health", Icon = "💧", IsPositive = true, TriggerType = 2, TriggerValue = 8, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111104"), Name = "Workout", Description = "30 minutes of exercise", Category = "Fitness", Icon = "💪", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111105"), Name = "Gratitude Journal", Description = "Write 3 things you are grateful for", Category = "Mindfulness", Icon = "📝", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111106"), Name = "No Social Media", Description = "Avoid social media for the day", Category = "Productivity", Icon = "📵", IsPositive = false, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111107"), Name = "Sleep 8 Hours", Description = "Get a full night of quality sleep", Category = "Health", Icon = "😴", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111108"), Name = "Learn Coding", Description = "30 minutes of coding practice", Category = "Learning", Icon = "💻", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111109"), Name = "No Sugar", Description = "Avoid added sugar for the day", Category = "Health", Icon = "🚫", IsPositive = false, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
+            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111110"), Name = "Deep Breathing", Description = "5 minutes of deep breathing exercises", Category = "Mindfulness", Icon = "🌬️", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 }
+        );
+    }
+
+    private static void SeedQuotes(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Quote>().HasData(
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222201"), Text = "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", Author = "Aristotle", Category = "discipline" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222202"), Text = "The secret of getting ahead is getting started.", Author = "Mark Twain", Category = "motivation" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222203"), Text = "Motivation is what gets you started. Habit is what keeps you going.", Author = "Jim Ryun", Category = "motivation" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222204"), Text = "Success is the sum of small efforts, repeated day in and day out.", Author = "Robert Collier", Category = "discipline" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222205"), Text = "You do not rise to the level of your goals. You fall to the level of your systems.", Author = "James Clear", Category = "growth" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222206"), Text = "The only way to do great work is to love what you do.", Author = "Steve Jobs", Category = "motivation" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222207"), Text = "It is not the mountain we conquer, but ourselves.", Author = "Edmund Hillary", Category = "growth" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222208"), Text = "Small disciplines repeated with consistency every day lead to great achievements.", Author = "John C. Maxwell", Category = "discipline" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222209"), Text = "The best time to plant a tree was 20 years ago. The second best time is now.", Author = "Chinese Proverb", Category = "growth" },
+            new Quote { Id = Guid.Parse("22222222-2222-2222-2222-222222222210"), Text = "Take care of your body. It is the only place you have to live.", Author = "Jim Rohn", Category = "health" }
+        );
     }
 }

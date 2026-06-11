@@ -32,6 +32,7 @@ const RegisterPage = () => {
     const nextErrors = {};
     if (!form.email) nextErrors.email = 'Укажите email.';
     else if (!/\S+@\S+\.\S+/.test(form.email)) nextErrors.email = 'Email выглядит некорректно.';
+    else if (!form.email.toLowerCase().endsWith('@gmail.com')) nextErrors.email = 'Используйте Gmail адрес для подтверждения.';
     if (!form.city.trim()) nextErrors.city = 'Укажите город.';
     if (!form.password) nextErrors.password = 'Укажите пароль.';
     else if (form.password.length < 6) nextErrors.password = 'Минимум 6 символов.';
@@ -72,10 +73,11 @@ const RegisterPage = () => {
           <Input
             name="email"
             type="email"
-            label="Email"
+            label="Email (Gmail)"
             value={form.email}
             onChange={handleChange}
             autoComplete="email"
+            placeholder="yourname@gmail.com"
             data-testid="email-input"
           />
           {errors.email && (

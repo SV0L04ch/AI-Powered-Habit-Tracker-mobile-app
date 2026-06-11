@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, Suspense, lazy } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import LoginPage from './pages/LoginPage/LoginPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
 import HabitsPage from './pages/HabitsPage/HabitsPage';
@@ -12,7 +13,10 @@ import BottomNav from './components/BottomNav/BottomNav';
 import GuestRoute from './components/Guards/GuestRoute';
 import ProtectedAuth from './components/Guards/ProtectedAuth';
 import useThemeStore from './store/useThemeStore';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import './styles/main.scss';
+
+const LandingPage = lazy(() => import('./pages/LandingPage/LandingPage'));
 
 function App() {
   const location = useLocation();
@@ -46,8 +50,10 @@ function App() {
   };
 
   const isAuthRoute = location.pathname === '/login' || location.pathname === '/register';
+  const isLanding = location.pathname === '/';
 
   return (
+    <ErrorBoundary>
     <div className="container">
       {showSplash && (
         <div className="splash-screen" data-testid="pwa-splash-screen">
@@ -58,77 +64,83 @@ function App() {
       )}
 
       <div className="route-shell" key={location.pathname}>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <GuestRoute>
-                <LoginPage />
-              </GuestRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <GuestRoute>
-                <RegisterPage />
-              </GuestRoute>
-            }
-          />
-          <Route
-            path="/habits"
-            element={
-              <ProtectedAuth>
-                <HabitsPage />
-              </ProtectedAuth>
-            }
-          />
-          <Route
-            path="/habits/:id"
-            element={
-              <ProtectedAuth>
-                <HabitDetailPage />
-              </ProtectedAuth>
-            }
-          />
-          <Route
-            path="/insights/personal"
-            element={
-              <ProtectedAuth>
-                <PersonalInsightsPage />
-              </ProtectedAuth>
-            }
-          />
-          <Route
-            path="/habits/new"
-            element={
-              <ProtectedAuth>
-                <CreateHabitPage />
-              </ProtectedAuth>
-            }
-          />
-          <Route
-            path="/insights/city"
-            element={
-              <ProtectedAuth>
-                <CityInsightsPage />
-              </ProtectedAuth>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedAuth>
-                <ProfilePage />
-              </ProtectedAuth>
-            }
-          />
-          <Route path="/" element={<Navigate to="/habits" replace />} />
-        </Routes>
+        <Suspense fallback={<div className="page-loader"><div className="loader-spinner" /></div>}>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<LandingPage />} />
+              <Route
+                path="/login"
+                element={
+                  <GuestRoute>
+                    <LoginPage />
+                  </GuestRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <GuestRoute>
+                    <RegisterPage />
+                  </GuestRoute>
+                }
+              />
+              <Route
+                path="/habits"
+                element={
+                  <ProtectedAuth>
+                    <HabitsPage />
+                  </ProtectedAuth>
+                }
+              />
+              <Route
+                path="/habits/:id"
+                element={
+                  <ProtectedAuth>
+                    <HabitDetailPage />
+                  </ProtectedAuth>
+                }
+              />
+              <Route
+                path="/insights/personal"
+                element={
+                  <ProtectedAuth>
+                    <PersonalInsightsPage />
+                  </ProtectedAuth>
+                }
+              />
+              <Route
+                path="/habits/new"
+                element={
+                  <ProtectedAuth>
+                    <CreateHabitPage />
+                  </ProtectedAuth>
+                }
+              />
+              <Route
+                path="/insights/city"
+                element={
+                  <ProtectedAuth>
+                    <CityInsightsPage />
+                  </ProtectedAuth>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedAuth>
+                    <ProfilePage />
+                  </ProtectedAuth>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AnimatePresence>
+        </Suspense>
       </div>
 
-      {!isAuthRoute && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
+      {!isAuthRoute && !isLanding && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
     </div>
+    </ErrorBoundary>
   );
 }
 

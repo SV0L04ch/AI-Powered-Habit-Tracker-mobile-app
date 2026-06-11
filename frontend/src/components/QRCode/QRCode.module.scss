@@ -1,0 +1,11 @@
+.container {
+  display: inline-flex;
+  padding: 12px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--app-shadow-soft);
+}
+
+.qr {
+  display: block;
+}

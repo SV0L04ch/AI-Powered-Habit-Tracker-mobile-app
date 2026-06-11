@@ -1,125 +1,202 @@
-# AI-Powered Habit Tracker Backend
+# AI-Powered Habit Tracker
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![.NET Version](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis)](https://redis.io/)
 
-Backend для AI-Powered Habit Tracker. API отвечает за регистрацию и подтверждение email, вход через JWT-cookie, управление привычками, отметки выполнения, профиль пользователя, погоду, статистику и AI-подсказки. README описывает только backend-часть проекта.
+AI-Powered Habit Tracker — full-stack приложение для отслеживания привычек с AI-подсказками, gamification, социальными функциями и premium дизайном.
 
 ## Возможности
 
-* Регистрация, подтверждение email, вход и выход пользователя.
-* JWT-аутентификация через `HttpOnly` cookie `access_token`.
-* Управление профилем: имя, город, настройки напоминаний и тема.
-* Управление привычками: положительные и отрицательные привычки, триггеры по времени или количеству раз, цель по дням, штрафные дни и напоминания.
-* Отслеживание прогресса: `Completed`, `Partial`, `Skipped` для положительных привычек и `RelapseCount` для отрицательных.
-* Защита от дублирующей отметки привычки на одну дату.
-* Погодные данные по городу через OpenWeatherMap-compatible API.
-* Redis-кэш погоды.
-* Ежедневная персональная сводка по привычкам, погоде и AI-комментарию.
-* Анонимная городская статистика популярных привычек.
-* AI-подсказки для сценариев `lazy`, `skip`, `relapse`.
-* Graceful degradation: если Redis, weather API или AI endpoint недоступны, API возвращает fallback-данные и продолжает отвечать.
-* Глобальная обработка ошибок через `ProblemDetails`.
-* Swagger UI в Development-режиме.
-* Unit и integration тесты.
+### Backend (15 контроллеров, 16 сервисов)
+* Регистрация, подтверждение email (Gmail для production, MailHog для dev), JWT-cookie аутентификация.
+* Управление привычками: положительные/отрицательные, триггеры по времени/количеству, штрафные дни, цвета.
+* Стрики и Gamification: XP, уровни (1-15), 8 достижений, виртуальная валюта (HabitCoins).
+* Шаблоны привычек: 10 seeded шаблонов (Fitness, Mindfulness, Productivity, Health, Learning).
+* Планировщик: daily/weekdays/custom расписание с исключениями.
+* AI-подсказки и ежедневная сводка с погодой.
+* Социальные функции: лента города, друзья, вызовы.
+* Журнал: заметки, настроение, сон, питание, цели (OKR).
+* Сервис цитат: 10 мотивационных цитат.
+* Оптимизации: Serilog, сжатие Brotli/Gzip, rate limiting (auth/ai/default), health checks, output cache, Mapster, MediatR CQRS.
+
+### Frontend (React 19 + Vite 8, PWA)
+* **Landing Page**: 9 секций (Hero, Features, InteractiveDemo, VideoShowcase, AppPreview3D, HowItWorks, SocialProof, CTA, Footer) с premium анимациями.
+* **Premium дизайн**: Claude.ai-inspired тёплая палитра (#faf8f5, #d97706, #059669), spring physics анимации, skeleton loading.
+* **i18n**: English + Russian переводы.
+* **Компоненты**: VoiceButton, MoodPicker, Soundscapes, MeditationTimer, StreakShareVideo, QRCode, ErrorBoundary, OfflineIndicator, PushNotifications.
+* **Оптимизация**: Code splitting (React.lazy), bundle analysis, service worker, prefetching.
 
 ## Технологический стек
 
-- Платформа и язык: `.NET 10`, `C# 12`
+### Backend
+- Платформа: `.NET 10`, `C# 12`
 - Фреймворк: `ASP.NET Core Web API`
-- База данных: `PostgreSQL 15`
-- ORM: `Entity Framework Core`
+- База данных: `PostgreSQL 15` + `Entity Framework Core`
 - Аутентификация: `ASP.NET Core Identity`, `JWT Bearer`, `HttpOnly` cookie
 - Валидация: `FluentValidation`
 - Кэширование: `Redis`
-- Email для локальной разработки: `MailHog`
-- Weather integration: `OpenWeatherMap-compatible API`
-- AI integration: `Ollama`
-- Документация API: `Swagger`
-- Resilience: `HttpClientFactory`, `Polly`
-- Тестирование: `xUnit`, `Moq`, `MockHttp`
+- Маппинг: `Mapster`
+- CQRS: `MediatR`
+- Логирование: `Serilog`
+- Resilience: `Polly`, `HttpClientFactory`
+- Observability: `OpenTelemetry`
+- Тестирование: `xUnit`, `Moq`, `Testcontainers`
 - Контейнеризация: `Docker`, `Docker Compose`
 
-## Быстрый старт
+### Frontend
+- Фреймворк: `React 19` + `Vite 8`
+- Состояние: `Zustand`
+- Анимации: `Framer Motion`
+- Стили: `SCSS` + CSS Custom Properties
+- Графики: `Recharts`
+- i18n: `react-i18next`
+- PWA: `vite-plugin-pwa`
+- Тестирование: `Vitest`, `Playwright`
 
-Эти инструкции помогут запустить backend локально для разработки и тестирования.
+## Быстрый старт
 
 ### Предварительные требования
 
 * [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+* [Node.js 20+](https://nodejs.org/)
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 * [Git](https://git-scm.com/)
 
-## Установка и запуск
+### 1. Клонируйте репозиторий
 
-1. Клонируйте репозиторий:
+```bash
+git clone https://github.com/SV0L04ch/AI-Powered-Habit-Tracker-mobile-app.git
+cd AI-Powered-Habit-Tracker-mobile-app
+```
 
-        git clone https://github.com/SV0L04ch/AI-Powered-Habit-Tracker-mobile-app.git
-        cd AI-Powered-Habit-Tracker-mobile-app
+### 2. Настройте окружение
 
-2. Создайте локальный `.env` по примеру:
+```bash
+Copy-Item backend/HabitApi/.env.example .env
+```
 
-        Copy-Item backend/HabitApi/.env.example .env
+Отредактируйте `.env` — заполните `DB_PASSWORD`, `JWT_SECRET` (минимум 32 символа), `WEATHER_API_KEY`, `AI_API_KEY`.
 
-   Заполните значения в `.env`. Список нужных переменных уже есть в `backend/HabitApi/.env.example`.
+Для Gmail-рассылки добавьте:
+```
+GMAIL_SENDER_EMAIL=your-app@gmail.com
+GMAIL_APP_PASSWORD=your-app-specific-password
+```
 
-3. Запустите backend и инфраструктуру через Docker Compose:
+### 3. Установите зависимости
 
-        docker compose --env-file .env -f backend/HabitApi/docker-compose.yml up -d --build
+```bash
+# Backend
+dotnet restore
 
-4. Проверьте API:
+# Frontend
+cd frontend
+npm install
+cd ..
+```
 
-        Invoke-RestMethod http://localhost:5093/health
+### 4. Запустите инфраструктуру
 
-5. Откройте Swagger:
+```bash
+docker compose --env-file .env -f backend/HabitApi/docker-compose.yml up -d db redis mailhog ollama
+```
 
-        http://localhost:5093/swagger
+### 5. Примените миграции
 
-После запуска также доступны:
+```bash
+dotnet ef database update --project backend/HabitApi/HabitApi.csproj
+```
 
-- API: `http://localhost:5093`
-- MailHog UI: `http://localhost:8025`
-- PostgreSQL: `localhost:5431`
-- Redis: `localhost:6379`
-- Ollama: `http://localhost:11434`
+### 6. Запустите backend
 
-### Локальный запуск API без контейнера
+```bash
+dotnet run --project backend/HabitApi/HabitApi.csproj
+```
 
-Если инфраструктура уже поднята в Docker, API можно запустить напрямую:
+API: `http://localhost:5093` | Swagger: `http://localhost:5093/swagger`
 
-        docker compose --env-file .env -f backend/HabitApi/docker-compose.yml up -d db redis mailhog ollama
-        dotnet ef database update
-        dotnet run --project backend/HabitApi/HabitApi.csproj
+### 7. Запустите frontend
 
-API будет доступно по адресу `http://localhost:5093`.
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend: `http://localhost:5173` | Landing Page: `http://localhost:5173/`
+
+### Или всё сразу через Docker
+
+```bash
+docker compose --env-file .env -f backend/HabitApi/docker-compose.yml up -d --build
+```
+
+### Доступные сервисы
+
+| Сервис | URL |
+|--------|-----|
+| Frontend (Landing Page) | http://localhost:5173/ |
+| Frontend (Dashboard) | http://localhost:5173/habits |
+| Backend API | http://localhost:5093 |
+| Swagger UI | http://localhost:5093/swagger |
+| Health Check | http://localhost:5093/health |
+| MailHog UI | http://localhost:8025 |
+| PostgreSQL | localhost:5431 |
+| Redis | localhost:6379 |
+| Ollama (AI) | http://localhost:11434 |
 
 ### Структура проекта
 
-    backend/
-    |-- HabitApi/
-    |   |-- Controllers/          # HTTP endpoints
-    |   |-- Data/                 # DbContext и EF Core mapping
-    |   |-- Exceptions/           # Доменные исключения
-    |   |-- Migrations/           # EF Core migrations
-    |   |-- Models/
-    |   |   |-- Domain/           # EF/Identity domain models
-    |   |   `-- DTO/              # Request/response DTO
-    |   |-- Services/             # Бизнес-логика и внешние интеграции
-    |   |   `-- Interfaces/       # Контракты сервисов
-    |   |-- Validators/           # FluentValidation validators
-    |   |-- Program.cs            # DI, middleware, auth, CORS, Swagger
-    |   |-- Dockerfile
-    |   |-- docker-compose.yml
-    |   `-- docker-compose.ci.yml
-    |-- HabitApi.Tests/
-    |   |-- Controllers/
-    |   |-- Services/
-    |   |-- Validators/
-    |   `-- Integration/
-    `-- HabitTracker.slnx
+```
+backend/
+|-- HabitApi/
+|   |-- Controllers/          # 15 контроллеров (Auth, Habits, Profile, Social, Journal...)
+|   |-- Data/                 # AppDbContext, EF Core mapping
+|   |-- Exceptions/           # Доменные исключения
+|   |-- Extensions/           # Расширения (ClaimsPrincipal и др.)
+|   |-- Features/             # MediatR CQRS queries (Streaks, Gamification)
+|   |-- Mappings/             # Mapster mapping configurations
+|   |-- Migrations/           # EF Core migrations
+|   |-- Models/
+|   |   |-- Domain/           # 20+ моделей (Habit, Streak, Achievement, Challenge...)
+|   |   `-- DTO/              # Request/response DTO
+|   |-- Services/             # 16 сервисов (Auth, Habit, Streak, Gamification, Social...)
+|   |   `-- Interfaces/       # Контракты сервисов
+|   |-- Validators/           # FluentValidation validators
+|   |-- Program.cs            # DI, middleware, auth, compression, rate limiting
+|   |-- Dockerfile
+|   |-- docker-compose.yml
+|   `-- docker-compose.ci.yml
+|-- HabitApi.Tests/
+|   |-- Controllers/
+|   |-- Services/
+|   |-- Validators/
+|   `-- Integration/
+`-- HabitTracker.slnx
+
+frontend/
+|-- src/
+|   |-- components/           # 20+ компонентов (Button, Modal, VoiceButton, MoodPicker...)
+|   |-- pages/                # 8 страниц (Landing, Login, Register, Habits, Insights...)
+|   |   |-- LandingPage/      # Landing с 9 секциями
+|   |   |-- HabitsPage/       # Dashboard привычек
+|   |   |-- PersonalInsightsPage/
+|   |   |-- CityInsightsPage/
+|   |   |-- ProfilePage/
+|   |   |-- LoginPage/
+|   |   |-- RegisterPage/
+|   |   `-- CreateHabitPage/
+|   |-- store/                # Zustand stores
+|   |-- services/             # API клиенты
+|   |-- styles/               # SCSS (_animations.scss, main.scss)
+|   |-- i18n/                 # EN/RU переводы
+|   `-- lib/                  # Утилиты
+|-- playwright.config.cjs
+`-- vite.config.js
+```
 
 ## Использование API
 
@@ -141,22 +218,45 @@ API будет доступно по адресу `http://localhost:5093`.
 
 ### Основные эндпоинты
 
-- `GET /api/profile` - получить профиль пользователя
-- `PUT /api/profile` - обновить профиль пользователя
-- `GET /api/habits` - получить привычки пользователя
-- `POST /api/habits` - создать привычку
-- `GET /api/habits/{habitId}` - получить привычку
-- `PUT /api/habits/{habitId}` - обновить привычку
-- `DELETE /api/habits/{habitId}` - мягко удалить привычку
-- `GET /api/habits/{habitId}/entries` - получить отметки за период
-- `POST /api/habits/{habitId}/entries` - добавить отметку выполнения
-- `PUT /api/habits/{habitId}/entries/{entryId}` - обновить отметку
-- `DELETE /api/habits/{habitId}/entries/{entryId}` - удалить отметку
-- `GET /api/weather?city=Samara&date=2026-05-28` - получить погоду
-- `GET /api/stats/daily-summary?date=2026-05-28` - получить ежедневную сводку
-- `GET /api/stats/city-summary?city=Samara` - получить городскую статистику
-- `POST /api/habits/{habitId}/insights/support` - получить AI-подсказку
-- `GET /health` - health check API
+**Auth & Profile:**
+- `POST /api/auth/register` - регистрация (Gmail валидация)
+- `POST /api/auth/login` - вход
+- `GET /api/profile` - профиль
+- `PUT /api/profile` - обновить профиль
+
+**Habits & Entries:**
+- `GET/POST /api/habits` - список/создание привычек
+- `GET/PUT/DELETE /api/habits/{id}` - CRUD привычки
+- `GET/POST /api/habits/{id}/entries` - отметки выполнения
+- `GET /api/schedule/today` - сегодняшние привычки по расписанию
+
+**Gamification:**
+- `GET /api/streaks` - все стрики
+- `GET /api/streaks/{habitId}` - стрик привычки
+- `GET /api/gamification` - XP, уровень, достижения
+- `GET /api/economics/wallet` - баланс HabitCoins
+
+**Social:**
+- `GET /api/social/feed?city=Samara` - лента города
+- `POST /api/social/friends/{friendId}` - запрос дружбы
+- `GET /api/social/challenges` - список вызовов
+
+**Journal & Wellness:**
+- `POST /api/journal/notes/{habitId}` - заметка
+- `POST /api/journal/mood` - лог настроения
+- `POST /api/journal/sleep` - лог сна
+- `POST /api/journal/meals` - лог еды
+- `GET/POST /api/journal/goals` - цели (OKR)
+
+**AI & Weather:**
+- `GET /api/weather?city=Samara&date=2026-06-11` - погода
+- `GET /api/stats/daily-summary` - ежедневная сводка
+- `POST /api/habits/{id}/insights/support` - AI-подсказка
+- `GET /api/quotes/daily` - цитата дня
+
+**Templates & Schedule:**
+- `GET /api/templates?category=Fitness` - шаблоны привычек
+- `PUT /api/schedule/{habitId}` - настроить расписание
 
 Полный список эндпоинтов и DTO доступен в Swagger после запуска приложения.
 
@@ -191,30 +291,63 @@ Backend готов к запуску через Docker Compose.
 
 ## Тестирование
 
-Запуск backend-тестов:
+### Backend тесты
 
-        dotnet test backend/HabitApi.Tests/HabitApi.Tests.csproj --no-restore
+```bash
+# Unit тесты (без Docker)
+dotnet test backend/HabitApi.Tests/HabitApi.Tests.csproj
 
-Если зависимости еще не восстановлены:
+# Integration тесты (требует Docker + Testcontainers)
+backend/scripts/Run-BackendIntegrationTests.ps1
+```
 
-        dotnet test backend/HabitApi.Tests/HabitApi.Tests.csproj
+### Frontend тесты
 
-Что покрыто тестами:
+```bash
+# Unit тесты (vitest)
+cd frontend && npx vitest run
 
-- контроллеры: Auth, Habits, HabitEntries, Profile, Stats, Weather, Insights
-- сервисы: auth, habits, entries, profile, stats, weather, email, AI insights
+# E2E тесты (Playwright, требует запущенный backend + frontend)
+npm run e2e-tests:ordered
+```
+
+### Что покрыто тестами
+
+- контроллеры: Auth, Habits, HabitEntries, Profile, Stats, Weather, Insights, Streaks, Gamification, Templates, Quotes, Schedule, Economics, Social, Journal
+- сервисы: auth, habits, entries, profile, stats, weather, email, AI, streak, gamification, templates, quotes, schedule, economics, social, journal
 - validators DTO
 - integration workflow для backend и PostgreSQL
 
-## Roadmap backend
+## Roadmap
 
-- Вынести production secrets из tracked config в безопасное хранилище.
-- Применить rate limiting к auth-эндпоинтам.
-- Усилить password policy и lockout.
-- Вынести HTML confirmation page из `AuthController`.
-- Разделить AI provider logic через Strategy/Adapter.
-- Уточнить production Docker profile без публикации внутренних сервисов наружу.
-- Добавить security headers для production.
+### Реализовано
+- ✅ Landing Page с 9 секциями и premium анимациями
+- ✅ Тёплая Claude.ai-inspired цветовая палитра
+- ✅ Gmail SMTP routing + валидация
+- ✅ Streak & Gamification (XP, уровни, 8 достижений)
+- ✅ 10 шаблонов привычек
+- ✅ Планировщик (daily/weekdays/custom)
+- ✅ Цветовая кастомизация привычек
+- ✅ Виртуальная валюта (HabitCoins)
+- ✅ Социальные функции (лента, друзья, вызовы)
+- ✅ Журнал (заметки, настроение, сон, питание, цели)
+- ✅ Голосовые команды (Web Speech API)
+- ✅ Meditation Timer с дыхательным гайдом
+- ✅ Soundscapes (5 звуков)
+- ✅ Offline-индикатор + Push-уведомления
+- ✅ QR code sharing
+- ✅ i18n (EN/RU)
+- ✅ Error Boundaries, Bundle Analysis, Skeleton Loading
+- ✅ Serilog, Compression, Rate Limiting, Health Checks, Output Cache
+- ✅ Mapster + MediatR CQRS
+
+### Будущее
+- Видео-рекап недели с canvas-рендерингом
+- 3D визуализация привычек (Three.js)
+- AR-режим для привычек
+- A/B тестирование
+- Multi-device синхронизация
+- Интеграция с Apple Health / Google Fit
 
 ## Как внести вклад
 

@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--app-bg-soft);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--app-text-muted);
+}
+
+.containerSuccess {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(5, 150, 105, 0.08);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--app-accent);
+}
+
+.icon {
+  font-size: 16px;
+}
+
+.enableBtn {
+  padding: 10px 20px;
+  background: var(--app-primary);
+  color: var(--app-primary-contrast);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 300ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(217, 119, 6, 0.25);
+  }
+}

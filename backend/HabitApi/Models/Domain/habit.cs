@@ -60,6 +60,10 @@ public sealed class Habit
     /// <summary>Признак активности (false — мягкое удаление).</summary>
     public bool IsActive { get; set; } = true;
 
+    /// <summary>Цвет привычки (hex).</summary>
+    [MaxLength(7)]
+    public string? Color { get; set; }
+
     // Навигационные свойства
 
     /// <summary>Владелец привычки.</summary>

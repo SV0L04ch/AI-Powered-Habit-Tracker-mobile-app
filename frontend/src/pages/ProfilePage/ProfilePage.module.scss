@@ -84,7 +84,7 @@
 
 .themeToggle .activeTheme {
   color: var(--app-primary-contrast);
-  background: linear-gradient(135deg, var(--app-primary), #2563eb, var(--app-accent));
+  background: linear-gradient(135deg, var(--app-primary), #b45309, var(--app-accent));
   box-shadow: var(--app-shadow-soft);
 }
 
@@ -94,7 +94,7 @@
 
 :global([data-theme='dark']) .themeToggle .activeTheme {
   color: #fff;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8, #42d392);
+  background: linear-gradient(135deg, #b45309, #92400e, #34d399);
 }
 
 .actions {

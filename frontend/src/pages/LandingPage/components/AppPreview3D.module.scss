@@ -1,0 +1,139 @@
+.preview {
+  padding: 100px 24px;
+  background: var(--app-bg);
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    padding: 120px 48px;
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.label {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--app-primary);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  color: var(--app-text);
+  margin: 0 0 12px;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: var(--app-text-muted);
+  margin: 0;
+}
+
+.showcase {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  perspective: 1200px;
+  flex-wrap: wrap;
+}
+
+.phoneCard {
+  position: relative;
+  flex-shrink: 0;
+  transform-style: preserve-3d;
+  transition: transform 600ms cubic-bezier(0.25, 1.2, 0.5, 1);
+
+  &:hover {
+    transform: translateY(-10px) rotateY(0deg) scale(1.05);
+    z-index: 2;
+  }
+}
+
+.phoneFrame {
+  position: relative;
+  width: 200px;
+  height: 400px;
+  background: var(--app-bg-elevated);
+  border-radius: 28px;
+  border: 2px solid var(--app-border-strong);
+  box-shadow: 0 20px 50px rgba(26, 22, 20, 0.12);
+  overflow: hidden;
+}
+
+.notch {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 20px;
+  background: var(--app-text);
+  border-radius: 0 0 12px 12px;
+  z-index: 2;
+}
+
+.screen {
+  padding: 36px 14px 14px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.screenHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+.screenIcon {
+  font-size: 18px;
+}
+
+.screenLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.mockContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.mockBar {
+  height: 12px;
+  background: var(--app-bg-soft);
+  border-radius: 6px;
+}
+
+.mockCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-top: auto;
+  opacity: 0.6;
+}
+
+.glow {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 120px;
+  pointer-events: none;
+  z-index: -1;
+}

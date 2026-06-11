@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   test: {
@@ -8,6 +9,12 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    visualizer({
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+      filename: 'dist/bundle-analysis.html',
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
@@ -16,8 +23,8 @@ export default defineConfig({
         name: 'AI-Powered Habit Tracker',
         short_name: 'Habit Tracker',
         description: 'Mobile-first tracker with AI summaries, weather and city insights.',
-        theme_color: '#f8fafc',
-        background_color: '#f8fafc',
+        theme_color: '#faf8f5',
+        background_color: '#faf8f5',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
