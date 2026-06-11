@@ -151,16 +151,136 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRo
     private static void SeedTemplates(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<HabitTemplate>().HasData(
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111101"), Name = "Morning Meditation", Description = "10 minutes of mindfulness meditation", Category = "Mindfulness", Icon = "🧘", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111102"), Name = "Read 30 Minutes", Description = "Read a book for 30 minutes daily", Category = "Learning", Icon = "📚", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111103"), Name = "Drink 8 Glasses Water", Description = "Stay hydrated throughout the day", Category = "Health", Icon = "💧", IsPositive = true, TriggerType = 2, TriggerValue = 8, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111104"), Name = "Workout", Description = "30 minutes of exercise", Category = "Fitness", Icon = "💪", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111105"), Name = "Gratitude Journal", Description = "Write 3 things you are grateful for", Category = "Mindfulness", Icon = "📝", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111106"), Name = "No Social Media", Description = "Avoid social media for the day", Category = "Productivity", Icon = "📵", IsPositive = false, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111107"), Name = "Sleep 8 Hours", Description = "Get a full night of quality sleep", Category = "Health", Icon = "😴", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111108"), Name = "Learn Coding", Description = "30 minutes of coding practice", Category = "Learning", Icon = "💻", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111109"), Name = "No Sugar", Description = "Avoid added sugar for the day", Category = "Health", Icon = "🚫", IsPositive = false, TriggerType = 1, TriggerValue = 1, TargetDays = 30 },
-            new HabitTemplate { Id = Guid.Parse("11111111-1111-1111-1111-111111111110"), Name = "Deep Breathing", Description = "5 minutes of deep breathing exercises", Category = "Mindfulness", Icon = "🌬️", IsPositive = true, TriggerType = 1, TriggerValue = 1, TargetDays = 30 }
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111101"),
+                Name = "Morning Meditation",
+                Description = "10 minutes of mindfulness meditation",
+                Category = "Mindfulness",
+                Icon = "🧘",
+                IsPositive = true,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(1749)  // ← добавить
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111102"),
+                Name = "Read 30 Minutes",
+                Description = "Read a book for 30 minutes daily",
+                Category = "Learning",
+                Icon = "📚",
+                IsPositive = true,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5291)
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111103"),
+                Name = "Drink 8 Glasses Water",
+                Description = "Stay hydrated throughout the day",
+                Category = "Health",
+                Icon = "💧",
+                IsPositive = true,
+                TriggerType = 2,
+                TriggerValue = 8,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5309)
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111104"),
+                Name = "Workout",
+                Description = "30 minutes of exercise",
+                Category = "Fitness",
+                Icon = "💪",
+                IsPositive = true,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5314)
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111105"),
+                Name = "Gratitude Journal",
+                Description = "Write 3 things you are grateful for",
+                Category = "Mindfulness",
+                Icon = "📝",
+                IsPositive = true,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5316)
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111106"),
+                Name = "No Social Media",
+                Description = "Avoid social media for the day",
+                Category = "Productivity",
+                Icon = "📵",
+                IsPositive = false,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5317)
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111107"),
+                Name = "Sleep 8 Hours",
+                Description = "Get a full night of quality sleep",
+                Category = "Health",
+                Icon = "😴",
+                IsPositive = true,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5320)
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111108"),
+                Name = "Learn Coding",
+                Description = "30 minutes of coding practice",
+                Category = "Learning",
+                Icon = "💻",
+                IsPositive = true,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5322)
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111109"),
+                Name = "No Sugar",
+                Description = "Avoid added sugar for the day",
+                Category = "Health",
+                Icon = "🚫",
+                IsPositive = false,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5324)
+            },
+            new HabitTemplate
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111110"),
+                Name = "Deep Breathing",
+                Description = "5 minutes of deep breathing exercises",
+                Category = "Mindfulness",
+                Icon = "🌬️",
+                IsPositive = true,
+                TriggerType = 1,
+                TriggerValue = 1,
+                TargetDays = 30,
+                CreatedAt = new DateTime(2026, 6, 11, 20, 9, 12, 116, DateTimeKind.Utc).AddTicks(5326)
+            }
         );
     }
 

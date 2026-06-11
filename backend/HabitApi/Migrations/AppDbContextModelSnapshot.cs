@@ -56,7 +56,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("UserId", "Type")
                         .IsUnique();
 
-                    b.ToTable("Achievements");
+                    b.ToTable("Achievements", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.ApplicationUser", b =>
@@ -179,7 +179,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Challenges");
+                    b.ToTable("Challenges", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Friendship", b =>
@@ -203,7 +203,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Friendships");
+                    b.ToTable("Friendships", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Goal", b =>
@@ -236,7 +236,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Goals");
+                    b.ToTable("Goals", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Habit", b =>
@@ -296,7 +296,7 @@ namespace HabitApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Habits");
+                    b.ToTable("Habits", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitEntry", b =>
@@ -332,7 +332,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("HabitId", "Date")
                         .IsUnique();
 
-                    b.ToTable("HabitEntries");
+                    b.ToTable("HabitEntries", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitLocation", b =>
@@ -361,7 +361,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HabitLocations");
+                    b.ToTable("HabitLocations", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitNote", b =>
@@ -391,7 +391,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HabitNotes");
+                    b.ToTable("HabitNotes", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitPhoto", b =>
@@ -418,7 +418,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HabitPhotos");
+                    b.ToTable("HabitPhotos", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitSchedule", b =>
@@ -457,7 +457,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("HabitId")
                         .IsUnique();
 
-                    b.ToTable("HabitSchedules");
+                    b.ToTable("HabitSchedules", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.HabitTemplate", b =>
@@ -513,7 +513,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HabitTemplates");
+                    b.ToTable("HabitTemplates", (string)null);
 
                     b.HasData(
                         new
@@ -716,7 +716,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MealEntries");
+                    b.ToTable("MealEntries", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.MoodEntry", b =>
@@ -742,7 +742,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MoodEntries");
+                    b.ToTable("MoodEntries", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Quote", b =>
@@ -771,7 +771,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Quotes");
+                    b.ToTable("Quotes", (string)null);
 
                     b.HasData(
                         new
@@ -882,7 +882,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SleepEntries");
+                    b.ToTable("SleepEntries", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.SocialFeed", b =>
@@ -907,7 +907,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SocialFeed");
+                    b.ToTable("SocialFeed", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Streak", b =>
@@ -942,7 +942,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("UserId", "HabitId")
                         .IsUnique();
 
-                    b.ToTable("Streaks");
+                    b.ToTable("Streaks", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Transaction", b =>
@@ -974,7 +974,7 @@ namespace HabitApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.UserLevel", b =>
@@ -1003,7 +1003,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserLevels");
+                    b.ToTable("UserLevels", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Wallet", b =>
@@ -1029,7 +1029,7 @@ namespace HabitApi.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Wallets");
+                    b.ToTable("Wallets", (string)null);
                 });
 
             modelBuilder.Entity("HabitApi.Models.Domain.Webhook", b =>
@@ -1060,7 +1060,7 @@ namespace HabitApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Webhooks");
+                    b.ToTable("Webhooks", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
